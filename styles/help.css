@@ -47,7 +47,7 @@ html {
     flex-grow: 1;
     box-sizing: border-box;
     width: 100%;
-    padding: 100px 0 20px 0;
+    padding: 20px 0 20px 0;
     overflow: auto;
     scrollbar-width: none;
     -ms-overflow-style: none;
