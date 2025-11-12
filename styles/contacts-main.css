@@ -39,6 +39,16 @@ html {
     align-items: center;
     flex-direction: column;
     overflow-x: hidden;
+
+    &::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: var(--dark);
+        border-radius: 4px;
+    }
 }
 
 /*

@@ -4,7 +4,7 @@
  */
 export async function getFirebaseData() {
   const URL_FIREBASE_JOIN =
-    "https://join-474-default-rtdb.europe-west1.firebasedatabase.app/.json";
+    "https://join-46697-default-rtdb.europe-west1.firebasedatabase.app/.json";
   try {
     const RESPONSE_FIREBASE = await fetch(URL_FIREBASE_JOIN);
     if (!RESPONSE_FIREBASE.ok) {

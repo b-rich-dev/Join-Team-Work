@@ -28,12 +28,13 @@ body {
 }
 
 .board-wrapper.frame-191 {
-  padding-top: 6.5rem;
+  padding-top: 20px;
   background-color: transparent;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
   flex-grow: 1;
+  height: calc(100vh - 96px);
 }
 
 .frame-192.board-top-section {
@@ -236,21 +237,28 @@ body {
 }
 
 #board-content-wrapper {
-  height: calc(80vh - 150px);
+  height: 100%;
   width: 100%;
   overflow-y: auto;
   overflow-x: hidden;
   display: flex;
   justify-content: space-between;
-  gap: 5px;
-  padding: 30px 64px;
+  gap: 4px;
+  padding: 0 48px;
   box-sizing: border-box;
   flex-wrap: nowrap;
   flex-grow: 1;
   align-items: flex-start;
-  max-width: 1440px;
-  scrollbar-width: thin;
-  scrollbar-color: var(--lightBlue) var(--dark);
+
+  &::-webkit-scrollbar {
+        width: 8px;
+        height: 4px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: var(--dark);
+        border-radius: 4px;
+    }
 }
 
 

@@ -1,4 +1,4 @@
-https://join-474-default-rtdb.europe-west1.firebasedatabase.app/
+https://join-46697-default-rtdb.europe-west1.firebasedatabase.app/
 
 Index.html: abgeschlossen
     fetcht "users" aus Firebase,

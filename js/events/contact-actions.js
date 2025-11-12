@@ -34,7 +34,7 @@ async function saveFirebaseData({ path, data }) {
  * @returns {string} Fully qualified Firebase URL.
  */
 function buildFirebaseUrl(path) {
-    return `https://join-474-default-rtdb.europe-west1.firebasedatabase.app/${path}.json`;
+    return `https://join-46697-default-rtdb.europe-west1.firebasedatabase.app/${path}.json`;
 }
 
 /**

@@ -46,7 +46,7 @@
  * encodeURIComponent : ensures correct unicode-encoding of string; %22 means "; mandatory for Firebase.
  */
 async function getFirebaseData(category, queryString='') {
-  let baseUrl = `https://join-474-default-rtdb.europe-west1.firebasedatabase.app/${category}.json`;
+  let baseUrl = `https://join-46697-default-rtdb.europe-west1.firebasedatabase.app/${category}.json`;
   let url = baseUrl + queryString;
   try {
     const response = await fetch(url);
@@ -299,7 +299,7 @@ function updateLocalData(localObject) {
  * @param {object} data - object containing all taks details.
  */
 async function saveToFirebase(path, data) {
-  const url = `https://join-474-default-rtdb.europe-west1.firebasedatabase.app/${path}.json`;
+  const url = `https://join-46697-default-rtdb.europe-west1.firebasedatabase.app/${path}.json`;
   try {
     const response = await fetch(url, {
       method: data === null ? "DELETE" : "PUT",

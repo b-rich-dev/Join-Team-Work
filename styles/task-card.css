@@ -260,7 +260,7 @@
   animation: tiltRight 0.3s forwards ease-in;
 }
 .task-column {
-  min-height: 50vh;
+  /* min-height: 50vh; */
 }
 .task-column.drag-over {
   border: 3px dashed var(--darkBlue);

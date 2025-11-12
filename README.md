@@ -1,10 +1,10 @@
-# join-474 – Kanban Web App
+# Join-Team-Work – Kanban Web App
 
-Welcome to **join-474**, a modern web-based Kanban app for efficient task management and team collaboration.
+Welcome to **Join-Team-Work**, a modern web-based Kanban app for efficient task management and team collaboration.
 
 ## 🔍 Project Overview
 
-**join-474** is a task-oriented project management application inspired by the Kanban principle. Users can create tasks, move them between status columns (e.g., "To Do", "In Progress", "Done"), and collaborate with team members. The project was developed as a group exercise and is designed to be user-friendly, responsive, and functional on both desktop and mobile devices.
+**Join-Team-Work** is a task-oriented project management application inspired by the Kanban principle. Users can create tasks, move them between status columns (e.g., "To Do", "In Progress", "Done"), and collaborate with team members. The project was developed as a group exercise and is designed to be user-friendly, responsive, and functional on both desktop and mobile devices.
 
 ## 💡 Features
 
@@ -28,8 +28,8 @@ Welcome to **join-474**, a modern web-based Kanban app for efficient task manage
 ### 1. Clone the project
 
 ```bash
-git clone https://github.com/<your-username>/join-474.git
-cd join-474
+git clone https://github.com/<your-username>/Join-Team-Work.git
+cd Join-Team-Work
 ```
 
 ### 2. Open in your browser
@@ -65,4 +65,4 @@ This project was developed as part of a group exercise at Developer Akademie Gmb
 
 ## 📬 Contact
 
-For questions or feedback, contact the team at [team@join-project.dev](mailto:team@join-project.dev).
+For questions or feedback, contact the team at [info@birich.it](mailto:info@birich.it).
