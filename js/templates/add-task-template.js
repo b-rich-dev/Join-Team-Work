@@ -393,7 +393,6 @@ export function renderAttachmentSection(task) {
             <div id="attachment-list" class="attachment-list">
                 ${task?.attachments ? task.attachments.map(att => `<div class="attachment-item">${att}</div>`).join("") : ""}
             </div>
-            <div class="attachment-error-message"></div>
         </div>
     `;
 }
