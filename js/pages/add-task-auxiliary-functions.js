@@ -66,9 +66,7 @@ export function initInputFieldListeners() {
  * It listens for input events and calls the handleInput function to validate the title.
  */
 function initTitleInputListener() {
-    document
-        .getElementById("title")
-        ?.addEventListener("input", (event) => handleInput(event.target));
+    document.getElementById("title")?.addEventListener("input", (event) => handleInput(event.target));
 }
 
 /** * Initializes the date picker input field listeners.
@@ -276,6 +274,40 @@ export async function showTaskSuccessMsg() {
 
     msg.classList.add("hidden");
 }
+
+export async function showWrongFormatErrorMsg() {
+    const msg = document.getElementById("wrongFormatErrorMsg");
+    if (!msg) return;
+
+    msg.classList.remove("hidden", "slide-out");
+    msg.classList.add("slide-in");
+    await new Promise((resolve) => setTimeout(resolve, 300));
+
+    hideWrongFormatErrorMsg(3600);
+}
+
+export async function hideWrongFormatErrorMsg(closeDuration) {
+    const msg = document.getElementById("wrongFormatErrorMsg");
+    if (!msg) return;
+    msg.classList.remove("slide-in");
+    msg.classList.add("slide-out");
+
+    await new Promise((resolve) => setTimeout(resolve, closeDuration));
+
+    msg.classList.add("hidden");
+}
+
+addEventListener("click", (event) => {
+    const errorMsgClose = document.getElementById("error-msg-close");
+    if (!errorMsgClose) return;
+    if (errorMsgClose) {
+        errorMsgClose.addEventListener("click", () => {
+            hideWrongFormatErrorMsg(100);
+            console.log("clse done");
+        });
+    }
+});
+
 
 /** * Handles the visibility of the sign info message based on the screen size.
  * If the screen width is less than or equal to 768px, it shows the mobile version of the sign info.

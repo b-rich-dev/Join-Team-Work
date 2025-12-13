@@ -2,6 +2,7 @@
   text-decoration: line-through;
   color: #888;
 }
+
 .content-container {
   display: flex;
   width: 100%;
@@ -79,7 +80,7 @@
 }
 
 .border {
-  height: 424px;
+  height: 100%;
   width: 0;
   border: 1px solid var(--borderGrey);
   border-radius: 8px;
@@ -413,4 +414,55 @@
   height: 96px;
   width: 100%;
   background-color: var(--lightGrey);
+}
+
+#wrongFormatErrorMsg {
+  position: fixed;
+  gap: 4px;
+  bottom: -100px;
+  left: calc(50% + 116px);
+  transform: translateX(-50%);
+  background-color: var(--errorMsg);
+  color: var(--white);
+  font-size: 20px;
+  font-weight: 400;
+  border-radius: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  z-index: 9999;
+  width: 360px;
+  height: 74px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 16px;
+  opacity: 0;
+  transition: bottom 0.4s ease, opacity 0.4s ease;
+
+  svg {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    cursor: pointer;
+  }
+
+  p {
+    margin: 0;
+    padding: 0;
+    font-size: 16px;
+    font-weight: 400;
+  }
+}
+
+#wrongFormatErrorMsg.slide-out {
+  bottom: 50%;
+  opacity: 1;
+}
+
+#taskSuccessMsg.slide-in {
+  bottom: -100px;
+  opacity: 0;
+}
+
+#taskSuccessMsg.hidden {
+  display: none;
 }

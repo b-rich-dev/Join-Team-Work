@@ -292,3 +292,66 @@
     border-color: var(--lightBlue);
     outline: none;
 }
+
+.attachment-info-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 16px;
+    color: #848484;
+    min-height: 24px;
+}
+
+.delete-all-attachments {
+    display: none;
+    /* display: flex; */
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    color: var(--black);
+
+    &:hover {
+        text-decoration: underline;
+    }
+
+    p{
+        margin: 0;
+    }
+}
+
+.attachment-input-field {
+  height: 48px;
+  width: 100%;
+  padding: 0 21px;
+  border: 1px dotted var(--borderGrey);
+  border-radius: 10px;
+  font-size: 16px;
+  cursor: pointer;
+  background-color: var(--backgroundGrey);
+  justify-content: center;
+
+  &::placeholder {
+    color: var(--borderGrey);
+  }
+
+  &:focus {
+    border-color: var(--lightBlue);
+    outline: none;
+  }
+
+  &:focus.invalid {
+    border-color: var(--redBorder);
+  }
+}
+
+.input-field-attachment{
+    display: none;
+}
+
+.attachment-icon-container{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    color: var(--sidebarNoticeGrey);
+}

@@ -4,7 +4,7 @@ import { currentPriority, setMedium } from "../events/priorety-handler.js";
 import { selectedCategory, selectedContacts, clearAssignedTo, clearCategory, } from "../events/dropdown-menu.js";
 import { clearInvalidFields, initDropdowns, } from "../events/dropdown-menu-auxiliary-function.js";
 import { CWDATA } from "../data/task-to-firbase.js";
-import { initAddTaskForm, picker, showTaskSuccessMsg } from "../pages/add-task-auxiliary-functions.js";
+import { initAddTaskForm, picker, showTaskSuccessMsg, showWrongFormatErrorMsg } from "../pages/add-task-auxiliary-functions.js";
 
 let isResizing = false;
 let startY, startHeight, currentTextarea;
@@ -122,6 +122,7 @@ function checkRequiredFields() {
   if (!checkCategory()) isValid = false;
   if (!checkAssignedTo()) isValid = false;
   if (!checkCategorySpan()) isValid = false;
+  if (!checkAttachmentFormat()) isValid = false;
 
   return isValid;
 }
@@ -194,6 +195,20 @@ function checkCategorySpan() {
   }
   return true;
 }
+
+function checkAttachmentFormat() {
+  const list = document.getElementById("attachment-list");
+  if (list.length === 0) return true;
+  if (list.length > 0) {
+    if (!validTypes.includes(file.type)) {
+      showWrongFormatErrorMsg();
+      return false;
+    }
+  }
+  return true;
+}
+
+
 
 /** * Displays an error message for the specified input and error elements.
  * @param {HTMLInputElement} input - The input element to show the error for.
