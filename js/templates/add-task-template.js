@@ -204,7 +204,7 @@ export function renderCategorySection(task) {
         <div class="label-container">
             <div for="dropdown-category" class="required font-size-20">Category</div>
             <input type="hidden" id="hidden-category-input" value="${task?.category || ""}" />
-            <div tabindex="0" class="select-wrapper input-field z-index-20" id="dropdown-category" name="category" data-event-handle="true">
+            <div tabindex="0" class="select-wrapper input-field z-index-33" id="dropdown-category" name="category" data-event-handle="true">
                 <div class="selected-option"
                     id="selected-category">${task?.category ? task.category : "Select task category"}</div>
                 <div class="dropdown-icon-container" id="dropdown-icon-container-two">

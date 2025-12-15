@@ -364,7 +364,9 @@
   var REGEXP_SPACES = /\s\s*/;
 
   // Misc
-  var BUTTONS = ['zoom-in', 'zoom-out', 'one-to-one', 'reset', 'prev', 'play', 'next', 'rotate-left', 'rotate-right', 'flip-horizontal', 'flip-vertical'];
+  var DOWNLOAD_ICON = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: block; margin-top: 4px; margin-left: 5px;"><path d="M10.8555 12.1501V6.1001C9.5888 6.33343 8.60547 6.94593 7.90547 7.9376C7.20547 8.92926 6.85547 9.9501 6.85547 11.0001H6.35547C5.3888 11.0001 4.5638 11.3418 3.88047 12.0251C3.19714 12.7084 2.85547 13.5334 2.85547 14.5001C2.85547 15.4668 3.19714 16.2918 3.88047 16.9751C4.5638 17.6584 5.3888 18.0001 6.35547 18.0001H18.3555C19.0555 18.0001 19.6471 17.7584 20.1305 17.2751C20.6138 16.7918 20.8555 16.2001 20.8555 15.5001C20.8555 14.8001 20.6138 14.2084 20.1305 13.7251C19.6471 13.2418 19.0555 13.0001 18.3555 13.0001H16.8555V11.0001C16.8555 10.2001 16.6721 9.45426 16.3055 8.7626C15.9388 8.07093 15.4555 7.48343 14.8555 7.0001V4.6751C16.0888 5.25843 17.0638 6.12093 17.7805 7.2626C18.4971 8.40426 18.8555 9.6501 18.8555 11.0001C20.0055 11.1334 20.9596 11.6293 21.718 12.4876C22.4763 13.3459 22.8555 14.3501 22.8555 15.5001C22.8555 16.7501 22.418 17.8126 21.543 18.6876C20.668 19.5626 19.6055 20.0001 18.3555 20.0001H6.35547C4.8388 20.0001 3.54297 19.4751 2.46797 18.4251C1.39297 17.3751 0.855469 16.0918 0.855469 14.5751C0.855469 13.2751 1.24714 12.1168 2.03047 11.1001C2.8138 10.0834 3.8388 9.43343 5.10547 9.1501C5.3888 7.9501 6.09714 6.80843 7.23047 5.7251C8.3638 4.64176 9.57214 4.1001 10.8555 4.1001C11.4055 4.1001 11.8763 4.29593 12.268 4.6876C12.6596 5.07926 12.8555 5.5501 12.8555 6.1001V12.1501L13.7555 11.2751C13.9388 11.0918 14.168 11.0001 14.443 11.0001C14.718 11.0001 14.9555 11.1001 15.1555 11.3001C15.3388 11.4834 15.4305 11.7168 15.4305 12.0001C15.4305 12.2834 15.3388 12.5168 15.1555 12.7001L12.5555 15.3001C12.3555 15.5001 12.1221 15.6001 11.8555 15.6001C11.5888 15.6001 11.3555 15.5001 11.1555 15.3001L8.55547 12.7001C8.37214 12.5168 8.2763 12.2876 8.26797 12.0126C8.25964 11.7376 8.35547 11.5001 8.55547 11.3001C8.7388 11.1168 8.96797 11.0209 9.24297 11.0126C9.51797 11.0043 9.75547 11.0918 9.95547 11.2751L10.8555 12.1501Z" fill="white"/></svg>';
+  var DELETE_ICON = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: block; margin-top: 4px; margin-left: 5px;"><path d="M7 21C6.45 21 5.97917 20.8042 5.5875 20.4125C5.19583 20.0208 5 19.55 5 19V6C4.71667 6 4.47917 5.90417 4.2875 5.7125C4.09583 5.52083 4 5.28333 4 5C4 4.71667 4.09583 4.47917 4.2875 4.2875C4.47917 4.09583 4.71667 4 5 4H9C9 3.71667 9.09583 3.47917 9.2875 3.2875C9.47917 3.09583 9.71667 3 10 3H14C14.2833 3 14.5208 3.09583 14.7125 3.2875C14.9042 3.47917 15 3.71667 15 4H19C19.2833 4 19.5208 4.09583 19.7125 4.2875C19.9042 4.47917 20 4.71667 20 5C20 5.28333 19.9042 5.52083 19.7125 5.7125C19.5208 5.90417 19.2833 6 19 6V19C19 19.55 18.8042 20.0208 18.4125 20.4125C18.0208 20.8042 17.55 21 17 21H7ZM7 6V19H17V6H7ZM9 16C9 16.2833 9.09583 16.5208 9.2875 16.7125C9.47917 16.9042 9.71667 17 10 17C10.2833 17 10.5208 16.9042 10.7125 16.7125C10.9042 16.5208 11 16.2833 11 16V9C11 8.71667 10.9042 8.47917 10.7125 8.2875C10.5208 8.09583 10.2833 8 10 8C9.71667 8 9.47917 8.09583 9.2875 8.2875C9.09583 8.47917 9 8.71667 9 9V16ZM13 16C13 16.2833 13.0958 16.5208 13.2875 16.7125C13.4792 16.9042 13.7167 17 14 17C14.2833 17 14.5208 16.9042 14.7125 16.7125C14.9042 16.5208 15 16.2833 15 16V9C15 8.71667 14.9042 8.47917 14.7125 8.2875C14.5208 8.09583 14.2833 8 14 8C13.7167 8 13.4792 8.09583 13.2875 8.2875C13.0958 8.47917 13 8.71667 13 9V16Z" fill="white"/></svg>';
+  var BUTTONS = ['download', 'zoom-in', 'zoom-out', 'one-to-one', 'reset', 'prev', 'play', 'next', 'rotate-left', 'rotate-right', 'flip-horizontal', 'flip-vertical', 'delete'];
 
   /**
    * Check if the given value is a string.
@@ -1240,6 +1242,16 @@
         imageData = this.imageData;
       var target = event.target;
       var action = getData(target, DATA_ACTION);
+
+      // Fix for SVG icons: traverse up to find the action
+      if (!action) {
+        var item = target.closest ? target.closest('li') : null;
+        if (item) {
+          target = item;
+          action = getData(target, DATA_ACTION);
+        }
+      }
+
       if (!action && target.localName === 'img' && target.parentElement.localName === 'li') {
         target = target.parentElement;
         action = getData(target, DATA_ACTION);
@@ -1303,6 +1315,20 @@
           break;
         case 'flip-vertical':
           this.scaleY(-imageData.scaleY || -1);
+          break;
+        case 'download':
+          var src = this.images[this.index].src;
+          var a = document.createElement('a');
+          a.href = src;
+          a.download = this.images[this.index].alt || 'image';
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          break;
+        case 'delete':
+          if (isFunction(options.delete)) {
+            options.delete.call(this, this.index);
+          }
           break;
         default:
           if (this.played) {
@@ -3103,9 +3129,9 @@
         if (options.toolbar) {
           var list = document.createElement('ul');
           var custom = isPlainObject(options.toolbar);
-          var zoomButtons = BUTTONS.slice(0, 3);
-          var rotateButtons = BUTTONS.slice(7, 9);
-          var scaleButtons = BUTTONS.slice(9);
+          var zoomButtons = ['zoom-in', 'zoom-out', 'one-to-one'];
+          var rotateButtons = ['rotate-left', 'rotate-right'];
+          var scaleButtons = ['flip-horizontal', 'flip-vertical'];
           if (!custom) {
             addClass(toolbar, getResponsiveClass(options.toolbar));
           }
@@ -3124,6 +3150,11 @@
             }
             item.setAttribute('role', 'button');
             addClass(item, "".concat(NAMESPACE, "-").concat(name));
+            if (name === 'download') {
+              item.innerHTML = DOWNLOAD_ICON;
+            } else if (name === 'delete') {
+              item.innerHTML = DELETE_ICON;
+            }
             if (!isFunction(click)) {
               setData(item, DATA_ACTION, name);
             }

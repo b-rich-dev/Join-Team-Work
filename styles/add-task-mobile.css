@@ -1,17 +1,11 @@
 @media (min-width: 1921px) {
     .content {
-        padding: 54px 0 0 54px;
+        padding: 48px 0 0 48px;
     }
 
     .size-wrapper {
-        padding: 0 54px 54px 0;
-        max-width: 1634px;
-    }
-
-    .form-buttons-part {
-        position: relative;
-        top: 120px;
-        left: 0;
+        padding: 0 48px 48px 0;
+        max-width: 1640px;
     }
 }
 
@@ -32,14 +26,6 @@
     .options-wrapper.open-assigned-to #assigned-to-options-container {
         font-size: 16px;
     }
-
-    #assigned-to-options-container {
-        font-size: 16px !important;
-    }
-
-    .contact-option {
-        padding: 7px 8px;
-    }
 }
 
 @media (max-width: 1120px) {
@@ -57,7 +43,8 @@
     }
 
     .content {
-        padding: 0 40px 0 40px;
+        padding: 14px 40px 0 40px;
+        scrollbar-width: none;
     }
 
     .priority-btn {
@@ -107,6 +94,10 @@
 
     .priority-button-container {
         padding-top: 0;
+    }
+
+    .options-wrapper.open {
+        z-index: 32 !important;
     }
 
     .priority-btn {
