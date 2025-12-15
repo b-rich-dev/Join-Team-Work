@@ -314,11 +314,20 @@ function renderFilteredContacts(container, filteredContacts) {
 function displaySelectedContacts() {
   const assignedToArea = document.getElementById("assigned-to-area");
   const assignedToAreaFull = document.getElementById("assigned-to-area-full");
+  const assignedToWrapper = document.getElementById("assigned-to-options-wrapper");
   if (!assignedToArea) return;
 
   clearAndRender(assignedToArea, selectedContacts.slice(0, 3), true);
   if (assignedToAreaFull) {
     clearAndRender(assignedToAreaFull, selectedContacts, false);
+  }
+
+  if (assignedToWrapper) {
+    if (selectedContacts.length > 0) {
+      assignedToWrapper.classList.add("has-selected-contacts");
+    } else {
+      assignedToWrapper.classList.remove("has-selected-contacts");
+    }
   }
 }
 

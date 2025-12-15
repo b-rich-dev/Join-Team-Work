@@ -186,7 +186,7 @@ export function renderAssignedToSection(task) {
                     <img src="../assets/icons/btn/arrow_drop_down.svg" alt="Dropdown Arrow" class="dropdown-icon" id="dropdown-icon-one" />
                 </div>
             </div>
-            <div class="options-wrapper" id="assigned-to-options-wrapper">
+            <div class="options-wrapper-assigned-to" id="assigned-to-options-wrapper">
                 <div class="assigned-to-options-container" id="assigned-to-options-container"></div>
             </div>
             <div id="assigned-to-area" class="initials-container" style=" border:none"></div>
