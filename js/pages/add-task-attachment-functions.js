@@ -35,6 +35,7 @@ addEventListener("change", async () => {
 function save() {
     let arrayAsString = JSON.stringify(allImages);
     localStorage.setItem("images", arrayAsString);
+    console.log("save", arrayAsString);
 }
 
 function load() {
@@ -56,28 +57,65 @@ function load() {
 function render() {
     const gallery = document.getElementById('attachment-list');
     const deleteAllBtn = document.getElementById('delete-all-attachments');
+    const labelContainer = gallery.closest('.label-container');
     let myGallery;
 
     gallery.innerHTML = "";
+    
+    // Entferne altes Tooltip falls vorhanden
+    const oldTooltip = labelContainer?.querySelector('.attachment-tooltip');
+    if (oldTooltip) {
+        oldTooltip.remove();
+    }
     
     // Zerstöre existierende Viewer-Instanz falls vorhanden
     if (myGallery) {
         myGallery.destroy();
     }
     
+    // Erstelle Tooltip-Element
+    const tooltip = document.createElement('div');
+    tooltip.classList.add('attachment-tooltip');
+    if (labelContainer) {
+        labelContainer.appendChild(tooltip);
+    }
+    
     // Erstelle alle Bilder
-    allImages.forEach(image => {
+    allImages.forEach((image, index) => {
         const imageElement = document.createElement('div');
         const description = document.createElement('p');
+        const deletebtn = document.createElement('div');
+        const deleteIcon = document.createElement('img');
+        deleteIcon.src = "../assets/icons/btn/delete-white.svg";
+        deleteIcon.alt = "Delete Icon";
+        deletebtn.appendChild(deleteIcon);
+        deletebtn.classList.add('delete-attachment-btn');
         description.textContent = image.name;
         description.classList.add('attachment-description');
         imageElement.classList.add('attachment-item');
         imageElement.setAttribute('data-tooltip', image.name);
+        imageElement.setAttribute('data-index', index);
         const img = document.createElement('img');
         img.src = image.base64;
         img.alt = image.name;
         imageElement.appendChild(img);
         imageElement.appendChild(description);
+        imageElement.appendChild(deletebtn);
+        
+        // Tooltip Event Listeners
+        imageElement.addEventListener('mouseenter', (e) => {
+            tooltip.textContent = image.name;
+            tooltip.style.bottom = '-14px';
+            tooltip.style.right = '0px';
+            tooltip.style.top = 'auto';
+            tooltip.style.left = 'auto';
+            tooltip.style.opacity = '1';
+        });
+        
+        imageElement.addEventListener('mouseleave', () => {
+            tooltip.style.opacity = '0';
+        });
+        
         gallery.appendChild(imageElement);
     });
     
