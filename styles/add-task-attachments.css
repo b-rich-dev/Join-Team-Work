@@ -60,14 +60,17 @@
 
 .delete-all-attachments {
     display: none;
-    /* display: flex; */
     align-items: center;
-    gap: 8px;
+    gap: 4px;
     cursor: pointer;
     color: var(--black);
 
     &:hover {
-        text-decoration: underline;
+        color: var(--lightBlue);
+
+        svg path {
+            fill: var(--lightBlue);
+        }
     }
 
     p {

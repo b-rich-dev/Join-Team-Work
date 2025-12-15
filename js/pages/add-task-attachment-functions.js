@@ -8,9 +8,9 @@ addEventListener("change", async () => {
     if (files.length > 0) {
         // Lade existierende Bilder falls vorhanden
         load();
-        
+
         for (const file of files) {
-            if (!file.type.startsWith('image/jpeg') && !file.type.startsWith('image/png') ) {
+            if (!file.type.startsWith('image/jpeg') && !file.type.startsWith('image/png')) {
                 hideWrongFormatErrorMsg(3600);
                 continue;
             }
@@ -26,7 +26,7 @@ addEventListener("change", async () => {
                 base64: compressedBase64
             });
         }
-        
+
         save();
         render();
     }
@@ -61,25 +61,25 @@ function render() {
     let myGallery;
 
     gallery.innerHTML = "";
-    
+
     // Entferne altes Tooltip falls vorhanden
     const oldTooltip = labelContainer?.querySelector('.attachment-tooltip');
     if (oldTooltip) {
         oldTooltip.remove();
     }
-    
+
     // Zerstöre existierende Viewer-Instanz falls vorhanden
     if (myGallery) {
         myGallery.destroy();
     }
-    
+
     // Erstelle Tooltip-Element
     const tooltip = document.createElement('div');
     tooltip.classList.add('attachment-tooltip');
     if (labelContainer) {
         labelContainer.appendChild(tooltip);
     }
-    
+
     // Erstelle alle Bilder
     allImages.forEach((image, index) => {
         const imageElement = document.createElement('div');
@@ -101,7 +101,7 @@ function render() {
         imageElement.appendChild(img);
         imageElement.appendChild(description);
         imageElement.appendChild(deletebtn);
-        
+
         // Tooltip Event Listeners
         imageElement.addEventListener('mouseenter', (e) => {
             tooltip.textContent = image.name;
@@ -111,14 +111,20 @@ function render() {
             tooltip.style.left = 'auto';
             tooltip.style.opacity = '1';
         });
-        
+
         imageElement.addEventListener('mouseleave', () => {
             tooltip.style.opacity = '0';
         });
-        
+
+        // Delete Button Event Listener
+        deletebtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            deleteAttachment(index);
+        });
+
         gallery.appendChild(imageElement);
     });
-    
+
     // Initialisiere Viewer nur einmal für die ganze Galerie
     if (allImages.length > 0) {
         deleteAllBtn.style.display = 'flex';
@@ -202,3 +208,23 @@ function compressImage(file, maxWidth = 800, maxHeight = 800, quality = 0.8) {
         reader.readAsDataURL(file);
     });
 }
+
+function deleteAllAttachments() {
+    allImages = [];
+    save();
+    render();
+}
+
+function deleteAttachment(index) {
+    allImages.splice(index, 1);
+    save();
+    render();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const deleteAllBtn = document.getElementById('delete-all-attachments');
+    const attachmentImg = document.querySelectorAll('.attachment-item img');
+    if (deleteAllBtn) {
+        deleteAllBtn.addEventListener('click', deleteAllAttachments);
+    }
+});
