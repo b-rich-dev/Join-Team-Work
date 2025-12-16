@@ -108,6 +108,7 @@ export function clearForm() {
   clearSubtasksList();
   clearAssignedTo();
   clearInvalidFields();
+  clearAttachments();
 
   renderSubtasks();
 }

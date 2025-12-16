@@ -1,5 +1,13 @@
 .content {
-    padding: 0;
+    padding: 0px 4px 0 4px;
+}
+
+.form {
+    padding-top: 0;
+}
+
+.size-wrapper {
+    height: unset;
 }
 
 .form-buttons-part {
@@ -10,7 +18,7 @@
 }
 
 .form-fill-part {
-    margin-bottom: 48px;
+    /* margin-bottom: 48px; */
 }
 
 .left-form {

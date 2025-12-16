@@ -301,6 +301,7 @@
       "assignedUsers": [
         "contact-010"
       ],
+      "attachments":[],
       "boardID": "board-1",
       "checkedSubtasks": "",
       "columnID": "review",
@@ -319,6 +320,7 @@
       "assignedUsers": [
         "contact-004"
       ],
+      "attachments":[],
       "boardID": "board-1",
       "checkedSubtasks": [
         true
@@ -342,6 +344,7 @@
       "assignedUsers": [
         "contact-003"
       ],
+      "attachments":[],
       "boardID": "board-1",
       "checkedSubtasks": [
         true,

@@ -2,9 +2,12 @@
 window.taskAttachments = [];
 let myGallery = null;
 
-addEventListener("change", async () => {
+// Event Listener für Attachment Input
+function attachAttachmentListener() {
     const filepicker = document.getElementById("attachment-input");
-    const files = filepicker.files;
+    if (filepicker) {
+        filepicker.addEventListener("change", async (event) => {
+            const files = event.target.files;
 
     if (files.length > 0) {
         
@@ -28,7 +31,19 @@ addEventListener("change", async () => {
 
         render();
     }
-});
+        });
+    }
+}
+
+// Event Listener beim DOM-Ready oder bei Bedarf aufrufen
+document.addEventListener('DOMContentLoaded', attachAttachmentListener);
+
+// Für den Fall, dass das DOM bereits geladen ist
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', attachAttachmentListener);
+} else {
+    attachAttachmentListener();
+}
 
 
 
@@ -289,3 +304,9 @@ async function handleDrop(e) {
         render();
     }
 }
+
+function clearAttachments() {
+    window.taskAttachments = [];
+    render();
+}
+window.clearAttachments = clearAttachments;

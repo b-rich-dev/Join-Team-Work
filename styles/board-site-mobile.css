@@ -1,3 +1,9 @@
+@media (min-width: 1921px) {
+    .content-board-site {
+        max-width: 1688px;
+    }
+}
+
 @media (max-width: 1150px) {
   #board-content-wrapper {
     display: grid;

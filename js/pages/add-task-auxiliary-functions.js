@@ -299,6 +299,7 @@ export async function hideWrongFormatErrorMsg(closeDuration) {
 
     msg.classList.add("hidden");
 }
+window.hideWrongFormatErrorMsg = hideWrongFormatErrorMsg;
 
 addEventListener("click", (event) => {
     const errorMsgClose = document.getElementById("error-msg-close");
