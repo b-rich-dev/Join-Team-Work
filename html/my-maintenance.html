@@ -18,6 +18,8 @@
   <p>To change cleanup behavior (e.g., entry count), modify the relevant limits in the cleanup functions below.</p>
 
   <button id="startCleanUp" onclick="startCleanUp();">start Clean up</button>
+  <button id="restoreTask001" onclick="restoreTask001();" style="margin-left:12px">restore task-001</button>
+  <button id="resetToTotal" onclick="resetToTotalReset();" style="margin-left:12px;color:white;background:#b00020">RESET to TOTAL-RESET</button>
 
 
   <script>
@@ -53,7 +55,7 @@
           body: data === null ? undefined : JSON.stringify(data),
         });
         const resText = await response.text();
-        console.log("Deleted entry: ", path);
+        console.log((data===null?"Deleted":"Updated"), "entry: ", path);
         if (!response.ok) {
           throw new Error("Firebase update failed: " + response.statusText);
         }
@@ -97,6 +99,51 @@
       }
     }
     console.log("Firebase cleanup completed.");
+  }
+
+  async function restoreTask001(){
+    try {
+      // Load TOTAL-RESET from local repo and extract task-001
+      const resp = await fetch('../json/total/TOTAL-RESET.json');
+      if(!resp.ok){
+        console.error('Failed to load TOTAL-RESET.json:', resp.status, resp.statusText);
+        alert('TOTAL-RESET.json konnte nicht geladen werden.');
+        return;
+      }
+      const totalData = await resp.json();
+      const task001 = totalData?.tasks?.["task-001"];
+      if(!task001){
+        console.error('task-001 nicht in TOTAL-RESET gefunden');
+        alert('task-001 nicht in TOTAL-RESET gefunden.');
+        return;
+      }
+      await saveToFirebase('tasks/task-001', task001);
+      console.log('task-001 wurde wiederhergestellt.');
+      alert('task-001 wurde in Firebase wiederhergestellt.');
+    } catch(e){
+      console.error('Wiederherstellung fehlgeschlagen:', e);
+      alert('Wiederherstellung fehlgeschlagen. Details in der Konsole.');
+    }
+  }
+
+  async function resetToTotalReset(){
+    try {
+      if(!confirm('Die komplette Firebase-Datenbank wird auf TOTAL-RESET zurückgesetzt. Fortfahren?')) return;
+      const resp = await fetch('../json/total/TOTAL-RESET.json');
+      if(!resp.ok){
+        console.error('Failed to load TOTAL-RESET.json:', resp.status, resp.statusText);
+        alert('TOTAL-RESET.json konnte nicht geladen werden.');
+        return;
+      }
+      const totalData = await resp.json();
+      // Root PUT: ersetzt gesamte DB-Struktur
+      await saveToFirebase('', totalData);
+      console.log('Firebase wurde vollständig auf TOTAL-RESET gesetzt.');
+      alert('Reset abgeschlossen: Firebase entspricht jetzt TOTAL-RESET.');
+    } catch(e){
+      console.error('Reset auf TOTAL-RESET fehlgeschlagen:', e);
+      alert('Reset fehlgeschlagen. Details in der Konsole.');
+    }
   }
   </script>
 </body>
