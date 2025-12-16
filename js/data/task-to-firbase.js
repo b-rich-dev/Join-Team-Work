@@ -121,7 +121,12 @@ async function sendObject(pushObjectId, rawNewObject) {
     [pushObjectId]: rawNewObject,
   };
   allData = allData || {};
-  Object.assign(allData.tasks, localObject);
+  allData.tasks = allData.tasks || {};
+  if (rawNewObject === null) {
+    delete allData.tasks[pushObjectId];
+  } else {
+    Object.assign(allData.tasks, localObject);
+  }
   return rawNewObject;
 }
 
@@ -133,16 +138,40 @@ async function sendObject(pushObjectId, rawNewObject) {
 async function saveToFirebase(path, data) {
   const url = `https://join-46697-default-rtdb.europe-west1.firebasedatabase.app/${path}.json`;
   try {
-    const response = await fetch(url, {
-      method: data === null ? "DELETE" : "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: data === null ? undefined : JSON.stringify(data),
-    });
-    const resText = await response.text();
-    if (!response.ok) {
-      throw new Error("Firebase update failed: " + response.statusText);
+    let response;
+    if (data === null) {
+      // Prefer PUT null to avoid DELETE preflight/CORS issues
+      response = await fetch(url, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: "null",
+      });
+      if (!response.ok) {
+        // Fallback to PATCH null
+        response = await fetch(url, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: "null",
+        });
+      }
+    } else {
+      response = await fetch(url, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
     }
+    if (!response.ok) {
+      const resText = await response.text().catch(() => "");
+      throw new Error("Firebase update failed: " + response.status + " " + response.statusText + (resText ? ` | ${resText}` : ""));
+    }
+    return true;
   } catch (error) {
-    console.error("Fetching data failed:", error);
+    console.error("Firebase fetch failed:", {
+      path,
+      method: data === null ? "PUT/PATCH null" : "PUT",
+      message: error?.message,
+    });
+    throw error;
   }
 }

@@ -8,6 +8,7 @@ import { initAddTaskForm } from "./add-task-auxiliary-functions.js";
 import { getAddTaskFormHTML } from "../templates/add-task-template.js";
 
 import { loadFirebaseData } from "../../main.js";
+import { checkFirebaseHealth } from "../data/API.js";
 import { filterTaskCardsByTitle } from "../events/find-task.js";
 
 let isOverlayLoaded = false;
@@ -72,6 +73,31 @@ export async function loadAndInitAddTaskOverlay() {
  * Initializes the add-task overlay and sets up event listeners when the DOM content is loaded.
  */
 document.addEventListener("DOMContentLoaded", () => {
+  // Preload Firebase data once to provide a shared cache for modules
+  (async () => {
+    try {
+      const data = await loadFirebaseData();
+      if (data) {
+        // expose for legacy code paths that read window.firebaseData
+        window.firebaseData = data;
+      }
+    } catch (e) {
+      console.warn("Firebase Daten-Vorladen fehlgeschlagen:", e);
+    }
+  })();
+  // Simple Firebase health indicator
+  (async () => {
+    const statusEl = document.getElementById("firebase-status");
+    if (statusEl) {
+      const res = await checkFirebaseHealth();
+      statusEl.textContent = res.ok
+        ? "Firebase verbunden"
+        : res.timedOut
+        ? "Firebase Timeout"
+        : `Firebase Fehler: ${res.status} ${res.statusText}`;
+      statusEl.classList.toggle("error", !res.ok);
+    }
+  })();
   const addTaskButton = document.getElementById("add-task");
   if (addTaskButton) {
     addTaskButton.addEventListener("click", async () => {

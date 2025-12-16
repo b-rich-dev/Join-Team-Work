@@ -1,4 +1,5 @@
 import { getFirebaseData } from "../data/API.js";
+import { loadFirebaseData } from "../../main.js";
 import { clearSubtask, clearSubtasksList, renderSubtasks, addedSubtasks, } from "../events/subtask-handler.js";
 import { currentPriority, setMedium } from "../events/priorety-handler.js";
 import { selectedCategory, selectedContacts, clearAssignedTo, clearCategory, } from "../events/dropdown-menu.js";
@@ -18,13 +19,19 @@ export let fetchData = null;
  */
 export async function initTask() {
   try {
-    const data = await getFirebaseData();
-
+    // Prefer cached data to avoid repeated fetches and race conditions
+    const data = (await loadFirebaseData()) || (await getFirebaseData());
+    if (!data || !data.contacts) {
+      throw new Error("Firebase-Daten nicht verfügbar");
+    }
     initDropdowns(Object.values(data.contacts));
-
     fetchData = data;
   } catch (error) {
     console.error("Fehler beim Laden der Firebase-Daten:", error);
+    // Provide minimal fallback to avoid hard crash when opening overlay on board
+    try {
+      initDropdowns([]);
+    } catch (_) {}
   }
 }
 

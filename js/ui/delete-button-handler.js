@@ -26,16 +26,23 @@ export function setupDeleteButtonListener(
  * @param {Event} event - The click event.
  * @param {object} boardData - The board data object.
  */
-export function handleDeleteButtonClick(event, boardData) {
+export async function handleDeleteButtonClick(event, boardData) {
   event.stopPropagation();
   const deleteId = event.currentTarget.dataset.taskId;
   if (boardData.tasks[deleteId]) {
-    CWDATA({ [deleteId]: null }, boardData);
-    delete boardData.tasks[deleteId];
-    if (window.firebaseData && window.firebaseData.tasks) {
-      delete window.firebaseData.tasks[deleteId];
+    try {
+      await CWDATA({ [deleteId]: null }, boardData);
+      delete boardData.tasks[deleteId];
+      if (window.firebaseData && window.firebaseData.tasks) {
+        delete window.firebaseData.tasks[deleteId];
+      }
+      closeSpecificOverlay("overlay-task-detail");
+      // Use absolute path to avoid duplicated segments (e.g., html/html)
+      window.location.href = "/html/board-site.html";
+    } catch (e) {
+      console.error("Delete failed:", e);
+      // Optional: show feedback to user
+      alert("Löschen fehlgeschlagen. Bitte erneut versuchen.");
     }
-    closeSpecificOverlay("overlay-task-detail");
-    window.location.href = "board-site.html";
   }
 }
