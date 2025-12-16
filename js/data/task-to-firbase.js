@@ -72,7 +72,8 @@ function arraysToObjects(obj) {
       Array.isArray(obj[key]) &&
       key !== "assignedUsers" &&
       key !== "checkedSubtasks" &&
-      key !== "totalSubtasks"
+      key !== "totalSubtasks" &&
+      key !== "attachments"
     ) {
       obj[key] = obj[key].map((item, index) => [index, item]);
     }

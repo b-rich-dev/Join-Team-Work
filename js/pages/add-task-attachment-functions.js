@@ -1,5 +1,5 @@
 // Globale Variable für alle Bilder
-let allImages = [];
+window.taskAttachments = [];
 let myGallery = null;
 
 addEventListener("change", async () => {
@@ -7,9 +7,7 @@ addEventListener("change", async () => {
     const files = filepicker.files;
 
     if (files.length > 0) {
-        // Lade existierende Bilder falls vorhanden
-        load();
-
+        
         for (const file of files) {
             if (!file.type.startsWith('image/jpeg') && !file.type.startsWith('image/png')) {
                 hideWrongFormatErrorMsg(3600);
@@ -21,39 +19,18 @@ addEventListener("change", async () => {
             console.log("Datei ausgewählt:", blob);
 
             const compressedBase64 = await compressImage(file, 800, 800, 0.8);
-            allImages.push({
+            window.taskAttachments.push({
                 name: file.name,
                 type: blob.type,
                 base64: compressedBase64
             });
         }
 
-        save();
         render();
     }
 });
 
-function save() {
-    let arrayAsString = JSON.stringify(allImages);
-    localStorage.setItem("images", arrayAsString);
-    console.log("save", arrayAsString);
-}
 
-function load() {
-    let arrayAsString = localStorage.getItem("images");
-    if (arrayAsString && arrayAsString.trim() !== "") {
-        try {
-            allImages = JSON.parse(arrayAsString);
-        } catch (error) {
-            console.error("Fehler beim Laden der Bilder aus localStorage:", error);
-            allImages = [];
-            // Lösche das fehlerhafte localStorage Item
-            localStorage.removeItem("images");
-        }
-    } else {
-        allImages = [];
-    }
-}
 
 function render() {
     const gallery = document.getElementById('attachment-list');
@@ -82,7 +59,7 @@ function render() {
     }
 
     // Erstelle alle Bilder
-    allImages.forEach((image, index) => {
+    window.taskAttachments.forEach((image, index) => {
         const imageElement = document.createElement('div');
         const description = document.createElement('p');
         const deletebtn = document.createElement('div');
@@ -131,7 +108,7 @@ function render() {
     });
 
     // Initialisiere Viewer nur einmal für die ganze Galerie
-    if (allImages.length > 0) {
+    if (window.taskAttachments.length > 0) {
         deleteAllBtn.style.display = 'flex';
         myGallery = new Viewer(gallery, {
             inline: false,
@@ -235,14 +212,12 @@ function compressImage(file, maxWidth = 800, maxHeight = 800, quality = 0.8) {
 }
 
 function deleteAllAttachments() {
-    allImages = [];
-    save();
+    window.taskAttachments = [];
     render();
 }
 
 function deleteAttachment(index) {
-    allImages.splice(index, 1);
-    save();
+    window.taskAttachments.splice(index, 1);
     render();
 }
 
@@ -253,3 +228,64 @@ document.addEventListener('DOMContentLoaded', () => {
         deleteAllBtn.addEventListener('click', deleteAllAttachments);
     }
 });
+
+window.initAttachmentDragAndDrop = function() {
+    const dropZone = document.querySelector('.select-wrapper.attachment-input-field');
+    if (!dropZone) return;
+
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        dropZone.addEventListener(eventName, preventDefaults, false);
+    });
+
+    ['dragenter', 'dragover'].forEach(eventName => {
+        dropZone.addEventListener(eventName, highlight, false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+        dropZone.addEventListener(eventName, unhighlight, false);
+    });
+
+    dropZone.addEventListener('drop', handleDrop, false);
+}
+
+function preventDefaults(e) {
+    e.preventDefault();
+    e.stopPropagation();
+}
+
+function highlight(e) {
+    const dropZone = document.querySelector('.select-wrapper.attachment-input-field');
+    dropZone.classList.add('highlight');
+}
+
+function unhighlight(e) {
+    const dropZone = document.querySelector('.select-wrapper.attachment-input-field');
+    dropZone.classList.remove('highlight');
+}
+
+async function handleDrop(e) {
+    const dt = e.dataTransfer;
+    const files = dt.files;
+
+    if (files.length > 0) {
+        for (const file of files) {
+            if (!file.type.startsWith('image/jpeg') && !file.type.startsWith('image/png')) {
+                if (typeof hideWrongFormatErrorMsg === 'function') {
+                    hideWrongFormatErrorMsg(3600);
+                }
+                continue;
+            }
+
+            const blob = new Blob([file], { type: file.type });
+            console.log("Datei ausgewählt:", blob);
+
+            const compressedBase64 = await compressImage(file, 800, 800, 0.8);
+            window.taskAttachments.push({
+                name: file.name,
+                type: blob.type,
+                base64: compressedBase64
+            });
+        }
+        render();
+    }
+}

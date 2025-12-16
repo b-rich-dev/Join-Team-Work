@@ -17,6 +17,9 @@ export async function initAddTaskForm() {
     initAssignedToListeners();
     initSubtaskListeners();
     initWindowResizeListeners();
+    if (window.initAttachmentDragAndDrop) {
+        window.initAttachmentDragAndDrop();
+    }
 }
 
 /** * Initializes the date picker using flatpickr.

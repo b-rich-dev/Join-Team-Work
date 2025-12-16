@@ -300,6 +300,9 @@ function createTaskObject() {
   const description = getInputValue("task-description");
   const dueDate = getInputValue("datepicker");
   const formattedDate = getFormattedDate();
+  
+  // Attachments aus globaler Variable laden
+  const attachments = window.taskAttachments || [];
 
   const { total, checked, completed } = extractSubtasks(addedSubtasks);
   const assignedUsers = mapAssignedUsers(selectedContacts, fetchData);
@@ -318,6 +321,7 @@ function createTaskObject() {
     totalSubtasks: total,
     type: selectedCategory,
     updatedAt: formattedDate,
+    attachments: attachments,
   };
 }
 

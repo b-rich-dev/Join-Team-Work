@@ -1,38 +1,3 @@
-// Liebe Join-Kollegen,
-
-// der data traffic bei Join ist künstlich; in echt würde man nie so viele Daten (z.B. alle user, samt Passwörter...) fetchen bzw. überhaupt herausgeben.
-// Ein wenig reduzieren läßt sich der traffic, wenn für login und signup nur "users", für summary nur "tasks", und für contacts nur "contacts" fefetcht werden.
-// Mein Dauerthema, :-). 
-
-// Ein bisschen kitzeln wollte ich die REST-API von Firebase trotzdem noch: lassen sich noch minimalistischere Anfragen stellen?
-// Bei Login würde genügen, den Server zu fragen: ist diese email bekannt? Also nicht alle users fetchen.
-// Das geht. Vorbedingung ist, die rules zu ergänzen, etwa so:
-// "users": {
-//   ".indexOn": ["email", "name"] 
-// }
-// Leider kann man nicht "email" UND "name" abgefragt werden. Der zweite Test muß daher anhand der gefetchten Daten lokal durchgeführt werden.
-// Nun kann ein query-string definiert werden. z.B. mit databaseKey = "email", inputString = value des email-input-Feldes
-// let queryString = `?orderBy=%22${databaseKey}%22&equalTo=%22${encodeURIComponent(inputString.toLowerCase())}%22`;
-// Der wird dann einfach an die bisherige url (die mit ".json" endet) angehängt.
-// Zurück kommt der Datensatz des users, dessen email gesucht und gefunden wurde, oder {}, wenn nichts gefunden wurde.
-
-// Darum sieht die "getFirebaseData"-Funktion weiter unten etwas seltsam aus. Die kann jetzt beides: nach allesn "users" (o.ä.) suchen,
-// oder nur nach diesem einen dataset, das -hoffentlich- die email emthält. Für Login reicht das, ich habe es so ausgeführt.
-
-// Wenn man alle keys braucht, muß man auch nicht die ganze Kategorie ("users", "tasks", "contacts") fetchen.
-// Der query-string muß dann lauten: "?shallow="true". Eine Testfunktion getKeys(); findet ihr ganz unten in dieser Datei.
-
-// Mehr zu diesen Fragen: https://firebase.google.com/docs/database/rest/retrieve-data
-// Achtung: die curl-Befehle für die powershell bringen uns nichts, die query-strings in diesen (ab "?") aber schon.
-// Die können unterschiedlich tief definiert sein, also z.B. keys und die eigentlichen Objekt-keys (auf der obersten Ebene);
-
-// (signup hätte ich so machen können: zuerst mit der obigen Anfrage checken, ob die email schon registriert ist;
-// danach mit einer "shallow"-Abfrage nur die keys fetchen, um den die nächste user-id zu schreiben: "user-999").
-// Die "startObjectBuilding" ist, so gesehen, viel zu aufwendig. Die ist als allrounder gedacht (neue Objekte bauen, hochladen, edieren, löschen)
-
-// Der data traffic ist weiterhin ungeschützt und limitiert; aber vom Prinzip her sind diese Abfragemöglichkeiten schon etwas realer.
-
-
 /**
  * login-fetch function for minimal data traffic. use querystring with "email" and look in database
  * for dataset which matches email login input.
