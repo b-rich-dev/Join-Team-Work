@@ -187,10 +187,8 @@ function setupTaskCardOverlays(boardData) {
   import("../ui/render-card.js").then((module) => {
     import("../templates/task-details-template.js").then((templateModule) => {
       if (typeof module.registerTaskCardDetailOverlay === "function") {
-        module.registerTaskCardDetailOverlay(
-          boardData,
-          templateModule.getTaskOverlay
-        );
+        // Pass a real board refresh function so edits render immediately
+        module.registerTaskCardDetailOverlay(boardData, refreshBoardSite);
       }
     });
   });

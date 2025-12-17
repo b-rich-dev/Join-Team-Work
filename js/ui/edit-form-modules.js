@@ -9,6 +9,7 @@ export function setupEditFormModules(container, taskToEdit, boardData) {
   setupDropdownModule(container, taskToEdit, boardData);
   setupDatePickerModule(container);
   setupSubtaskModule(container, taskToEdit);
+  setupAttachmentsModule(container, taskToEdit);
 }
 
 function setupPriorityModule(container, taskToEdit) {
@@ -29,9 +30,22 @@ function setupPriorityModule(container, taskToEdit) {
 
 function setupDropdownModule(container, taskToEdit, boardData) {
   import("../events/dropdown-menu-auxiliary-function.js").then(async (mod) => {
-    await mod.initDropdowns(Object.values(boardData.contacts), container);
+    const contactsWithIds = Object.entries(boardData.contacts || {}).map(
+      ([id, obj]) => ({ ...obj, id })
+    );
+    await mod.initDropdowns(contactsWithIds, container);
     await mod.setCategoryFromTaskForCard(taskToEdit.type);
-    await mod.setAssignedContactsFromTaskForCard(taskToEdit.assignedUsers);
+    const assignedSource = Array.isArray(taskToEdit.assignedUsers)
+      ? taskToEdit.assignedUsers
+      : Array.isArray(taskToEdit.assignedTo)
+      ? taskToEdit.assignedTo
+      : (typeof taskToEdit.assignedTo === "string" && taskToEdit.assignedTo)
+      ? taskToEdit.assignedTo
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean)
+      : [];
+    await mod.setAssignedContactsFromTaskForCard(assignedSource);
   });
 }
 
@@ -51,5 +65,22 @@ function setupSubtaskModule(container, taskToEdit) {
       mod.initSubtaskManagementLogic(container);
       mod.renderSubtasks();
     });
+  });
+}
+
+function setupAttachmentsModule(container, taskToEdit) {
+  import("../pages/add-task-attachment-functions.js").then(() => {
+    try {
+      // Prefill attachments for edit form
+      const existing = Array.isArray(taskToEdit?.attachments)
+        ? JSON.parse(JSON.stringify(taskToEdit.attachments))
+        : [];
+      window.taskAttachments = existing;
+      if (typeof window.initAttachmentUI === "function") {
+        window.initAttachmentUI();
+      }
+    } catch (e) {
+      console.error("Failed to initialize attachments module:", e);
+    }
   });
 }

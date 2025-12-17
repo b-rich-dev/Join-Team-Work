@@ -265,7 +265,13 @@ function processStringContact(sel) {
   if (found) {
     selectedContacts.push(found);
   } else {
-    console.warn("[Dropdown-Card] Kontakt nicht gefunden (ID):", sel);
+    // Fallback: versuche String als Name aufzulösen
+    const byName = findContactByName(idVal);
+    if (byName) {
+      selectedContacts.push(byName);
+    } else {
+      console.warn("[Dropdown-Card] Kontakt nicht gefunden (ID/Name):", sel);
+    }
   }
 }
 

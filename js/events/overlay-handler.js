@@ -197,13 +197,6 @@ function ensureOverlayCSS(href) {
       ...document.head.querySelectorAll('link[rel="stylesheet"]'),
     ].find((l) => l.href.includes(href));
     if (existing) {
-      // Nur Board-Content neu rendern, nicht die ganze Seite
-      if (
-        overlayId === "overlay-task-detail" ||
-        overlayId === "overlay-task-detail-edit"
-      ) {
-        refreshBoardContentOnly();
-      }
       if (existing.sheet) {
         resolve();
       } else {
@@ -249,6 +242,19 @@ export function closeSpecificOverlay(overlayId) {
   setOverlayVisibility(overlay, false);
   manageBodyScroll(false);
   clearCurrentOverlay(overlayId);
+  // After closing overlays, update the board content so changes are visible
+  if (
+    overlayId === "overlay-task-detail" ||
+    overlayId === "overlay-task-detail-edit" ||
+    overlayId === "overlay"
+  ) {
+    try {
+      // fire-and-forget; callers need not await
+      refreshBoardContentOnly();
+    } catch (e) {
+      console.error("Failed to refresh board after closing overlay:", e);
+    }
+  }
   if (overlayId === "overlay-task-detail-edit") {
     removeOverlayCSS("../styles/overlay-task-detail-edit.css");
   } else if (overlayId === "overlay-task-detail") {

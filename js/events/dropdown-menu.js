@@ -192,7 +192,8 @@ function renderContactsList(contacts, contactContainer, currentUser) {
   contacts.forEach((contact, i) => {
     const { name, initials, avatarColor } = contact;
     const displayName = name === currentUser ? `${name} (You)` : name;
-    contactContainer.innerHTML += renderAssignedToContacts(i, displayName, initials, avatarColor);
+    const contactId = contact && contact.id != null ? contact.id : i;
+    contactContainer.innerHTML += renderAssignedToContacts(contactId, displayName, initials, avatarColor);
   });
 }
 

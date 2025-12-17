@@ -84,8 +84,12 @@ export async function handleTaskEditFormSubmit(
     taskEditForm.getAttribute("data-task-id") || taskToEditId;
   await CWDATA({ [currentTaskId]: editTaskObjekt }, fetchData);
   closeSpecificOverlay("overlay-task-detail-edit");
-  if (updateBoardFunction) await updateBoardFunction();
-  renderDetailOverlay(taskToEditId, boardData, updateBoardFunction);
+  // Refresh the board UI and render detail overlay with up-to-date data
+  if (typeof updateBoardFunction === "function") {
+    try { await updateBoardFunction(); } catch (e) { /* no-op */ }
+  }
+  // Use the mutated fetchData (same object instance as window.firebaseData) for immediate render
+  renderDetailOverlay(taskToEditId, fetchData, updateBoardFunction);
 }
 
 function isSubmitEvent(formEvent) {
@@ -100,6 +104,11 @@ function isSubmitEvent(formEvent) {
 function buildEditTaskObject(formData, taskToEdit) {
   const subtasksCompleted = formData.checkedSubtasks.filter(Boolean).length;
   const updatedAt = getFormattedDate();
+  const attachments = Array.isArray(window.taskAttachments)
+    ? [...window.taskAttachments]
+    : Array.isArray(taskToEdit?.attachments)
+    ? [...taskToEdit.attachments]
+    : [];
   return {
     assignedUsers: Array.isArray(formData.assignedUsers)
       ? formData.assignedUsers
@@ -111,6 +120,7 @@ function buildEditTaskObject(formData, taskToEdit) {
     deadline: formData.deadline,
     description: formData.description,
     priority: formData.priority,
+    attachments,
     subtasksCompleted,
     title: formData.title,
     totalSubtasks: formData.totalSubtasks,

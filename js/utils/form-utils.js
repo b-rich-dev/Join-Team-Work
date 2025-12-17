@@ -64,10 +64,15 @@ function extractAssignedUsers(form, contactsObj) {
   if (assignedOptions && contactsObj) {
     return Array.from(assignedOptions)
       .map((option) => {
+        // Prefer a stable contact id if present and valid
         const id = option.getAttribute("data-id");
         if (id && contactsObj[id]) return id;
-        const name =
-          option.getAttribute("data-name") || option.textContent.trim();
+
+        // Fallback: resolve by name. Clean up UI suffixes like " (You)".
+        let name = option.getAttribute("data-name") || option.textContent.trim();
+        if (name && name.endsWith(" (You)")) {
+          name = name.replace(/ \(You\)$/i, "").trim();
+        }
         return (
           Object.entries(contactsObj).find(
             ([cid, contact]) => contact.name === name
