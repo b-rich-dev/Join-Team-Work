@@ -393,6 +393,7 @@ export function renderAttachmentSection(task) {
             <div id="attachment-list" class="attachment-list">
                 ${task?.attachments ? task.attachments.map(att => `<div class="attachment-item">${att}</div>`).join("") : ""}
             </div>
+            <div id="attachment-limit-error" class="error-message" style="display:none">Maximum upload size (1 MB) exceeded</div>
         </div>
     `;
 }

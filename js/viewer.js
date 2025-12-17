@@ -10,9 +10,10 @@
 
 (function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
-  typeof define === 'function' && define.amd ? define(factory) :
-  (global = typeof globalThis !== 'undefined' ? globalThis : global || self, global.Viewer = factory());
-})(this, (function () { 'use strict';
+    typeof define === 'function' && define.amd ? define(factory) :
+      (global = typeof globalThis !== 'undefined' ? globalThis : global || self, global.Viewer = factory());
+})(this, (function () {
+  'use strict';
 
   function _classCallCheck(a, n) {
     if (!(a instanceof n)) throw new TypeError("Cannot call a class as a function");
@@ -643,7 +644,7 @@
     var supported = false;
     if (IS_BROWSER) {
       var once = false;
-      var listener = function listener() {};
+      var listener = function listener() { };
       var options = Object.defineProperty({}, 'once', {
         get: function get() {
           supported = true;
@@ -1516,13 +1517,13 @@
       this.pointerMoved = false;
       if (!this.viewed || this.showing || this.viewing || this.hiding
 
-      // Handle mouse event and pointer event and ignore touch event
-      || (event.type === 'mousedown' || event.type === 'pointerdown' && event.pointerType === 'mouse') && (
-      // No primary button (Usually the left button)
-      isNumber(buttons) && buttons !== 1 || isNumber(button) && button !== 0
+        // Handle mouse event and pointer event and ignore touch event
+        || (event.type === 'mousedown' || event.type === 'pointerdown' && event.pointerType === 'mouse') && (
+          // No primary button (Usually the left button)
+          isNumber(buttons) && buttons !== 1 || isNumber(button) && button !== 0
 
-      // Open context menu
-      || event.ctrlKey)) {
+          // Open context menu
+          || event.ctrlKey)) {
         return;
       }
 
@@ -2646,8 +2647,8 @@
           if (image && img) {
             if (image.src !== img.src
 
-            // Title changed (#408)
-            || image.alt !== img.alt) {
+              // Title changed (#408)
+              || image.alt !== img.alt) {
               changedIndexes.push(i);
             }
           } else {

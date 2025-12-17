@@ -318,7 +318,7 @@ function getTaskAttachmentsSection(task) {
         }
         <p class="attachment-description">${attachment.name}</p>
         <div class="delete-attachment-btn" onclick="downloadAttachment('${attachment.base64}', '${attachment.name}', '${attachment.type}')">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <svg width="20" height="20" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" style="position: relative; left: 2px;">
             <mask id="mask0_266054_1268" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="24" height="24">
             <rect width="24" height="24" fill="#D9D9D9"/>
             </mask>

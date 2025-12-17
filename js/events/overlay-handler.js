@@ -159,16 +159,6 @@ function attachBackgroundClickListener(overlay, overlayId) {
   });
 }
 
-/** Attaches a click event listener to the modal content to stop propagation.
- * Prevents clicks inside the modal from closing the overlay.
- * @param {HTMLElement} modalContent - The modal content element.
- */
-function attachModalContentStopper(modalContent) {
-  if (modalContent) {
-    modalContent.addEventListener("click", (event) => event.stopPropagation());
-  }
-}
-
 /** Attaches a keydown event listener for Escape to close the overlay.
  * @param {HTMLElement} overlay - The overlay element.
  * @param {string} overlayId - The ID of the overlay to close.
@@ -248,6 +238,10 @@ export async function openSpecificOverlay(overlayId) {
   setOverlayVisibility(overlay, true);
   manageBodyScroll(true);
   updateCurrentOverlay(overlay);
+  // Reset Attachments beim Öffnen des Add-Task-Overlays
+  if (overlayId === "overlay" && typeof window.clearAttachments === "function") {
+    try { window.clearAttachments(); } catch (e) { /* noop */ }
+  }
 }
 export function closeSpecificOverlay(overlayId) {
   const overlay = getValidatedElementById(overlayId);
@@ -259,6 +253,10 @@ export function closeSpecificOverlay(overlayId) {
     removeOverlayCSS("../styles/overlay-task-detail-edit.css");
   } else if (overlayId === "overlay-task-detail") {
     removeOverlayCSS("../styles/overlay-task-details.css");
+  }
+  // Reset Attachments beim Schließen des Add-Task-Overlays
+  if (overlayId === "overlay" && typeof window.clearAttachments === "function") {
+    try { window.clearAttachments(); } catch (e) { /* noop */ }
   }
 }
 function removeOverlayCSS(href) {
@@ -357,7 +355,6 @@ function setupOverlayListeners(overlay, overlayId) {
   );
   attachCloseButtonListener(closeModalButton, overlayId);
   attachBackgroundClickListener(overlay, overlayId);
-  if (modalContent) attachModalContentStopper(modalContent);
   attachEscapeKeyListener(overlay, overlayId);
 }
 

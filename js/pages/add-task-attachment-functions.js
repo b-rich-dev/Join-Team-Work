@@ -1,38 +1,107 @@
 // Globale Variable für alle Bilder
 window.taskAttachments = [];
 let myGallery = null;
+let attachmentInputHandlerBound = false;
+let handleAttachmentInputChangeRef = null;
+
+// Upload-Limit (Gesamtgröße aller Anhänge in Bytes)
+const MAX_TOTAL_BYTES = 1 * 1024 * 1024; // 1 MiB
+
+function base64PayloadBytes(dataUrl) {
+    if (!dataUrl) return 0;
+    const comma = dataUrl.indexOf(',');
+    const b64 = comma >= 0 ? dataUrl.slice(comma + 1) : dataUrl;
+    const len = b64.length;
+    const padding = b64.endsWith('==') ? 2 : b64.endsWith('=') ? 1 : 0;
+    return Math.max(0, Math.floor((len * 3) / 4) - padding);
+}
+
+function currentAttachmentsBytes() {
+    return window.taskAttachments.reduce((sum, a) => sum + base64PayloadBytes(a.base64), 0);
+}
+
+function showSizeLimitErrorMsg() {
+    // Nutze statische HTML-Inhalte, kein dynamischer Text aus JS
+    const msg = document.getElementById('attachmentLimitErrorMsg');
+    if (msg) {
+        msg.classList.remove('hidden', 'slide-out');
+        msg.classList.add('slide-in');
+        return;
+    }
+    // Fallback (nur wenn Element fehlt): englische Standardmeldung
+    alert('Upload limit reached! You can upload up to 1 MB total.');
+}
+
+// Close-Handler nur für die Limit-Meldung (visuell identisch, eigenes Close-Icon)
+if (!window.__limitMsgCloseBound) {
+    document.addEventListener('click', async (e) => {
+        const isLimitClose = (node) => {
+            let el = node;
+            while (el && el !== document) {
+                if (el.getAttribute && el.getAttribute('id') === 'limit-error-msg-close') return true;
+                el = el.parentNode;
+            }
+            return false;
+        };
+        if (isLimitClose(e.target)) {
+            const msg = document.getElementById('attachmentLimitErrorMsg');
+            if (!msg) return;
+            msg.classList.remove('slide-in');
+            msg.classList.add('slide-out');
+            await new Promise((resolve) => setTimeout(resolve, 400));
+            msg.classList.add('hidden');
+        }
+    });
+    window.__limitMsgCloseBound = true;
+}
 
 // Event Listener für Attachment Input
 function attachAttachmentListener() {
     const filepicker = document.getElementById("attachment-input");
-    if (filepicker) {
-        filepicker.addEventListener("change", async (event) => {
-            const files = event.target.files;
+    if (!filepicker) return;
 
-    if (files.length > 0) {
-        
-        for (const file of files) {
-            if (!file.type.startsWith('image/jpeg') && !file.type.startsWith('image/png')) {
-                hideWrongFormatErrorMsg(3600);
-                continue;
+    // Stelle sicher, dass der Handler nicht mehrfach gebunden wird
+    if (!handleAttachmentInputChangeRef) {
+        handleAttachmentInputChangeRef = async (event) => {
+            const files = event.target.files || [];
+            if (files.length > 0) {
+                for (const file of files) {
+                    if (!file.type.startsWith('image/jpeg') && !file.type.startsWith('image/png')) {
+                        if (typeof window.showWrongFormatErrorMsg === 'function') {
+                            window.showWrongFormatErrorMsg();
+                        } else if (typeof hideWrongFormatErrorMsg === 'function') {
+                            const msg = document.getElementById('wrongFormatErrorMsg');
+                            if (msg) {
+                                msg.classList.remove('hidden', 'slide-out');
+                                msg.classList.add('slide-in');
+                            }
+                        }
+                        continue;
+                    }
+
+                    const blob = new Blob([file], { type: file.type });
+                    const compressedBase64 = await compressImage(file, 800, 800, 0.8);
+                    // Prüfe Upload-Limit (Gesamtgröße inkl. neuem Anhang)
+                    const newTotalBytes = currentAttachmentsBytes() + base64PayloadBytes(compressedBase64);
+                    if (newTotalBytes > MAX_TOTAL_BYTES) {
+                        showSizeLimitErrorMsg();
+                        continue;
+                    }
+                    window.taskAttachments.push({
+                        name: file.name,
+                        type: blob.type,
+                        base64: compressedBase64
+                    });
+                }
+                render();
             }
-
-            const blob = new Blob([file], { type: file.type });
-
-            console.log("Datei ausgewählt:", blob);
-
-            const compressedBase64 = await compressImage(file, 800, 800, 0.8);
-            window.taskAttachments.push({
-                name: file.name,
-                type: blob.type,
-                base64: compressedBase64
-            });
-        }
-
-        render();
+        };
     }
-        });
-    }
+
+    // Erst alten Listener entfernen, dann neu binden (idempotent)
+    filepicker.removeEventListener("change", handleAttachmentInputChangeRef);
+    filepicker.addEventListener("change", handleAttachmentInputChangeRef);
+    attachmentInputHandlerBound = true;
 }
 
 // Event Listener beim DOM-Ready oder bei Bedarf aufrufen
@@ -47,8 +116,41 @@ if (document.readyState === 'loading') {
 
 
 
-function render() {
-    const gallery = document.getElementById('attachment-list');
+// Warte auf dynamisch eingefügte Overlay-Elemente
+function waitForElement(selector, timeout = 3000) {
+    return new Promise((resolve, reject) => {
+        const existing = document.querySelector(selector);
+        if (existing) return resolve(existing);
+
+        const obs = new MutationObserver(() => {
+            const el = document.querySelector(selector);
+            if (el) {
+                obs.disconnect();
+                resolve(el);
+            }
+        });
+        obs.observe(document.documentElement || document.body, { childList: true, subtree: true });
+
+        if (timeout > 0) {
+            setTimeout(() => {
+                obs.disconnect();
+                const el = document.querySelector(selector);
+                if (el) resolve(el);
+                else reject(new Error(`Element not found: ${selector}`));
+            }, timeout);
+        }
+    });
+}
+
+async function render() {
+    let gallery = document.getElementById('attachment-list');
+    if (!gallery) {
+        try {
+            gallery = await waitForElement('#attachment-list', 3000);
+        } catch (_) {
+            return; // Overlay evtl. noch nicht vorhanden
+        }
+    }
     const deleteAllBtn = document.getElementById('delete-all-attachments');
     const labelContainer = gallery.closest('.label-container');
 
@@ -124,7 +226,7 @@ function render() {
 
     // Initialisiere Viewer nur einmal für die ganze Galerie
     if (window.taskAttachments.length > 0) {
-        deleteAllBtn.style.display = 'flex';
+        if (deleteAllBtn) deleteAllBtn.style.display = 'flex';
         myGallery = new Viewer(gallery, {
             inline: false,
             button: true,
@@ -169,7 +271,7 @@ function render() {
         });
     }
     else {
-        deleteAllBtn.style.display = 'none';
+        if (deleteAllBtn) deleteAllBtn.style.display = 'none';
     }
 }
 
@@ -238,7 +340,6 @@ function deleteAttachment(index) {
 
 document.addEventListener('DOMContentLoaded', () => {
     const deleteAllBtn = document.getElementById('delete-all-attachments');
-    const attachmentImg = document.querySelectorAll('.attachment-item img');
     if (deleteAllBtn) {
         deleteAllBtn.addEventListener('click', deleteAllAttachments);
     }
@@ -285,8 +386,14 @@ async function handleDrop(e) {
     if (files.length > 0) {
         for (const file of files) {
             if (!file.type.startsWith('image/jpeg') && !file.type.startsWith('image/png')) {
-                if (typeof hideWrongFormatErrorMsg === 'function') {
-                    hideWrongFormatErrorMsg(3600);
+                if (typeof window.showWrongFormatErrorMsg === 'function') {
+                    window.showWrongFormatErrorMsg();
+                } else if (typeof hideWrongFormatErrorMsg === 'function') {
+                    const msg = document.getElementById('wrongFormatErrorMsg');
+                    if (msg) {
+                        msg.classList.remove('hidden', 'slide-out');
+                        msg.classList.add('slide-in');
+                    }
                 }
                 continue;
             }
@@ -295,6 +402,12 @@ async function handleDrop(e) {
             console.log("Datei ausgewählt:", blob);
 
             const compressedBase64 = await compressImage(file, 800, 800, 0.8);
+            // Prüfe Upload-Limit (Gesamtgröße inkl. neuem Anhang)
+            const newTotalBytes = currentAttachmentsBytes() + base64PayloadBytes(compressedBase64);
+            if (newTotalBytes > MAX_TOTAL_BYTES) {
+                showSizeLimitErrorMsg();
+                continue;
+            }
             window.taskAttachments.push({
                 name: file.name,
                 type: blob.type,
@@ -310,3 +423,20 @@ function clearAttachments() {
     render();
 }
 window.clearAttachments = clearAttachments;
+
+// Öffentliche UI-Initialisierung für dynamische Overlays
+window.initAttachmentUI = async function () {
+    try {
+        await waitForElement('#attachment-input', 3000);
+        await waitForElement('#attachment-list', 3000);
+    } catch (_) { /* Overlay kann ohne diese Elemente sein; weiter robust binden */ }
+
+    attachAttachmentListener();
+    if (window.initAttachmentDragAndDrop) window.initAttachmentDragAndDrop();
+    const deleteAllBtn = document.getElementById('delete-all-attachments');
+    if (deleteAllBtn) {
+        deleteAllBtn.removeEventListener('click', deleteAllAttachments);
+        deleteAllBtn.addEventListener('click', deleteAllAttachments);
+    }
+    render();
+};

@@ -258,7 +258,7 @@ html body #overlay-task-detail-edit .checkbox-icon.checked {
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 9000;
+  z-index: 999;
   opacity: 1;
   visibility: visible;
   transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
@@ -377,6 +377,18 @@ html body #overlay-task-detail-edit .checkbox-icon.checked {
 .priority-icon {
   width: clamp(16px, 2vw, 20px);
   height: clamp(16px, 2vw, 20px);
+}
+
+/* Add-Task Overlay: vertikale Trennlinie zwischen left-form und right-form */
+#overlay:not(.overlay-hidden) .content-overlay .border {
+  align-self: stretch; /* sorgt für volle Höhe im Flex-Container */
+  height: auto;        /* Prozenthöhe vermeiden, da Elternhöhe im Overlay variieren kann */
+  width: 0;            /* wie im Basisstil, Linie über Border */
+  border-left: 1px solid var(--borderGrey);
+  border-right: none;
+  border-top: none;
+  border-bottom: none;
+  border-radius: 0;
 }
 
 .open-assigned-to {

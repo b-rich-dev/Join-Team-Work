@@ -9,7 +9,7 @@
 
 .content-task {
   max-width: 400px;
-  padding: 15px;
+  /* padding: 15px; */
 }
 
 .taskCardField.priority-section,
@@ -80,6 +80,7 @@
   font-size: 20px;
   margin-bottom: 10px;
   font-weight: 500;
+  white-space: nowrap;
 }
 
 .assigned-title {
@@ -202,6 +203,10 @@
   .titleText {
     font-size: 1.3rem;
   }
+
+  .content-task {
+  padding: 16px;
+}
 }
 
 .contact-name {

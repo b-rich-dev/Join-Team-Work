@@ -17,7 +17,11 @@ export async function initAddTaskForm() {
     initAssignedToListeners();
     initSubtaskListeners();
     initWindowResizeListeners();
-    if (window.initAttachmentDragAndDrop) {
+    // Initialisiert Drag&Drop, Input-Change-Listener und initiales Rendering der Attachments
+    if (window.initAttachmentUI) {
+        window.initAttachmentUI();
+    } else if (window.initAttachmentDragAndDrop) {
+        // Fallback für ältere Versionen
         window.initAttachmentDragAndDrop();
     }
 }
@@ -284,10 +288,9 @@ export async function showWrongFormatErrorMsg() {
 
     msg.classList.remove("hidden", "slide-out");
     msg.classList.add("slide-in");
-    await new Promise((resolve) => setTimeout(resolve, 300));
-
-    hideWrongFormatErrorMsg(3600);
 }
+// Für nicht-modulare Aufrufe (z.B. aus nicht-module Scripts)
+window.showWrongFormatErrorMsg = showWrongFormatErrorMsg;
 
 export async function hideWrongFormatErrorMsg(closeDuration) {
     const msg = document.getElementById("wrongFormatErrorMsg");
@@ -295,22 +298,29 @@ export async function hideWrongFormatErrorMsg(closeDuration) {
     msg.classList.remove("slide-in");
     msg.classList.add("slide-out");
 
-    await new Promise((resolve) => setTimeout(resolve, closeDuration));
+    // Ignoriere übergebenes Timeout und verwende die CSS-Transition-Dauer (400ms)
+    await new Promise((resolve) => setTimeout(resolve, 400));
 
     msg.classList.add("hidden");
 }
 window.hideWrongFormatErrorMsg = hideWrongFormatErrorMsg;
-
-addEventListener("click", (event) => {
-    const errorMsgClose = document.getElementById("error-msg-close");
-    if (!errorMsgClose) return;
-    if (errorMsgClose) {
-        errorMsgClose.addEventListener("click", () => {
-            hideWrongFormatErrorMsg(100);
-            console.log("clse done");
-        });
-    }
-});
+// Globaler, delegierter Close-Listener (einmalig), robust für SVG-Klicks
+if (!window.__wrongFormatCloseBound) {
+    const isInsideCloseBtn = (node) => {
+        let el = node;
+        while (el && el !== document) {
+            if (el.getAttribute && el.getAttribute('id') === 'error-msg-close') return true;
+            el = el.parentNode;
+        }
+        return false;
+    };
+    document.addEventListener("click", (e) => {
+        if (isInsideCloseBtn(e.target) && typeof window.hideWrongFormatErrorMsg === 'function') {
+            window.hideWrongFormatErrorMsg(400);
+        }
+    });
+    window.__wrongFormatCloseBound = true;
+}
 
 
 /** * Handles the visibility of the sign info message based on the screen size.

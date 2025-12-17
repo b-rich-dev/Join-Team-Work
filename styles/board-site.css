@@ -41,7 +41,7 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 4vw;
+  padding: 0 48px;
   height: 6.5rem;
   background-color: var(--lightwhite);
   box-sizing: border-box;
@@ -195,13 +195,15 @@ body {
   background-color: var(--dark);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   border-radius: 0 20px 20px 20px;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto; /* für vertikales Scrollen per Touch/Maus */
+  -webkit-overflow-scrolling: touch; /* sanftes Scrollen auf iOS */
   display: none;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   min-width: 150px;
-  height: 158px;
+  max-height: 50vh; /* auf mobilen Geräten nicht größer als halber Screen */
   z-index: 1000;
   padding: 10px;
   font-weight: 500;

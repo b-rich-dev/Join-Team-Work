@@ -1,4 +1,5 @@
-#wrongFormatErrorMsg {
+#wrongFormatErrorMsg,
+#attachmentLimitErrorMsg {
     position: fixed;
     gap: 4px;
     bottom: -100px;
@@ -19,25 +20,37 @@
     padding: 0 16px;
     opacity: 0;
     transition: bottom 0.4s ease, opacity 0.4s ease;
-
-    svg {
-        position: absolute;
-        top: 8px;
-        right: 8px;
-        cursor: pointer;
-    }
-
-    p {
-        margin: 0;
-        padding: 0;
-        font-size: 16px;
-        font-weight: 400;
-    }
 }
 
-#wrongFormatErrorMsg.slide-out {
+/* Entkoppelte Kinder-Selektoren (keine geschachtelte Syntax) */
+#wrongFormatErrorMsg svg,
+#attachmentLimitErrorMsg svg {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    cursor: pointer;
+}
+
+#wrongFormatErrorMsg p,
+#attachmentLimitErrorMsg p {
+    margin: 0;
+    padding: 0;
+    font-size: 16px;
+    font-weight: 400;
+}
+
+/* Sichtbar (eingeblendet) */
+#wrongFormatErrorMsg.slide-in,
+#attachmentLimitErrorMsg.slide-in {
     bottom: 50%;
     opacity: 1;
+}
+
+/* Ausblenden (nach unten rausfahren) */
+#wrongFormatErrorMsg.slide-out,
+#attachmentLimitErrorMsg.slide-out {
+    bottom: -100px;
+    opacity: 0;
 }
 
 #taskSuccessMsg.slide-in {
