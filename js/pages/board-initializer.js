@@ -122,7 +122,10 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   const searchInput = document.getElementById("find-task");
+  const searchButton = document.getElementById("search-task-btn");
+  
   if (searchInput) {
+    // Input event for live search
     searchInput.addEventListener("input", async (event) => {
       if (event.target.value.trim() === "") {
         try {
@@ -133,6 +136,25 @@ document.addEventListener("DOMContentLoaded", () => {
           console.error("Error loading and rendering board:", error);
         }
       } else {
+        filterTaskCardsByTitle();
+      }
+    });
+
+    // Enter key to trigger search
+    searchInput.addEventListener("keydown", async (event) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        if (searchInput.value.trim() !== "") {
+          filterTaskCardsByTitle();
+        }
+      }
+    });
+  }
+
+  // Search button click handler
+  if (searchButton) {
+    searchButton.addEventListener("click", async () => {
+      if (searchInput && searchInput.value.trim() !== "") {
         filterTaskCardsByTitle();
       }
     });

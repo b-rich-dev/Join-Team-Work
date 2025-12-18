@@ -24,12 +24,18 @@ export function setMedium() {
     currentPriority = 'medium';
 }
 
-/** * Initializes the priority buttons with click event listeners.
+/** * Initializes the priority buttons with click and keyboard event listeners.
  * Sets the initial state of the buttons.
  */
 export function initPriorityButtons() {
     document.querySelectorAll('.priority-btn').forEach(button => {
         button.addEventListener('click', (event) => setPriority(event.currentTarget, event.currentTarget.dataset.priority));
+        button.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                setPriority(event.currentTarget, event.currentTarget.dataset.priority);
+            }
+        });
     });
     setMedium();
 }

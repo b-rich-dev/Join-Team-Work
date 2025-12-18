@@ -3,6 +3,34 @@ let secondChance = true;
 
 sessionStorage.clear();
 
+// Add keyboard navigation event listeners
+document.addEventListener('DOMContentLoaded', () => {
+  // Clear red alerts when focusing inputs
+  const emailInput = document.getElementById('login-email');
+  const passwordInput = document.getElementById('login-password');
+  
+  if (emailInput) {
+    emailInput.addEventListener('focus', clearRedAlerts);
+  }
+  if (passwordInput) {
+    passwordInput.addEventListener('focus', clearRedAlerts);
+  }
+
+  // Guest Login button
+  const guestLoginBtn = document.getElementById('guest-login-btn');
+  if (guestLoginBtn) {
+    guestLoginBtn.addEventListener('click', directLogin);
+  }
+
+  // Sign up redirect buttons
+  const signupButtons = document.querySelectorAll('.signup-redirect-btn');
+  signupButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      location.href = './html/sign-up.html';
+    });
+  });
+});
+
 /**
  * onload-function: handles start animation, remove overlay when finished.
  * prevents false positioning when page is reloaded

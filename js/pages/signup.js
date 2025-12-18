@@ -1,6 +1,20 @@
 let fetchedUser = null;
 let emailString;
 
+// Add keyboard support for custom checkbox
+document.addEventListener('DOMContentLoaded', () => {
+  const checkbox = document.getElementById('customCheckbox');
+  if (checkbox) {
+    checkbox.addEventListener('click', toggleCheckbox);
+    checkbox.addEventListener('keydown', (event) => {
+      if (event.key === ' ' || event.key === 'Enter') {
+        event.preventDefault();
+        toggleCheckbox();
+      }
+    });
+  }
+});
+
 /**
  * onclick-function on "signup"-button
  */
@@ -177,9 +191,14 @@ function toggleCheckbox() {
   const unchecked = document.getElementById('unchecked');
   const checked = document.getElementById('checked');
   const warning = document.getElementById('no-privPolicy');
+  const checkbox = document.getElementById('customCheckbox');
   unchecked.classList.toggle("d-none");
   checked.classList.toggle("d-none");
   warning.classList.add("d-none");
+  
+  // Update aria-checked state
+  const isChecked = checked.classList.contains('d-none') ? 'false' : 'true';
+  checkbox?.setAttribute('aria-checked', isChecked);
 }
 
 /**

@@ -18,8 +18,8 @@
   background-color: var(--white);
   /* scrollbar-width: none; */
 
-  h1 {
-    font-size: 63px;
+  h2 {
+    font-size: 61px;
     margin-block-start: 0;
     margin-block-end: 0;
   }
