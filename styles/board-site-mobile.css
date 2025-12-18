@@ -42,10 +42,6 @@
 }
 
 @media (max-width: 1024px) {
-  .dropdown-menu-board-site-btn {
-    display: flex;
-  }
-
   .board-wrapper.frame-191 {
     height: calc(100vh - 160px);
   }
@@ -284,6 +280,10 @@
 
   .task-content {
     width: 100% !important;
+  }
+
+  .dropdown-menu-board-site-btn {
+    display: flex;
   }
 }
 

@@ -11,10 +11,15 @@
     align-items: center;
     z-index: 1200;
     opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+    visibility: hidden;
 }
 
 .overlay-wrapper.active {
     opacity: 1;
+    pointer-events: auto;
+    visibility: visible;
 }
 
 .overlay-wrapper.slide-in .overlay-content {
@@ -38,6 +43,7 @@
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
     animation-duration: 0.4s;
     animation-fill-mode: forwards;
+    transform: translateX(100vw);
 }
 
 .overlay-left {

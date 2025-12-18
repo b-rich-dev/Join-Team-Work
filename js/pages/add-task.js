@@ -1,5 +1,5 @@
 import { getFirebaseData } from "../data/API.js";
-import { loadFirebaseData } from "../../main.js";
+import { loadFirebaseData, refreshSummaryIfExists } from "../../main.js";
 import { clearSubtask, clearSubtasksList, renderSubtasks, addedSubtasks, } from "../events/subtask-handler.js";
 import { currentPriority, setMedium } from "../events/priorety-handler.js";
 import { selectedCategory, selectedContacts, clearAssignedTo, clearCategory, } from "../events/dropdown-menu.js";
@@ -10,8 +10,17 @@ import { initAddTaskForm, picker, showTaskSuccessMsg, showWrongFormatErrorMsg } 
 let isResizing = false;
 let startY, startHeight, currentTextarea;
 let overlayPickerInstance;
+let refreshBoardSite = null;
 
 export let fetchData = null;
+
+/**
+ * Sets the board refresh callback function
+ * @param {Function} refreshCallback - The function to call when the board needs to be refreshed
+ */
+export function setRefreshBoardCallback(refreshCallback) {
+  refreshBoardSite = refreshCallback;
+}
 
 /** * Initializes the task view and loads the required data.
  * @returns {Promise<void>} - A promise that resolves when the initialization is complete.
@@ -279,6 +288,29 @@ function extractSubtasks(subtasks) {
   return { total, checked, completed };
 }
 
+/**
+ * Reads the current subtasks from the DOM as a fallback when the in-memory
+ * state is empty. This makes sure we persist subtasks created in the overlay
+ * even if event wiring differs.
+ * @returns {{text: string, completed: boolean}[]} Array of subtask objects
+ */
+function readSubtasksFromDom() {
+  const list = document.getElementById("subtasks-list");
+  if (!list) return [];
+  const items = Array.from(list.querySelectorAll(".subtask-list"));
+  if (items.length === 0) return [];
+  return items
+    .map((li) => {
+      const span = li.querySelector(".subtask-text");
+      if (!span) return null;
+      return {
+        text: span.textContent?.trim() || "",
+        completed: span.classList.contains("completed"),
+      };
+    })
+    .filter(Boolean);
+}
+
 /** * Maps selected contacts to their corresponding IDs.
  * @param {Array} selectedContacts - The array of selected contacts.
  * @param {Object} fetchData - The fetched data containing contacts.
@@ -312,7 +344,11 @@ function createTaskObject() {
   // Attachments aus globaler Variable laden
   const attachments = window.taskAttachments || [];
 
-  const { total, checked, completed } = extractSubtasks(addedSubtasks);
+  // Bevorzugt In-Memory-Status, fallback auf DOM-Auslesung im Overlay
+  const subtaskState = addedSubtasks && addedSubtasks.length > 0
+    ? addedSubtasks
+    : readSubtasksFromDom();
+  const { total, checked, completed } = extractSubtasks(subtaskState);
   const assignedUsers = mapAssignedUsers(selectedContacts, fetchData);
 
   return {
@@ -348,7 +384,18 @@ export async function handleCreateTask(event) {
       overlay.classList.remove("overlay-visible");
       initAddTaskForm();
     }
-    window.location.href = "board-site.html";
+    
+    // Refresh board dynamically if we're on the board page
+    if (typeof refreshBoardSite === 'function') {
+      await refreshBoardSite();
+    } else if (window.location.pathname.includes('board-site')) {
+      // If refresh function not available, dynamically import and call it
+      const { refreshBoardSite: refreshFn } = await import('../ui/render-board.js');
+      await refreshFn();
+    } else {
+      // If not on board page, redirect
+      window.location.href = "board-site.html";
+    }
   }
 }
 
@@ -366,6 +413,9 @@ async function processNewTask() {
 
     await CWDATA(rawNewObject, fetchData);
     await showTaskSuccessMsg();
+    
+    // Refresh summary statistics if on summary page
+    await refreshSummaryIfExists();
 
     clearForm();
   } finally {

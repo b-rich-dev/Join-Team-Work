@@ -9,12 +9,12 @@ import {
   openSpecificOverlay,
   initOverlayListeners,
 } from "../events/overlay-handler.js";
-import { initAssignedToDropdownLogic } from "../events/dropdown-menu.js";
 import { renderAssignedToContacts } from "../templates/add-task-template.js";
-import { initDatePicker } from "../events/animation.js";
+import { initDatePicker } from "../templates/add-task-template.js";
 import { initSubtaskManagementLogic } from "../events/subtask-handler.js";
 import { getContacts } from "../data/storage.js";
 import { CWDATA } from "../data/task-to-firbase.js";
+import { selectedContacts } from "../events/dropdown-menu.js";
 
 /**
  * Opens the task detail edit overlay and initializes it with the provided task data.
@@ -88,7 +88,7 @@ function getEditFormContainer() {
  */
 async function initEditFormModules(container, task) {
   await initPriorityModule(container);
-  await initAssignedToDropdownModule(container);
+  await initAssignedToDropdownModule(container, task);
   await initDatePickerModule(container);
   await initSubtaskModule(container);
   await initAssignedContactsModule(task);
@@ -116,15 +116,29 @@ async function initPriorityModule(container) {
  * @param {HTMLElement} container - The edit form container element.
  * @returns {Promise<void>}
  */
-async function initAssignedToDropdownModule(container) {
-  if (typeof initAssignedToDropdownLogic === "function") {
-    try {
-      initAssignedToDropdownLogic(container);
-    } catch (e) {
-      console.error("Error initializing assignedTo dropdown:", e);
-    }
-  } else {
-    console.error("initAssignedToDropdownLogic is not defined!");
+async function initAssignedToDropdownModule(container, task) {
+  try {
+    const mod = await import("../events/dropdown-menu-auxiliary-function.js");
+    const contactsData = window.firebaseData?.contacts
+      ? Object.entries(window.firebaseData.contacts).map(([id, obj]) => ({ ...obj, id }))
+      : [];
+    await mod.initDropdowns(contactsData);
+    const assignedSource = Array.isArray(task?.assignedUsers)
+      ? task.assignedUsers
+      : Array.isArray(task?.assignedTo)
+      ? task.assignedTo
+      : (typeof task?.assignedTo === "string" && task.assignedTo)
+      ? task.assignedTo
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean)
+      : [];
+    await mod.setAssignedContactsFromTaskForCard(assignedSource);
+  } catch (e) {
+    console.error(
+      "Error initializing assignedTo dropdown via auxiliary module:",
+      e
+    );
   }
 }
 
@@ -211,6 +225,15 @@ export async function saveEditedTask(taskId) {
   const editTaskObjekt = buildEditTaskObject(form, taskId);
   const objForCWDATA = { [taskId]: editTaskObjekt };
   await CWDATA(objForCWDATA, window.firebaseData);
+  try {
+    if (window.board && typeof window.board.site === "function") {
+      window.board.site();
+    } else if (typeof window.boardSiteHtml === "function") {
+      window.boardSiteHtml();
+    }
+  } catch (e) {
+    console.warn("Board refresh after save failed:", e);
+  }
 }
 
 /**
@@ -320,22 +343,19 @@ function getSubtasksFromForm(form, taskId) {
  * @returns {string[]} Array of assigned user IDs.
  */
 function getAssignedUsersFromForm(form) {
-  let assignedUsers = [];
-  const assignedCheckboxes = form.querySelectorAll(
-    ".assigned-contact-checkbox:checked"
-  );
-  if (window.firebaseData && window.firebaseData.contacts) {
-    assignedUsers = Array.from(assignedCheckboxes)
-      .map((cb) => {
-        const name = cb.getAttribute("data-name");
-        const contact = Object.entries(window.firebaseData.contacts).find(
-          ([id, obj]) => obj.name === name
-        );
-        return contact ? contact[0] : null;
-      })
-      .filter(Boolean);
-  }
-  return assignedUsers;
+  if (!(window.firebaseData && window.firebaseData.contacts)) return [];
+  const contactsObj = window.firebaseData.contacts;
+  const sel = Array.isArray(selectedContacts) ? selectedContacts : [];
+  const ids = sel
+    .map((c) => {
+      if (c && c.id) return c.id;
+      const name = c?.name;
+      if (!name) return null;
+      const found = Object.entries(contactsObj).find(([, obj]) => obj.name === name);
+      return found ? found[0] : null;
+    })
+    .filter(Boolean);
+  return ids;
 }
 
 /**

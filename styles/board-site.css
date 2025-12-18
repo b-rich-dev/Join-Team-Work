@@ -204,7 +204,7 @@ body {
   align-items: center;
   min-width: 150px;
   max-height: 50vh; /* auf mobilen Geräten nicht größer als halber Screen */
-  z-index: 1000;
+  z-index: 1010;
   padding: 10px;
   font-weight: 500;
 }

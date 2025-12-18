@@ -5,8 +5,17 @@
  */
 export function openOverlay(id) {
   const overlay = document.getElementById(id);
+  if (!overlay) {
+    console.error(`Overlay with id "${id}" not found`);
+    return;
+  }
   overlay.classList.remove('hidden', 'slide-out');
-  overlay.classList.add('slide-in', 'active');
+  overlay.classList.add('active');
+  // Force reflow to ensure the transition works
+  void overlay.offsetWidth;
+  requestAnimationFrame(() => {
+    overlay.classList.add('slide-in');
+  });
 }
 
 /**

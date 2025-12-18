@@ -34,6 +34,8 @@ function setupCategoryDropdown() {
 function setupAssignedUsersDropdown() {
   document.getElementById("dropdown-assigned-to")?.addEventListener("click", toggleAssignedToDropdown);
   document.getElementById("assigned-to-options-container")?.addEventListener("click", (event) => {
+    // Verhindere, dass der Outside-Click-Handler das Dropdown schließt
+    event.stopPropagation();
     const contactOption = event.target.closest(".contact-option");
     if (contactOption) {
       const { name, initials, avatarColor } = contactOption.dataset;
@@ -45,8 +47,31 @@ function setupAssignedUsersDropdown() {
         invalidArea.classList.remove("invalid");
         assignedUsersError?.classList.remove("d-flex");
       }
+
+      // Stelle sicher, dass die Optionsliste nach der Auswahl geöffnet bleibt (Multi-Select UX)
+      const wrapper = document.getElementById("assigned-to-options-wrapper");
+      if (wrapper && !wrapper.classList.contains("open-assigned-to")) {
+        wrapper.classList.add("open-assigned-to");
+      }
     }
   });
+
+  // ESC schließt das Assigned-To Dropdown (einmalig registrieren)
+  if (!window._assignedToEscListener) {
+    window._assignedToEscListener = true;
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        const wrapper = document.getElementById("assigned-to-options-wrapper");
+        if (wrapper && wrapper.classList.contains("open-assigned-to")) {
+          event.stopPropagation();
+          event.preventDefault();
+          closeAssignedToDropdown();
+          // Fokus zurück auf Eingabebereich für bessere UX
+          document.getElementById("dropdown-assigned-to")?.focus();
+        }
+      }
+    });
+  }
 }
 
 /** Handles clicks outside the dropdown to close it.

@@ -1,3 +1,5 @@
+import { selectedContacts } from "../events/dropdown-menu.js";
+
 /**
  * Extracts task data from the edit form.
  * @param {HTMLFormElement} form - The form element.
@@ -60,28 +62,18 @@ function extractPriority(form) {
  * @returns {string[]} Array of assigned user IDs.
  */
 function extractAssignedUsers(form, contactsObj) {
-  const assignedOptions = form.querySelectorAll(".contact-option.assigned");
-  if (assignedOptions && contactsObj) {
-    return Array.from(assignedOptions)
-      .map((option) => {
-        // Prefer a stable contact id if present and valid
-        const id = option.getAttribute("data-id");
-        if (id && contactsObj[id]) return id;
-
-        // Fallback: resolve by name. Clean up UI suffixes like " (You)".
-        let name = option.getAttribute("data-name") || option.textContent.trim();
-        if (name && name.endsWith(" (You)")) {
-          name = name.replace(/ \(You\)$/i, "").trim();
-        }
-        return (
-          Object.entries(contactsObj).find(
-            ([cid, contact]) => contact.name === name
-          )?.[0] || null
-        );
-      })
-      .filter(Boolean);
-  }
-  return [];
+  if (!contactsObj) return [];
+  const sel = Array.isArray(selectedContacts) ? selectedContacts : [];
+  const ids = sel
+    .map((c) => {
+      if (c && c.id && contactsObj[c.id]) return c.id;
+      let name = (c && c.name) || "";
+      if (name.endsWith(" (You)")) name = name.replace(/ \(You\)$/i, "").trim();
+      const found = Object.entries(contactsObj).find(([, contact]) => contact.name === name);
+      return found ? found[0] : null;
+    })
+    .filter(Boolean);
+  return ids;
 }
 
 /**

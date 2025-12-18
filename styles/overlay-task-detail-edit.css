@@ -51,7 +51,8 @@
 }
 
 #add-task-main {
-  padding: 5px;
+  /* padding: 5px; */
+  scrollbar-width: none;
 }
 
 #form-buttons-part-add-task {

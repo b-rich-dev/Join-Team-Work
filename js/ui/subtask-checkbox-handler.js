@@ -1,4 +1,5 @@
 import { CWDATA } from "../data/task-to-firbase.js";
+import { refreshSummaryIfExists } from "../../main.js";
 
 /**
  * Sets up the event listener for subtask checkboxes in a container.
@@ -28,7 +29,7 @@ export function setupSubtaskCheckboxListener(
  * @param {object} boardData - The board data object.
  * @param {HTMLElement} container - The container element holding the checkboxes.
  */
-export function handleSubtaskCheckboxChange(
+export async function handleSubtaskCheckboxChange(
   e,
   task,
   taskId,
@@ -40,8 +41,11 @@ export function handleSubtaskCheckboxChange(
   if (task && Array.isArray(task.checkedSubtasks)) {
     task.checkedSubtasks[subtaskIndex] = checked;
     task.subtasksCompleted = task.checkedSubtasks.filter(Boolean).length;
-    CWDATA({ [taskId]: task }, boardData);
+    await CWDATA({ [taskId]: task }, boardData);
     updateSubtaskProgressBar(task, container);
+    
+    // Refresh summary statistics when subtask completion changes
+    await refreshSummaryIfExists();
   }
 }
 

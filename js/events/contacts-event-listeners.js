@@ -39,12 +39,24 @@ function setupNewContactOverlay() {
  * Clears inputs and resets live-validation flags before opening.
  */
 function setupOpenNewContactOverlayButton() {
-    document.querySelector('.add-new-contact-button').addEventListener('click', () => {
+    const btn = document.querySelector('.add-new-contact-button');
+    if (!btn) {
+        console.error('.add-new-contact-button not found in DOM!');
+        return;
+    }
+    
+    // Remove any existing listener to avoid duplicates
+    if (btn._clickHandlerAttached) {
+        return;
+    }
+    
+    btn.addEventListener('click', () => {
         clearNewContactFormInputs();
         resetNewLiveValidationFlag();
         openOverlay('contactOverlay');
         setupCreateContactButton();
     });
+    btn._clickHandlerAttached = true;
 }
 
 /**
@@ -62,7 +74,12 @@ function setupCloseNewContactOverlayButtons() {
  * Closes the "Add New Contact" overlay when clicking on its backdrop.
  */
 function setupOverlayClickToClose() {
-    document.getElementById('contactOverlay').addEventListener('click', (event) => {
+    const overlay = document.getElementById('contactOverlay');
+    if (!overlay) {
+        console.warn('contactOverlay not found');
+        return;
+    }
+    overlay.addEventListener('click', (event) => {
         if (event.target === event.currentTarget) {
             closeOverlay('contactOverlay');
         }

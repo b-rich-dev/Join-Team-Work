@@ -1,22 +1,25 @@
 import { CWDATA } from "../data/task-to-firbase.js";
 import { closeSpecificOverlay } from "../events/overlay-handler.js";
+import { refreshSummaryIfExists } from "../../main.js";
 /**
  * Sets up the delete button listener in the detail overlay.
  * @param {HTMLElement} detailOverlayElement - The detail overlay DOM element.
  * @param {string} taskId - The ID of the task to delete.
  * @param {object} boardData - The board data object.
+ * @param {function} updateBoardFunction - Callback to update the board after deletion.
  */
 export function setupDeleteButtonListener(
   detailOverlayElement,
   taskId,
-  boardData
+  boardData,
+  updateBoardFunction
 ) {
   const deleteButton = detailOverlayElement.querySelector(".delete-task-btn");
   if (deleteButton) {
     deleteButton.dataset.taskId = taskId;
     deleteButton.onclick = null;
     deleteButton.addEventListener("click", (event) =>
-      handleDeleteButtonClick(event, boardData)
+      handleDeleteButtonClick(event, boardData, updateBoardFunction)
     );
   }
 }
@@ -25,8 +28,9 @@ export function setupDeleteButtonListener(
  * Handles the click event for the delete button in the detail overlay.
  * @param {Event} event - The click event.
  * @param {object} boardData - The board data object.
+ * @param {function} updateBoardFunction - Callback to update the board after deletion.
  */
-export async function handleDeleteButtonClick(event, boardData) {
+export async function handleDeleteButtonClick(event, boardData, updateBoardFunction) {
   event.stopPropagation();
   const deleteId = event.currentTarget.dataset.taskId;
   if (boardData.tasks[deleteId]) {
@@ -37,8 +41,17 @@ export async function handleDeleteButtonClick(event, boardData) {
         delete window.firebaseData.tasks[deleteId];
       }
       closeSpecificOverlay("overlay-task-detail");
-      // Use absolute path to avoid duplicated segments (e.g., html/html)
-      window.location.href = "/html/board-site.html";
+      
+      // Refresh summary statistics
+      await refreshSummaryIfExists();
+      
+      // Refresh board dynamically instead of reloading the page
+      if (typeof updateBoardFunction === 'function') {
+        await updateBoardFunction();
+      } else {
+        // Fallback: reload page if no update function provided
+        window.location.href = "/html/board-site.html";
+      }
     } catch (e) {
       console.error("Delete failed:", e);
       // Optional: show feedback to user

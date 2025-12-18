@@ -169,7 +169,7 @@ function updateEditAvatar(contact) {
  * Initializes drag-to-scroll functionality on specific scrollable UI panels
  * after the DOM is fully loaded.
  */
-document.addEventListener('DOMContentLoaded', () => {
+function initDragScrollOnElements() {
   const elementsToDragScroll = document.querySelectorAll('.contacts-sidebar, .contacts-details, .scrollable-panel');
   elementsToDragScroll.forEach((element) => {
     const isContactsDetails = element.classList.contains('contacts-details');
@@ -178,15 +178,24 @@ document.addEventListener('DOMContentLoaded', () => {
       enableVerticalScroll: true
     });
   });
-});
+}
 
 /**
- * Application startup logic:
- * - Renders the initial contact list
- * - Sets up all necessary event listeners for the contacts UI
+ * Initializes the contacts page
  */
-renderContacts();
-initContactEventListeners();
+function init() {
+  initDragScrollOnElements();
+  renderContacts();
+  initContactEventListeners();
+}
+
+// Check if DOM is already loaded or wait for it
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  // DOM already loaded, init immediately
+  init();
+}
 
 /**
  * Closes the contact details view on mobile devices.

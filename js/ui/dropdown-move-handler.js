@@ -6,6 +6,8 @@
  * @param {Function} setupMoveTaskListeners Function to set up move task listeners.
  */
 import { enableMouseDragScroll } from "../events/drag-to-scroll.js";
+import { refreshBoardSite } from "./render-board.js";
+import { refreshSummaryIfExists } from "../../main.js";
 
 export function setupDropdownMenuListeners(
   card,
@@ -16,22 +18,28 @@ export function setupDropdownMenuListeners(
   const dropdownBtn = card.querySelector(".dropdown-menu-board-site-btn");
   const dropdownMenu = card.querySelector(".dropdown-menu-board-site");
   if (!dropdownBtn || !dropdownMenu) return;
-  dropdownBtn.addEventListener("click", (e) =>
-    handleDropdownClick(e, dropdownMenu, dropdownBtn)
-  );
+  
+  // Nur hinzufügen, wenn noch nicht gebunden
+  if (!dropdownBtn.dataset.listenerBound) {
+    dropdownBtn.addEventListener("click", (e) =>
+      handleDropdownClick(e, dropdownMenu, dropdownBtn)
+    );
+    dropdownBtn.dataset.listenerBound = "true";
+  }
+  
   setupMoveTaskListeners(dropdownMenu, boardData);
-  // Drag-Scroll einmalig binden (nur vertikal)
-  if (!dropdownMenu.dataset.dragScrollBound) {
-    try {
-      enableMouseDragScroll(dropdownMenu, { enableHorizontalScroll: false, enableVerticalScroll: true });
-      dropdownMenu.dataset.dragScrollBound = "1";
-    } catch (_) {}
-  }
-  // Optional: Drag über den Button, um das Menü zu scrollen, wenn es offen ist
-  if (!dropdownBtn.dataset.btnDragBound) {
-    bindBtnDragToMenu(dropdownBtn, dropdownMenu);
-    dropdownBtn.dataset.btnDragBound = "1";
-  }
+  
+  // DRAG-SCROLL TEMPORÄR DEAKTIVIERT - verhindert Clicks auf Links
+  // if (!dropdownMenu.dataset.dragScrollBound) {
+  //   try {
+  //     enableMouseDragScroll(dropdownMenu, { enableHorizontalScroll: false, enableVerticalScroll: true });
+  //     dropdownMenu.dataset.dragScrollBound = "1";
+  //   } catch (_) {}
+  // }
+  // if (!dropdownBtn.dataset.btnDragBound) {
+  //   bindBtnDragToMenu(dropdownBtn, dropdownMenu);
+  //   dropdownBtn.dataset.btnDragBound = "1";
+  // }
 }
 
 /**
@@ -43,20 +51,28 @@ export function setupDropdownMenuListeners(
 export function handleDropdownClick(e, dropdownMenu, dropdownBtn) {
   if (window.innerWidth > 1025) return;
   e.stopPropagation();
-  dropdownMenu.classList.toggle("show");
+  
+  const isCurrentlyOpen = dropdownMenu.classList.contains("show");
+  
+  // Alle anderen Dropdowns schließen
   document
     .querySelectorAll(".dropdown-menu-board-site.show")
     .forEach((menu) => {
-      if (menu !== dropdownMenu) menu.classList.remove("show");
+      menu.classList.remove("show");
     });
-  const card = dropdownBtn.closest(".task-card");
-  if (card) {
-    card.style.position = "relative";
-    dropdownMenu.style.position = "absolute";
-    dropdownMenu.style.top = "0";
-    dropdownMenu.style.left = "0";
-    dropdownMenu.style.zIndex = "10000";
-    dropdownMenu.style.width = `${card.offsetWidth}px`;
+  
+  // Aktuelles Dropdown togglen
+  if (!isCurrentlyOpen) {
+    dropdownMenu.classList.add("show");
+    const card = dropdownBtn.closest(".task-card");
+    if (card) {
+      card.style.position = "relative";
+      dropdownMenu.style.position = "absolute";
+      dropdownMenu.style.top = "0";
+      dropdownMenu.style.left = "0";
+      dropdownMenu.style.zIndex = "1010";
+      dropdownMenu.style.width = `${card.offsetWidth}px`;
+    }
   }
 }
 
@@ -125,16 +141,102 @@ export function setupMoveTaskListeners(
   boardData,
   handleMoveTask
 ) {
-  const moveUp = dropdownMenu.querySelector(".move-task-up");
-  const moveDown = dropdownMenu.querySelector(".move-task-down");
-  if (moveUp)
-    moveUp.addEventListener("click", (ev) =>
-      handleMoveTask(ev, boardData, "up")
+  if (dropdownMenu.dataset.moveListenersBound) {
+    return;
+  }
+  
+  const handleMove = async (ev) => {
+    const moveUpLink = ev.target.closest(".move-task-up");
+    const moveDownLink = ev.target.closest(".move-task-down");
+    
+    if (moveUpLink) {
+      ev.preventDefault();
+      ev.stopPropagation();
+      const taskId = moveUpLink.dataset.taskId;
+      
+      if (taskId && boardData.tasks && boardData.tasks[taskId]) {
+        const task = boardData.tasks[taskId];
+        const columnOrder = ["toDo", "inProgress", "review", "done"];
+        const currentIdx = columnOrder.indexOf(task.columnID);
+        const newIdx = currentIdx - 1;
+        
+        if (newIdx >= 0) {
+          task.columnID = columnOrder[newIdx];
+          await handleMoveTask(ev, boardData, "up");
+          dropdownMenu.classList.remove("show");
+          await refreshBoardSite();
+        }
+      }
+    } else if (moveDownLink) {
+      ev.preventDefault();
+      ev.stopPropagation();
+      const taskId = moveDownLink.dataset.taskId;
+      
+      if (taskId && boardData.tasks && boardData.tasks[taskId]) {
+        const task = boardData.tasks[taskId];
+        const columnOrder = ["toDo", "inProgress", "review", "done"];
+        const currentIdx = columnOrder.indexOf(task.columnID);
+        const newIdx = currentIdx + 1;
+        
+        if (newIdx < columnOrder.length) {
+          task.columnID = columnOrder[newIdx];
+          await handleMoveTask(ev, boardData, "down");
+          dropdownMenu.classList.remove("show");
+          await refreshBoardSite();
+        }
+      }
+    }
+  };
+  
+  // Click-Events für Desktop
+  dropdownMenu.addEventListener("click", handleMove, true);
+  
+  // Touch-Events für Mobile - mit Tap-Detection
+  let touchStartTime = 0;
+  let touchStartPos = { x: 0, y: 0 };
+  
+  dropdownMenu.addEventListener("touchstart", (ev) => {
+    touchStartTime = Date.now();
+    touchStartPos = {
+      x: ev.touches[0].clientX,
+      y: ev.touches[0].clientY
+    };
+  }, { passive: true });
+  
+  dropdownMenu.addEventListener("touchend", async (ev) => {
+    const touchDuration = Date.now() - touchStartTime;
+    const touch = ev.changedTouches[0];
+    const touchEndPos = {
+      x: touch.clientX,
+      y: touch.clientY
+    };
+    
+    // Nur als Tap behandeln wenn kurze Dauer und wenig Bewegung
+    const distance = Math.sqrt(
+      Math.pow(touchEndPos.x - touchStartPos.x, 2) +
+      Math.pow(touchEndPos.y - touchStartPos.y, 2)
     );
-  if (moveDown)
-    moveDown.addEventListener("click", (ev) =>
-      handleMoveTask(ev, boardData, "down")
-    );
+    
+    if (touchDuration < 300 && distance < 10) {
+      // Es war ein Tap, kein Drag
+      const target = document.elementFromPoint(touch.clientX, touch.clientY);
+      const moveUpLink = target?.closest(".move-task-up");
+      const moveDownLink = target?.closest(".move-task-down");
+      
+      if (moveUpLink || moveDownLink) {
+        ev.preventDefault();
+        // Erstelle ein synthetisches Event
+        const syntheticEvent = {
+          target: target,
+          preventDefault: () => {},
+          stopPropagation: () => {}
+        };
+        await handleMove(syntheticEvent);
+      }
+    }
+  }, { passive: false });
+  
+  dropdownMenu.dataset.moveListenersBound = "true";
 }
 
 /**
@@ -145,17 +247,31 @@ export function setupMoveTaskListeners(
  * @param {Function} CWDATA Function to update the board data.
  */
 export async function handleMoveTask(ev, boardData, direction, CWDATA) {
-  ev.preventDefault();
-  ev.stopPropagation();
-  const taskId = ev.currentTarget.dataset.taskId;
+  const moveLink = ev.target.closest(".move-task-up, .move-task-down");
+  if (!moveLink) return;
+  
+  const taskId = moveLink.dataset.taskId;
+  if (!taskId) return;
+  
   const task = boardData.tasks[taskId];
   if (!task) return;
-  const columnOrder = ["toDo", "inProgress", "review", "done"];
-  const currentIdx = columnOrder.indexOf(task.columnID);
-  let newIdx = direction === "up" ? currentIdx - 1 : currentIdx + 1;
-  if (newIdx >= 0 && newIdx < columnOrder.length) {
-    task.columnID = columnOrder[newIdx];
-    await CWDATA({ [taskId]: task }, boardData);
-    window.location.href = "board-site.html";
-  }
+  
+  // Task wurde bereits in setupMoveTaskListeners geändert
+  await CWDATA({ [taskId]: task }, boardData);
+  
+  // Refresh summary statistics when task column changes
+  await refreshSummaryIfExists();
+}
+
+// Globaler Click-Listener zum Schließen der Dropdowns
+if (!window.dropdownCloseListenerAdded) {
+  document.addEventListener("click", (e) => {
+    if (!e.target.closest(".dropdown-menu-board-site-btn") && 
+        !e.target.closest(".dropdown-menu-board-site")) {
+      document.querySelectorAll(".dropdown-menu-board-site.show").forEach(menu => {
+        menu.classList.remove("show");
+      });
+    }
+  });
+  window.dropdownCloseListenerAdded = true;
 }

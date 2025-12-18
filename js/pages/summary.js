@@ -10,6 +10,21 @@ let summaryData = {
 };
 
 /**
+ * Resets the summaryData object to default values
+ */
+function resetSummaryData() {
+  summaryData = {
+    numberOfTasks: 0,
+    todo: 0,
+    urgent: 0,
+    deadline: "No upcoming deadline",
+    inProgress: 0,
+    review: 0,
+    done: 0
+  };
+}
+
+/**
  * (onload) main function; call data-fetcher, call all helper functions
  */
 async function initSummary() {
@@ -27,10 +42,42 @@ async function initSummary() {
 }
 
 /**
+ * Refreshes the summary data without reloading the page.
+ * Can be called from other pages to update summary statistics.
+ * Uses cached data if available to ensure consistency with board.
+ * @returns {Promise<void>}
+ */
+async function refreshSummary() {
+  // Use cached data first (same as board page uses)
+  let data = null;
+  if (window.firebaseData && window.firebaseData.tasks) {
+    data = window.firebaseData.tasks;
+  } else {
+    // Fallback to fetching from Firebase if no cache available
+    data = await getFirebaseData("tasks");
+  }
+  
+  if (!data) {
+    console.error('No data received for refresh');
+    return;
+  }
+  taskData = data;
+  resetSummaryData();
+  summarizeTasks();
+  deadline();
+  fillSummary();
+}
+
+// Make refreshSummary globally available for imports from other modules
+if (typeof window !== 'undefined') {
+  window.refreshSummary = refreshSummary;
+}
+
+/**
  * helper function for "initSummary"; count number of keys in "tasks"; write number in "summaryData"-object
  */
 function summarizeTasks() {
-  const taskKeys = Object.keys(taskData);
+  const taskKeys = Object.keys(taskData).filter(key => taskData[key] !== null && taskData[key] !== undefined);
   summaryData.numberOfTasks = taskKeys.length;
   getColumnIdData(taskKeys);
 }
@@ -43,14 +90,25 @@ function summarizeTasks() {
 function getColumnIdData(keys) {
   keys.forEach(key => {
     const task = taskData[key];
+    if (!task) return; // Skip null/undefined tasks
     const {columnID, priority} = task;
     if (priority == "urgent") {
       summaryData.urgent++;
     }
-    if (summaryData.hasOwnProperty(columnID)) {
-      summaryData[columnID]++;
+    
+    // Map columnID values to summaryData keys
+    const columnMapping = {
+      'toDo': 'todo',
+      'inProgress': 'inProgress',
+      'review': 'review',
+      'done': 'done'
+    };
+    
+    const summaryKey = columnMapping[columnID] || columnID;
+    if (summaryData.hasOwnProperty(summaryKey)) {
+      summaryData[summaryKey]++;
     } else {
-      summaryData[columnID] = 1; // für Ungewöhnliches, Fehler
+      console.warn(`Unknown columnID: ${columnID}`);
     }
   });
 }
@@ -72,7 +130,7 @@ function deadline() {
 function getDatesAndFilter() {
   const taskKeys = Object.keys(taskData);
   return datesAsStrings = taskKeys
-    .filter(key => taskData[key].columnID !== "done")
+    .filter(key => taskData[key] && taskData[key] !== null && taskData[key].columnID !== "done")
     .map(key => taskData[key].deadline);
 }
 

@@ -242,6 +242,11 @@ export function closeSpecificOverlay(overlayId) {
   setOverlayVisibility(overlay, false);
   manageBodyScroll(false);
   clearCurrentOverlay(overlayId);
+  // Viewer-Instanz im Task-Details-Overlay aufräumen
+  if (overlayId === "overlay-task-detail" && window.taskDetailViewer) {
+    try { window.taskDetailViewer.destroy(); } catch (_) { /* noop */ }
+    window.taskDetailViewer = null;
+  }
   // After closing overlays, update the board content so changes are visible
   if (
     overlayId === "overlay-task-detail" ||

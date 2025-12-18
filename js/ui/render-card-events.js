@@ -128,7 +128,8 @@ function handleCardClick(e, card, boardData, updateBoardFunction) {
   if (
     e.target.classList.contains("assigned-initials-circle") ||
     e.target.closest(".priority-icon") ||
-    e.target.closest(".dropdown-menu-board-site-btn")
+    e.target.closest(".dropdown-menu-board-site-btn") ||
+    e.target.closest(".dropdown-menu-board-site")
   )
     return;
   const taskId = card.id;
@@ -158,7 +159,7 @@ export function renderDetailOverlay(taskId, boardData, updateBoardFunction) {
     boardData,
     updateBoardFunction
   );
-  setupDeleteButtonListener(detailOverlayElement, taskId, boardData);
+  setupDeleteButtonListener(detailOverlayElement, taskId, boardData, updateBoardFunction);
 }
 
 /**
@@ -172,6 +173,93 @@ export function renderDetailOverlay(taskId, boardData, updateBoardFunction) {
 function renderTaskOverlayHtml(container, task, taskId, boardData) {
   const html = getTaskOverlay(task, taskId, boardData.contacts);
   container.innerHTML = html;
+  try {
+    // Initialisiere Image Viewer für das Details-Overlay (nur wenn Bilder vorhanden sind)
+    const gallery = container.querySelector('#task-attachment-list');
+    if (gallery) {
+      const hasImages = !!gallery.querySelector('img');
+      if (window.taskDetailViewer) {
+        try { window.taskDetailViewer.destroy(); } catch (_) { /* noop */ }
+        window.taskDetailViewer = null;
+      }
+      if (hasImages && typeof Viewer === 'function') {
+        window.taskDetailViewer = new Viewer(gallery, {
+          inline: false,
+          button: true,
+          navbar: true,
+          title: true,
+          toolbar: {
+            download: { show: 1, size: 'large' },
+            zoomIn: 1,
+            zoomOut: 1,
+            oneToOne: 1,
+            reset: 1,
+            prev: 1,
+            play: { show: 1, size: 'large' },
+            next: 1,
+            rotateLeft: 1,
+            rotateRight: 1,
+            flipHorizontal: 1,
+            flipVertical: 1,
+            delete: { show: 1, size: 'large' },
+          },
+          delete: async (index) => {
+            try {
+              await deleteAttachmentFromTask(taskId, index, boardData);
+              if (window.taskDetailViewer) window.taskDetailViewer.hide();
+            } catch (e) {
+              console.error('Failed to delete attachment via viewer:', e);
+            }
+          },
+          hide() {
+            if (document.activeElement instanceof HTMLElement) {
+              document.activeElement.blur();
+            }
+          }
+        });
+      }
+    }
+  } catch (err) {
+    console.error('Failed to init task detail viewer:', err);
+  }
+
+  // Klick-Listener für Delete-Buttons im Grid
+  const deleteBtns = container.querySelectorAll('.delete-attachment-btn[data-action="delete"]');
+  deleteBtns.forEach((btn) => {
+    btn.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      const item = btn.closest('.attachment-item');
+      const indexStr = item?.getAttribute('data-index');
+      const index = indexStr ? Number(indexStr) : NaN;
+      if (Number.isNaN(index)) return;
+      try {
+        await deleteAttachmentFromTask(taskId, index, boardData);
+      } catch (err) {
+        console.error('Failed to delete attachment:', err);
+      }
+    });
+  });
+}
+
+async function deleteAttachmentFromTask(taskId, index, boardData) {
+  const task = boardData.tasks[taskId];
+  if (!task || !Array.isArray(task.attachments)) return;
+  const updatedAttachments = task.attachments.filter((_, i) => i !== index);
+  const updatedTask = { ...task, attachments: updatedAttachments };
+  // Persistiere in Firebase
+  try {
+    await CWDATA({ [taskId]: updatedTask }, boardData);
+    // Aktualisiere lokale Daten
+    boardData.tasks[taskId] = updatedTask;
+  } catch (e) {
+    console.error('Persisting updated task failed:', e);
+    throw e;
+  }
+  // Re-render Overlay mit aktualisiertem Task
+  const container = detailOverlayElement?.querySelector('#task-container');
+  if (container) {
+    renderTaskOverlayHtml(container, updatedTask, taskId, boardData);
+  }
 }
 
 /**

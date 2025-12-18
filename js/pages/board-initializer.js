@@ -3,13 +3,14 @@ import {
   initOverlayListeners,
   redirectOnSmallScreen,
 } from "../../js/events/overlay-handler.js";
-import { clearForm } from "./add-task.js";
+import { clearForm, setRefreshBoardCallback } from "./add-task.js";
 import { initAddTaskForm } from "./add-task-auxiliary-functions.js";
 import { getAddTaskFormHTML } from "../templates/add-task-template.js";
 
 import { loadFirebaseData } from "../../main.js";
 import { checkFirebaseHealth } from "../data/API.js";
 import { filterTaskCardsByTitle } from "../events/find-task.js";
+import { refreshBoardSite } from "../ui/render-board.js";
 
 let isOverlayLoaded = false;
 
@@ -61,6 +62,9 @@ export async function loadAndInitAddTaskOverlay() {
       }
 
       await initAddTaskForm();
+      
+      // Set the refresh callback so the board updates without reload
+      setRefreshBoardCallback(refreshBoardSite);
 
       redirectOnSmallScreen();
     }

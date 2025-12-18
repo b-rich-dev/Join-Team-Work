@@ -63,6 +63,11 @@ function bindPointerDragEvents(scrollContainer, dragState) {
 }
 
 function startPointerDrag(e, dragState) {
+    // Don't interfere with clicks on interactive elements
+    if (e.target.closest('button, a, input, textarea, select, [role="button"], .contact')) {
+        return;
+    }
+    
     dragState.isPressed = true;
     dragState.pointerId = e.pointerId;
     dragState.initialPointerX = e.pageX;
@@ -113,6 +118,11 @@ function bindMouseDragEvents(scrollContainer, dragState) {
  * Called when mouse is pressed. Saves initial positions.
  */
 function startMouseDrag(mouseEvent, dragState) {
+    // Don't interfere with clicks on interactive elements
+    if (mouseEvent.target.closest('button, a, input, textarea, select, [role="button"], .contact')) {
+        return;
+    }
+    
     dragState.isPressed = true;
     dragState.initialPointerX = mouseEvent.pageX;
     dragState.initialPointerY = mouseEvent.pageY;
@@ -155,6 +165,11 @@ function bindTouchDragEvents(scrollContainer, dragState) {
 }
 
 function startTouchDrag(e, dragState) {
+    // Don't interfere with touches on interactive elements
+    if (e.target.closest('button, a, input, textarea, select, [role="button"], .contact')) {
+        return;
+    }
+    
     const t = e.touches && e.touches[0];
     if (!t) return;
     dragState.isPressed = true;

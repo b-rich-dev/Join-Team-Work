@@ -339,7 +339,7 @@ function getTaskAttachmentsSection(task) {
   return `
     <div class="taskCardField attachments-section">
       <p class="attachments-title">Attachments:</p>
-      <div id="attachment-list" class="attachment-list">${attachmentsHtml}</div>
+      <div id="task-attachment-list" class="attachment-list">${attachmentsHtml}</div>
     </div>
   `;
 }

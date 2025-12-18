@@ -1,5 +1,6 @@
 import { CWDATA } from "../data/task-to-firbase.js";
 import { updateTaskColumnData } from "../ui/render-board.js";
+import { refreshSummaryIfExists } from "../../main.js";
 
 let currentDraggedElement = null;
 
@@ -161,6 +162,9 @@ async function handleDropMove(draggedElement, targetColumn, taskId) {
         task.columnID = newColumnId;
         await updateTaskColumnData(taskId, newColumnId);
         CWDATA({ [taskId]: task }, allData);
+        
+        // Refresh summary statistics when task column changes
+        await refreshSummaryIfExists();
       }
     }
   }

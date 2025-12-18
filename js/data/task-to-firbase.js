@@ -127,6 +127,17 @@ async function sendObject(pushObjectId, rawNewObject) {
   } else {
     Object.assign(allData.tasks, localObject);
   }
+  
+  // Sync with window.firebaseData to keep all caches in sync
+  if (typeof window !== 'undefined' && window.firebaseData) {
+    window.firebaseData.tasks = window.firebaseData.tasks || {};
+    if (rawNewObject === null) {
+      delete window.firebaseData.tasks[pushObjectId];
+    } else {
+      Object.assign(window.firebaseData.tasks, localObject);
+    }
+  }
+  
   return rawNewObject;
 }
 

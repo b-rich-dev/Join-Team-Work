@@ -4,6 +4,7 @@ import { getFormattedDate } from "../utils/date-utils.js";
 import { CWDATA } from "../data/task-to-firbase.js";
 import { closeSpecificOverlay } from "../events/overlay-handler.js";
 import { renderDetailOverlay } from "./render-card-events.js";
+import { refreshSummaryIfExists } from "../../main.js";
 /**
  * Sets up the cancel button for the edit form overlay.
  * @param {HTMLElement} container - The container element for the edit form.
@@ -84,9 +85,15 @@ export async function handleTaskEditFormSubmit(
     taskEditForm.getAttribute("data-task-id") || taskToEditId;
   await CWDATA({ [currentTaskId]: editTaskObjekt }, fetchData);
   closeSpecificOverlay("overlay-task-detail-edit");
+  
+  // Refresh summary statistics
+  await refreshSummaryIfExists();
+  
   // Refresh the board UI and render detail overlay with up-to-date data
   if (typeof updateBoardFunction === "function") {
     try { await updateBoardFunction(); } catch (e) { /* no-op */ }
+  } else if (typeof window.refreshBoardSite === "function") {
+    try { await window.refreshBoardSite(); } catch (e) { /* no-op */ }
   }
   // Use the mutated fetchData (same object instance as window.firebaseData) for immediate render
   renderDetailOverlay(taskToEditId, fetchData, updateBoardFunction);

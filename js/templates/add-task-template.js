@@ -46,6 +46,13 @@ export function initDatePicker(container = document) {
         }
         visibleInput.blur();
     });
+
+    const calendarIcon = container.querySelector("#calendar-icon");
+    if (calendarIcon) {
+        calendarIcon.addEventListener("click", () => {
+            hiddenInput.showPicker();
+        });
+    }
 }
 
 /** Handles the drag start event.
