@@ -113,7 +113,7 @@ function getPriorityDisplayHtml(priorityClass, priorityText) {
   return `
     <div class="priority-display ${priorityClass}" data-priority="${priorityClass}">
       <p>${priorityText}</p>
-      <img src="../assets/icons/property/${priorityClass}.svg" alt="${priorityText} Priority Icon">
+      <img src="../assets/icons/property/${priorityClass}.svg" alt="" aria-hidden="true">
     </div>
   `;
 }
@@ -460,10 +460,10 @@ function getTaskSubtasksSection(task) {
  * @returns {string} The HTML string for the edit button.
  */
 function getEditButtonHtml(taskId) {
-  return `<button class="edit-task-btn" data-task-id="${taskId}" aria-label="Edit task"><svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="presentation"><path d="M2 13.5V16H4.5L14.13 6.37L11.63 3.87L2 13.5ZM16.73 5.04C17.1 4.67 17.1 4.09 16.73 3.72L15.28 2.27C14.91 1.9 14.33 1.9 13.96 2.27L12.54 3.69L15.04 6.19L16.73 5.04Z" fill="currentColor"/></svg>Edit</button>`;
+  return `<button class="edit-task-btn" data-task-id="${taskId}" aria-label="Edit task"><svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M2 13.5V16H4.5L14.13 6.37L11.63 3.87L2 13.5ZM16.73 5.04C17.1 4.67 17.1 4.09 16.73 3.72L15.28 2.27C14.91 1.9 14.33 1.9 13.96 2.27L12.54 3.69L15.04 6.19L16.73 5.04Z" fill="currentColor"/></svg>Edit</button>`;
 }
 function getVerticalSeparator() {
-  return `<span class="task-detail-separator" style="display:flex;align-items:center;"><svg width="1" height="24" viewBox="0 0 1 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="presentation"><rect width="1" height="24" fill="#D1D1D1"/></svg></span>`;
+  return `<span class="task-detail-separator" style="display:flex;align-items:center;"><svg width="1" height="24" viewBox="0 0 1 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect width="1" height="24" fill="#D1D1D1"/></svg></span>`;
 }
 function getDeleteButtonSvgPaths() {
   return (
@@ -481,7 +481,7 @@ function getDeleteButtonSvgPaths() {
 function getDeleteButtonHtml(taskId) {
   return `
     <button class="delete-task-btn" data-task-id="${taskId}" aria-label="Delete task">
-      <svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="presentation">
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
         <path d="M6 7V13H8V7H6ZM10 7V13H12V7H10ZM4 15V5H14V15C14 15.55 13.55 16 13 16H5C4.45 16 4 15.55 4 15ZM16 3H13.5L12.71 2.21C12.53 2.03 12.28 1.92 12 1.92H6C5.72 1.92 5.47 2.03 5.29 2.21L4.5 3H2V5H16V3Z" fill="currentColor"/>
       </svg>
       Delete

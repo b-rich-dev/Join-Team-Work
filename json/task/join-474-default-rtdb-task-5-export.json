@@ -1,7 +1,8 @@
 {
   "assignedUsers": [
-    "contact-4"
+    "contact-004"
   ],
+  "attachments": [],
   "boardID": "board-1",
   "checkedSubtasks": [
     true
@@ -13,7 +14,7 @@
   "priority": "low",
   "subtaskCompleted": "1",
   "title": "Besprechung der Aufgaben Priorisierung ",
-  "totalSubtask": [
+  "totalSubtasks": [
     "Punch Liste erstellen"
   ],
   "type": "Meeting",

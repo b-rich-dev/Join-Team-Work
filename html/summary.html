@@ -19,7 +19,7 @@
   </head>
   <body onload="includeHeaderAndSidebar(), initSummary()">
       <div class="app-container scrollable">
-        <section id="sidebar" class="sidebar-container"></section>
+        <nav id="sidebar" class="sidebar-container" aria-label="Main navigation"></nav>
 
         <section class="main-content">
           <header id="header"></header>
@@ -130,8 +130,8 @@
         </section>
       </div>
 
-    <div id="landscape-overlay">
-      <div class="landscape-overlay-logo"></div>
+    <div id="landscape-overlay" role="alert" aria-live="assertive">
+      <div class="landscape-overlay-logo" aria-hidden="true"></div>
       <div class="landscape-overlay-message">
         <h2>
           Please rotate your device to portrait mode to use this application.

@@ -78,6 +78,11 @@
     cursor: pointer;
     color: var(--black);
     white-space: nowrap;
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    font: inherit;
 
     &:hover {
         color: var(--lightBlue);

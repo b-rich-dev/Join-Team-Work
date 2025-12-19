@@ -56,22 +56,36 @@ html {
     flex-direction: column;
     align-items: flex-start;
     z-index: 690;
-    padding-bottom: 100px;
 }
 
 .help-content::-webkit-scrollbar {
     display: none;
 }
 
-.help-content h1 {
+.help-content h2 {
     font-size: 61px;
     margin-bottom: 24px;
 }
 
-.help-content h2 {
+.help-content h3 {
     font-size: 27px;
-    margin-top: 32px;
-    margin-bottom: 16px;
+    /* margin-top: 32px; */
+    /* margin-bottom: 8px; */
+    &:last-child{
+        margin-top: 16px;
+    }
+}
+
+.headline-margin{
+    margin-top: 16px;
+    margin-bottom: 8px;
+}
+
+.help-content h4 {
+    font-size: 20px;
+    font-weight: bold;
+    /* margin-top: 24px; */
+    /* margin-bottom: 12px; */
 }
 
 .help-content p {
@@ -107,11 +121,6 @@ html {
     flex: 1;
 }
 
-.numbered-item .content h3 {
-    font-size: 20px;
-    font-weight: bold;
-}
-
 .numbered-item .content p {
     margin: 0;
 }
@@ -125,8 +134,9 @@ html {
 /* === Back Button === */
 /* right wird dynamisch per JS gesetzt */
 #backBtn {
-    position: fixed;
-    top: 200px;
+    position: absolute;
+    top: 44px;
+    right: 0px;
     width: 32px;
     height: 32px;
     padding: 0;
@@ -179,6 +189,6 @@ html {
     }
 
     #backBtn {
-        top: 120px;
+        /* top: 120px; */
     }
 }

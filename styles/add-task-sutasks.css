@@ -97,7 +97,7 @@
 .subtask-list .subtask-item-content {
     display: flex;
     align-items: center;
-    width: 90%;
+    width: 100%;
     height: 100%;
     justify-content: space-between;
 }
@@ -116,7 +116,7 @@
     align-items: center;
     gap: 8px;
     flex-shrink: 0;
-    padding-left: 8px;
+    padding-right: 10px;
 }
 
 .subtask-list .separator {
@@ -132,12 +132,33 @@
     transition: color 0.1s ease;
     flex-shrink: 0;
 }
+.subtask-list:hover svg:not(.left-icon-subtask):not(.right-icon-subtask) {
+    color: var(--black);
+}
+.subtask-list button.left,
+.subtask-list button.right {
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+}
+
+.subtask-list button.left svg,
+.subtask-list button.right svg {
+    color: var(--lightGrey);
+    transition: color 0.1s ease;
+    flex-shrink: 0;
+}
 
 .subtask-list:hover svg:not(.left-icon-subtask):not(.right-icon-subtask) {
     color: var(--black);
 }
 
-.subtask-list:hover svg:not(.left-icon-subtask):not(.right-icon-subtask) {
+.subtask-list:hover button.left svg,
+.subtask-list:hover button.right svg {
     color: var(--black);
 }
 
@@ -161,7 +182,7 @@
     position: relative;
     width: 100%;
     height: 100%;
-    margin: 0 -20px 0 -30px;
+    margin: 0 0 0 -30px;
     border: none;
     border-bottom: 1px solid var(--lightBlue);
     font-size: 16px;
@@ -222,6 +243,11 @@
   transform: translateY(-50%);
   z-index: 2;
   cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  display: inline-flex;
 }
 
 .right-icon-subtask {
@@ -231,4 +257,9 @@
   transform: translateY(-50%);
   z-index: 2;
   cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  display: inline-flex;
 }

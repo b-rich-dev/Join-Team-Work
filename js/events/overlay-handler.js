@@ -81,8 +81,10 @@ function getValidatedQuerySelector(parent, selector) {
 function setOverlayVisibility(overlay, isVisible) {
   if (isVisible) {
     overlay.classList.remove("overlay-hidden");
+    overlay.setAttribute("aria-hidden", "false");
   } else {
     overlay.classList.add("overlay-hidden");
+    overlay.setAttribute("aria-hidden", "true");
   }
 }
 

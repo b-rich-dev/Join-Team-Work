@@ -70,7 +70,7 @@ export function handleDropdownClick(e, dropdownMenu, dropdownBtn) {
       dropdownMenu.style.position = "absolute";
       dropdownMenu.style.top = "0";
       dropdownMenu.style.left = "0";
-      dropdownMenu.style.zIndex = "1010";
+      dropdownMenu.style.zIndex = "2000";
       dropdownMenu.style.width = `${card.offsetWidth}px`;
     }
   }

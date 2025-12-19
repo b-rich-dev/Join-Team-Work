@@ -1,6 +1,18 @@
 {
-  "assignedUser": [
-    "contact-9"
+  "assignedUsers": [
+    "contact-009"
+  ],
+  "attachments": [
+    {
+      "base64": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD...",
+      "name": "punchlist-draft.jpg",
+      "type": "image/jpeg"
+    },
+    {
+      "base64": "data:application/pdf;base64,JVBERi0xLjQKJeLjz9MKMSAwIG9iago...",
+      "name": "consolidated-punchlist.pdf",
+      "type": "application/pdf"
+    }
   ],
   "boardID": "board-1",
   "checkedSubtasks": [
@@ -17,7 +29,7 @@
   "priority": "urgent",
   "subtaskCompleted": "3",
   "title": "Punchliste erstellen",
-  "totalSubtask": [
+  "totalSubtasks": [
     "Claudias´ Liste erstellen",
     "Eugens Liste erstellen",
     "Dominiks Liste erstellen",

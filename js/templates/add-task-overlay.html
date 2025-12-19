@@ -1,15 +1,16 @@
 
-<div id="overlay" class="overlay-hidden">
+<div id="overlay" class="overlay-hidden" role="dialog" aria-modal="true" aria-labelledby="add-task-form-container">
    <div id="modal-content" class="modal-content">
     <button class="close-modal-btn" type="button" aria-label="Close add task overlay" data-event-handle="true">&times;</button>
     <main class="content-overlay" id="add-task-form-container"> </main>
   </div>
 
-  <div id="wrongFormatErrorMsg" class="hidden">
+  <div id="wrongFormatErrorMsg" class="hidden" role="alert" aria-live="assertive">
     This file format is not allowed!
     <p>You can only upload JPEG and PNG files.</p>
-    <svg id="error-msg-close" width="24" height="24" viewBox="0 0 24 24" fill="none"
-      xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="presentation">
+    <button id="error-msg-close" type="button" aria-label="Close error message" style="background: none; border: none; cursor: pointer;">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+        xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="presentation">
       <mask id="mask0_266005_6108_overlay" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="24" height="24">
         <rect width="24" height="24" fill="#D9D9D9" />
       </mask>
@@ -19,13 +20,15 @@
           fill="white" />
       </g>
     </svg>
+    </button>
   </div>
 
-  <div id="attachmentLimitErrorMsg" class="hidden">
+  <div id="attachmentLimitErrorMsg" class="hidden" role="alert" aria-live="assertive">
     Upload limit reached!
     <p>You can upload up to 1 MB total.</p>
-    <svg id="limit-error-msg-close" width="24" height="24" viewBox="0 0 24 24" fill="none"
-      xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="presentation">
+    <button id="limit-error-msg-close" type="button" aria-label="Close error message" style="background: none; border: none; cursor: pointer;">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+        xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="presentation">
       <mask id="mask0_266005_limit_overlay" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="24" height="24">
         <rect width="24" height="24" fill="#D9D9D9" />
       </mask>
@@ -35,5 +38,6 @@
           fill="white" />
       </g>
     </svg>
+    </button>
   </div>
 </div>

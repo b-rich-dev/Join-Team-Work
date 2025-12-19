@@ -80,7 +80,7 @@ export function renderDescriptionInput(task) {
             <div class="textarea-wrapper">
                 <textarea name="task-description" id="task-description" class="task-description-area" placeholder="Enter a Description"
                 >${task?.description ? task.description : ""}</textarea>
-                <img src="../assets/icons/btn/resize-handle.svg" alt="Resize Handle" class="resize-handle" draggable="false" data-event-handle="true"/>
+                <img src="../assets/icons/btn/resize-handle.svg" alt="" aria-hidden="true" class="resize-handle" draggable="false" data-event-handle="true"/>
             </div>
         </div>
     `;
@@ -190,7 +190,7 @@ export function renderAssignedToSection(task) {
                 <input name="select-contacts" type="text" id="select-contacts" class="contact-input" placeholder="Select contacts to assign"
                 value="${Array.isArray(task?.assignedTo) ? task.assignedTo.join(", ") : ""}" />
                 <div class="dropdown-icon-container" id="dropdown-icon-container-one">
-                    <img src="../assets/icons/btn/arrow_drop_down.svg" alt="Dropdown Arrow" class="dropdown-icon" id="dropdown-icon-one" />
+                    <img src="../assets/icons/btn/arrow_drop_down.svg" alt="" aria-hidden="true" class="dropdown-icon" id="dropdown-icon-one" />
                 </div>
             </div>
             <div class="options-wrapper-assigned-to" id="assigned-to-options-wrapper">
@@ -211,11 +211,11 @@ export function renderCategorySection(task) {
         <div class="label-container">
             <div for="dropdown-category" class="required font-size-20">Category</div>
             <input type="hidden" id="hidden-category-input" value="${task?.category || ""}" />
-            <div tabindex="0" class="select-wrapper input-field z-index-33" id="dropdown-category" name="category" data-event-handle="true">
+            <div tabindex="0" class="select-wrapper input-field z-index-33" id="dropdown-category" name="category" data-event-handle="true" aria-labelledby="category-label">
                 <div class="selected-option"
                     id="selected-category">${task?.category ? task.category : "Select task category"}</div>
                 <div class="dropdown-icon-container" id="dropdown-icon-container-two">
-                    <img src="../assets/icons/btn/arrow_drop_down.svg" alt="Dropdown Arrow" class="dropdown-icon" id="dropdown-icon-two"/>
+                    <img src="../assets/icons/btn/arrow_drop_down.svg" alt="" aria-hidden="true" class="dropdown-icon" id="dropdown-icon-two"/>
                 </div>
             </div>
             <div class="options-wrapper" id="category-options-wrapper">
@@ -291,7 +291,7 @@ export function renderFormButtons() {
             <div class="buttons-area" id="buttons-area-add-task">
                 <button type="button" class="create-btn" id="add-task-autofill-btn" data-event-handle="true">
                     Autofill
-                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="var(--white)" stroke="var(--white)"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"><path d="M3 18h7v1H2V2h17v7h-1V3H3zm15.917 0h-4.834l-1.756 4h-1.093l4.808-10.951h.916L21.766 22h-1.093zm-.439-1L16.5 12.494 14.522 17z"></path>
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="var(--white)" stroke="var(--white)" aria-hidden="true"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"><path d="M3 18h7v1H2V2h17v7h-1V3H3zm15.917 0h-4.834l-1.756 4h-1.093l4.808-10.951h.916L21.766 22h-1.093zm-.439-1L16.5 12.494 14.522 17z"></path>
                         <path fill="none" d="M0 0h24v24H0z"></path></g>
                     </svg>
                 </button>
@@ -299,14 +299,14 @@ export function renderFormButtons() {
                 <button type="reset" class="clear-btn" data-event-handle="true">
                     Clear
                         <svg class="x-icon" xmlns="http://www.w3.org/2000/svg" width="25" height="24" viewBox="0 0 24 24"
-                            fill="none">
+                            fill="none" aria-hidden="true">
                             <path d="M12.14 13.4l-4.9 4.9a.95.95 0 0 1-1.4-1.4l4.9-4.9-4.9-4.9a.95.95 0 0 1 1.4-1.4l4.9 4.9 4.9-4.9a.95.95 0 1 1 1.4 1.4l-4.9 4.9 4.9 4.9a.95.95 0 0 1-1.4 1.4l-4.9-4.9z"
                             fill="currentColor" />
                         </svg>
                 </button>`: ""}
                 <button type="submit" id="submit-button" class="create-btn" data-event-handle="true">
                     ${arguments[0] ? "OK" : "Create Task"}
-                    <img src="../assets/icons/btn/check-mark.svg" alt="Check-mark Icon"/>
+                    <img src="../assets/icons/btn/check-mark.svg" alt="" aria-hidden="true"/>
                 </button>
             </div>
         </div>
@@ -378,8 +378,8 @@ export function renderAttachmentSection(task) {
             <label for="attachment-input" class="font-size-20">Attachments</label>
             <div class="attachment-info-bar">
                 <p>Allowed file types are JPEG and PNG</p>
-                <div class="delete-all-attachments" id="delete-all-attachments" data-event-handle="true">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="presentation">
+                <button type="button" class="delete-all-attachments" id="delete-all-attachments" data-event-handle="true" aria-label="Delete all attachments">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                         <mask id="mask0_266005_7261" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="24" height="24">
                             <rect width="24" height="24" fill="currentColor"/>
                         </mask>
@@ -388,15 +388,15 @@ export function renderAttachmentSection(task) {
                         </g>
                     </svg>
                     <p>Delete all</p>
-                </div>
+                </button>
             </div>
-            <div onclick="document.getElementById('attachment-input').click()" class="select-wrapper attachment-input-field">
+            <label for="attachment-input" class="select-wrapper attachment-input-field" tabindex="0" aria-label="Upload file">
                 <input type="file" id="attachment-input" accept="image/jpeg, image/png" class="input-field-attachment" data-event-handle="true"/>
                 <div class="attachment-icon-container">
                     <p>Drag a file or browse</p>
-                    <img src="../assets/icons/btn/plus-button-mobile.svg" alt="Attachment Icon" class="attachment-icon"/>
+                    <img src="../assets/icons/btn/plus-button-mobile.svg" alt="" aria-hidden="true" class="attachment-icon"/>
                 </div>
-            </div>
+            </label>
             <div id="attachment-list" class="attachment-list">
                 ${task?.attachments ? task.attachments.map(att => `<div class="attachment-item">${att}</div>`).join("") : ""}
             </div>

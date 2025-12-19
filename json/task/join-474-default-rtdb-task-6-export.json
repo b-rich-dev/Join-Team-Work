@@ -1,7 +1,8 @@
 {
   "assignedUsers": [
-    "contact-3"
+    "contact-003"
   ],
+  "attachments": [],
   "boardID": "board-1",
   "checkedSubtasks": [
     true,
@@ -16,7 +17,7 @@
   "priority": "medium",
   "subtaskCompleted": "3",
   "title": "Besprechung zum Abgabetermin",
-  "totalSubtask": [
+  "totalSubtasks": [
     "Vorgespräch Mathias",
     "Vorgespräch Claudia",
     "Vorgespräch Eugen",

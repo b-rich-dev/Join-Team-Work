@@ -114,8 +114,7 @@ body {
     img {
       width: 1.25rem;
       height: 1.25rem;
-      filter: invert(50%) sepia(0%) saturate(1%) hue-rotate(253deg)
-        brightness(85%) contrast(80%);
+      filter: invert(50%) sepia(0%) saturate(1%) hue-rotate(253deg) brightness(85%) contrast(80%);
     }
   }
 }
@@ -154,8 +153,7 @@ body {
 }
 
 .status-button:hover img {
-  filter: invert(20%) sepia(100%) saturate(2000%) hue-rotate(200deg)
-    brightness(90%) contrast(100%);
+  filter: invert(20%) sepia(100%) saturate(2000%) hue-rotate(200deg) brightness(90%) contrast(100%);
 }
 
 .menu-color {
@@ -196,15 +194,18 @@ body {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   border-radius: 0 20px 20px 20px;
   overflow-x: hidden;
-  overflow-y: auto; /* für vertikales Scrollen per Touch/Maus */
-  -webkit-overflow-scrolling: touch; /* sanftes Scrollen auf iOS */
+  overflow-y: auto;
+  /* für vertikales Scrollen per Touch/Maus */
+  -webkit-overflow-scrolling: touch;
+  /* sanftes Scrollen auf iOS */
   display: none;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   min-width: 150px;
-  max-height: 50vh; /* auf mobilen Geräten nicht größer als halber Screen */
-  z-index: 1010;
+  max-height: 50vh;
+  /* auf mobilen Geräten nicht größer als halber Screen */
+  z-index: 1400;
   padding: 10px;
   font-weight: 500;
 }
@@ -222,13 +223,25 @@ body {
   text-align: center;
 }
 
+.dropdown-headline{
+  color: var(--white);
+}
+
+.move-task-up,
+.move-task-down,
 .dropdown-menu-board-site a {
   padding: 12px 16px;
   text-decoration: none;
-  font-size: 14px;
+  font-size: 16px;
   color: var(--grey);
+  background: none;
+  border: none;
+  margin: 0;
+  display: inline-flex;
 }
 
+.move-task-up:hover,
+.move-task-down:hover,
 .dropdown-menu-board-site a:hover {
   background-color: var(--darkHover);
   border-radius: 30px;
@@ -253,14 +266,14 @@ body {
   align-items: flex-start;
 
   &::-webkit-scrollbar {
-        width: 8px;
-        height: 4px;
-    }
+    width: 8px;
+    height: 4px;
+  }
 
-    &::-webkit-scrollbar-thumb {
-        background: var(--dark);
-        border-radius: 4px;
-    }
+  &::-webkit-scrollbar-thumb {
+    background: var(--dark);
+    border-radius: 4px;
+  }
 }
 
 
@@ -335,6 +348,7 @@ body {
 #find-task-info-no-found-Msg.hidden {
   display: none;
 }
+
 #app-container-board-site {
   overflow: hidden;
 }

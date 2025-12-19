@@ -89,6 +89,10 @@
   transform: translateY(-5px);
 }
 
+.task-card:has(.dropdown-menu-board-site.show):hover {
+  transform: none;
+}
+
 .task-category {
   display: inline-block;
   padding: clamp(3px, 0.7vw, 6px) clamp(6px, 1.5vw, 12px);

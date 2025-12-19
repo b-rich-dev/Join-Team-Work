@@ -99,8 +99,11 @@ function getColumnIdData(keys) {
     // Map columnID values to summaryData keys
     const columnMapping = {
       'toDo': 'todo',
+      'to-do': 'todo',
       'inProgress': 'inProgress',
+      'in-progress': 'inProgress',
       'review': 'review',
+      'await-feedback': 'review',
       'done': 'done'
     };
     

@@ -102,6 +102,18 @@ function attachAttachmentListener() {
     filepicker.removeEventListener("change", handleAttachmentInputChangeRef);
     filepicker.addEventListener("change", handleAttachmentInputChangeRef);
     attachmentInputHandlerBound = true;
+
+    // Keyboard-Support für das Label
+    const uploadLabel = document.querySelector('label[for="attachment-input"].attachment-input-field');
+    if (uploadLabel && !uploadLabel.dataset.keyboardBound) {
+        uploadLabel.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                filepicker.click();
+            }
+        });
+        uploadLabel.dataset.keyboardBound = 'true';
+    }
 }
 
 // Event Listener beim DOM-Ready oder bei Bedarf aufrufen
