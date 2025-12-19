@@ -175,7 +175,7 @@ export function renderAssignedToContactsWithSelection(
   contact,
   assignedContactObjects
 ) {
-  const { name, initials, avatarColor } = contact;
+  const { name, initials, avatarColor, avatarImage } = contact;
   const isSelected = isContactSelected(
     name,
     initials,
@@ -183,11 +183,22 @@ export function renderAssignedToContactsWithSelection(
     assignedContactObjects
   );
   const assignedClass = isSelected ? "assigned" : "";
+  
+  let avatarStyle = '';
+  let avatarContent = initials;
+  
+  if (avatarImage) {
+    avatarStyle = `style="background-image: url(${avatarImage}); background-size: cover; background-position: center;"`;
+    avatarContent = '';
+  } else {
+    avatarStyle = `style="background-color: var(${avatarColor});"`;
+  }
+  
   return `
         <div class="contact-option ${assignedClass}" data-name="${name}" data-initials="${initials}" data-avatar-color="${avatarColor}">
             <div class="contact-checkbox">
                 <div class="initials-container">
-                    <div class="assigned-initials-circle" style="background-color: var(${avatarColor});">${initials}</div>
+                    <div class="assigned-initials-circle" ${avatarStyle}>${avatarContent}</div>
                 </div>
             </div>
         </div>

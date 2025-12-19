@@ -360,12 +360,26 @@
     .overlay-avatar-mobile {
         top: 200px;
     }
+    
+    .avatar-wrapper {
+        top: 200px;
+    }
 }
 
 @media (max-height: 600px) {
     .overlay-avatar-mobile {
         height: 100px !important;
         width: 100px !important;
+    }
+    
+    .avatar-wrapper .avatar-upload-button {
+        width: 35px;
+        height: 35px;
+    }
+    
+    .avatar-wrapper .avatar-upload-button svg {
+        width: 15px;
+        height: 15px;
     }
 
     .overlay-content {

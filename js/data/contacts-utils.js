@@ -15,6 +15,7 @@ export function cleanContacts(rawContacts) {
       email: rawContact.email,
       avatarColor: rawContact.avatarColor || rawContact[" avatarColor"] || "",
       phone: rawContact.phone || rawContact[" phone"] || "",
+      avatarImage: rawContact.avatarImage || null,
     };
   }
   return cleanedContacts;

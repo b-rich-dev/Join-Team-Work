@@ -137,6 +137,205 @@
     border: 3px solid var(--white);
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
     margin-left: 16px;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.avatar-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.avatar-upload-button {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    background-color: transparent;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    padding: 0;
+}
+
+.avatar-upload-button:hover {
+    transform: scale(1.05);
+}
+
+.avatar-upload-button:active {
+    transform: scale(0.95);
+}
+
+/* Avatar Error Messages */
+#avatarWrongFormatErrorMsg,
+#avatarLimitErrorMsg {
+    position: fixed;
+    gap: 4px;
+    bottom: -100px;
+    left: calc(50% + 116px);
+    transform: translateX(-50%);
+    background-color: var(--errorMsg);
+    color: var(--white);
+    font-size: 20px;
+    font-weight: 400;
+    border-radius: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    z-index: 9999;
+    width: 360px;
+    height: 74px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0 16px;
+    opacity: 0;
+    transition: bottom 0.4s ease, opacity 0.4s ease;
+}
+
+#avatarWrongFormatErrorMsg svg,
+#avatarLimitErrorMsg svg {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    cursor: pointer;
+}
+
+#avatarWrongFormatErrorMsg p,
+#avatarLimitErrorMsg p {
+    margin: 0;
+    padding: 0;
+    font-size: 16px;
+    font-weight: 400;
+}
+
+#avatarWrongFormatErrorMsg.slide-in,
+#avatarLimitErrorMsg.slide-in {
+    bottom: 50%;
+    opacity: 1;
+}
+
+#avatarWrongFormatErrorMsg.slide-out,
+#avatarLimitErrorMsg.slide-out {
+    bottom: -100px;
+    opacity: 0;
+}
+
+/* Delete Contact Warning */
+#deleteContactWarning {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+#deleteContactWarning:not(.hidden) {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.delete-warning-content {
+    position: relative;
+    background-color: var(--white);
+    border-radius: 20px;
+    padding: 40px;
+    width: 400px;
+    max-width: 90%;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+    animation: scaleIn 0.3s ease;
+}
+
+@keyframes scaleIn {
+    from {
+        transform: scale(0.9);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.delete-warning-close-btn {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s ease;
+}
+
+.delete-warning-close-btn:hover {
+    transform: scale(1.1);
+}
+
+.delete-warning-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.delete-warning-icon svg {
+    width: 48px;
+    height: 48px;
+}
+
+.delete-warning-content h2 {
+    font-size: 20px;
+    font-weight: 400;
+    text-align: center;
+    color: var(--black);
+    margin: 0;
+    padding: 0 20px;
+}
+
+.delete-warning-buttons {
+    display: flex;
+    gap: 16px;
+    margin-top: 8px;
+}
+
+.delete-warning-btn-no,
+.delete-warning-btn-yes {
+    padding: 12px 32px;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 400;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background-color: var(--white);
+    color: var(--black);
+    border: 1px solid var(--dark);
+}
+
+.delete-warning-btn-no:hover,
+.delete-warning-btn-yes:hover {
+    background-color: var(--dark);
+    color: var(--white);
+}
+
+.delete-warning-btn-no:active,
+.delete-warning-btn-yes:active {
+    transform: scale(0.95);
 }
 
 .form-inputs {
@@ -315,6 +514,26 @@ select.input-error {
         transform: translate(-50%, -50%);
         z-index: 10;
         box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    }
+    
+    .avatar-wrapper {
+        position: fixed;
+        top: 250px;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 10;
+    }
+    
+    .avatar-wrapper .contact-add-avatar,
+    .avatar-wrapper .contact-details-avatar-big {
+        position: static;
+        transform: none;
+    }
+    
+    .avatar-wrapper .avatar-upload-button {
+        position: absolute;
+        bottom: 0;
+        right: 0;
     }
 
     .form-row {

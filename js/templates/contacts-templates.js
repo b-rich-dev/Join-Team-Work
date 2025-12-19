@@ -6,14 +6,26 @@
  * @returns {string} The HTML string for the contact list item.
  */
 export function createContactTemplate(contact) {
-  const bgColor = contact.avatarColor
-    ? contact.avatarColor.startsWith('--')
-      ? `style="background-color: var(${contact.avatarColor})"`
-      : `style="background-color: ${contact.avatarColor}"`
-    : `style="background-color: #ccc"`;
+  let avatarStyle = '';
+  let avatarContent = contact.initials;
+  
+  if (contact.avatarImage) {
+    // Use background image for avatar photo
+    avatarStyle = `style="background-image: url(${contact.avatarImage}); background-size: cover; background-position: center;"`;
+    avatarContent = '';
+  } else {
+    // Use colored background with initials
+    const bgColor = contact.avatarColor
+      ? contact.avatarColor.startsWith('--')
+        ? `var(${contact.avatarColor})`
+        : contact.avatarColor
+      : '#ccc';
+    avatarStyle = `style="background-color: ${bgColor}"`;
+  }
+  
   return `
     <button class="contact" data-id="${contact.id}" type="button" aria-label="Select contact ${contact.name}">
-      <div class="contact-avatar" ${bgColor}>${contact.initials}</div>
+      <div class="contact-avatar" ${avatarStyle}>${avatarContent}</div>
       <div class="contact-info">
         <div class="contact-name">${contact.name}</div>
         <div class="contact-email">${contact.email}</div>
@@ -29,14 +41,26 @@ export function createContactTemplate(contact) {
  * @returns {string} The HTML string for the contact details card.
  */
 export function createContactDetailsHTML(contact) {
-  const bgColor = contact.avatarColor
-    ? contact.avatarColor.startsWith('--')
-      ? `style="background-color: var(${contact.avatarColor})"`
-      : `style="background-color: ${contact.avatarColor}"`
-    : `style="background-color: #ccc"`;
+  let avatarStyle = '';
+  let avatarContent = contact.initials;
+  
+  if (contact.avatarImage) {
+    // Use background image for avatar photo
+    avatarStyle = `style="background-image: url(${contact.avatarImage}); background-size: cover; background-position: center;"`;
+    avatarContent = '';
+  } else {
+    // Use colored background with initials
+    const bgColor = contact.avatarColor
+      ? contact.avatarColor.startsWith('--')
+        ? `var(${contact.avatarColor})`
+        : contact.avatarColor
+      : '#ccc';
+    avatarStyle = `style="background-color: ${bgColor}"`;
+  }
+  
   return `
     <div class="contact-details-header">
-      <div class="contact-details-avatar-big" ${bgColor}>${contact.initials}</div>
+      <div class="contact-details-avatar-big" ${avatarStyle}>${avatarContent}</div>
       <div class="contact-details-name-actions">
         <h2>${contact.name}</h2>
         <div class="contact-details-actions">

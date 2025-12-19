@@ -1,5 +1,7 @@
 // Contact deletion (other CRUD live in helpers)
 import { deleteContact } from './contact-actions.js';
+// Delete warning confirmation
+import { showDeleteContactWarning } from '../ui/delete-contact-warning.js';
 // Overlay controls
 import { openOverlay, closeOverlay } from '../ui/contacts-overlays.js';
 // App state for selected/active contact
@@ -10,6 +12,8 @@ import { renderContacts } from '../ui/render-contacts.js';
 import { handleNewContactSubmit, handleEditContactSave } from './contacts-submit-helpers.js';
 // Validation utilities (clear errors, reset live-validation flags)
 import { clearEditContactErrors, resetNewLiveValidationFlag, resetEditLiveValidationFlag } from './contacts-validation.js';
+// Avatar upload handler
+import { setupAvatarUploadForNewContact } from './avatar-upload-handler.js';
 
 /**
  * Bootstraps all event listeners used on the contacts page.
@@ -55,6 +59,7 @@ function setupOpenNewContactOverlayButton() {
         resetNewLiveValidationFlag();
         openOverlay('contactOverlay');
         setupCreateContactButton();
+        setupAvatarUploadForNewContact();
     });
     btn._clickHandlerAttached = true;
 }
@@ -150,11 +155,15 @@ async function handleDeleteButton(event) {
     if (!deleteBtn) return false;
     const id = deleteBtn.dataset.id;
     if (!id) return true;
-    await deleteContact(id);
-    document.querySelector('.contact-details-card').innerHTML = '';
-    setActiveContactId(null);
-    await renderContacts();
-    document.body.classList.remove('mobile-contact-visible');
+    
+    showDeleteContactWarning(async () => {
+        await deleteContact(id);
+        document.querySelector('.contact-details-card').innerHTML = '';
+        setActiveContactId(null);
+        await renderContacts();
+        document.body.classList.remove('mobile-contact-visible');
+    });
+    
     return true;
 }
 
@@ -192,13 +201,16 @@ async function handleEditContactDelete() {
     if (!currentlyEditingContact) return;
     const id = currentlyEditingContact.id;
     if (!id) return;
-    await deleteContact(id);
-    document.querySelector('.contact-details-card').innerHTML = '';
-    setActiveContactId(null);
-    setCurrentlyEditingContact(null);
-    closeOverlay('editContactOverlay', true);
-    await renderContacts();
-    document.body.classList.remove('mobile-contact-visible');
+    
+    showDeleteContactWarning(async () => {
+        await deleteContact(id);
+        document.querySelector('.contact-details-card').innerHTML = '';
+        setActiveContactId(null);
+        setCurrentlyEditingContact(null);
+        closeOverlay('editContactOverlay', true);
+        await renderContacts();
+        document.body.classList.remove('mobile-contact-visible');
+    });
 }
 
 /**

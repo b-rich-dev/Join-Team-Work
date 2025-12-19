@@ -128,9 +128,17 @@ export function calculateSubtaskProgress(task) {
  */
 function getDisplayedAvatars(users, contacts, displayCount) {
   let html = "";
-  for (let i = 0; i < Math.min(users.length, displayCount); i++) {
+  let renderedCount = 0;
+  
+  for (let i = 0; i < users.length && renderedCount < displayCount; i++) {
     const id = users[i];
-    html += renderContactAvatar(contacts[id]);
+    const contact = contacts[id];
+    
+    // Only render if contact exists
+    if (contact) {
+      html += renderContactAvatar(contact);
+      renderedCount++;
+    }
   }
   return html;
 }
@@ -143,10 +151,14 @@ function getDisplayedAvatars(users, contacts, displayCount) {
 function generateAssignedAvatarsHtml(assignedUserIDs, contacts) {
   const users = Array.isArray(assignedUserIDs) ? assignedUserIDs : [];
   const displayCount = 3;
-  let avatarsHtml = getDisplayedAvatars(users, contacts, displayCount);
-  if (users.length > displayCount) {
+  
+  // Filter out deleted contacts
+  const existingUsers = users.filter(id => contacts[id]);
+  
+  let avatarsHtml = getDisplayedAvatars(existingUsers, contacts, displayCount);
+  if (existingUsers.length > displayCount) {
     avatarsHtml += `<div class="assigned-initials-circle more-users-circle">+${
-      users.length - displayCount
+      existingUsers.length - displayCount
     }</div>`;
   }
   return avatarsHtml;
@@ -163,10 +175,18 @@ function renderContactAvatar(contact) {
    * @returns {string} The HTML string of the avatar.
    */
   if (!contact) {
-    return `<div class="assigned-initials-circle" style="background-color: var(--grey);" title="Unknown">?</div>`;
+    return `<div class="assigned-initials-circle" style="background-color: var(--grey);" title="Deleted Contact">--</div>`;
   }
+  
   const initials = (contact.initials || "").trim();
   const name = (contact.name || "").trim();
+  
+  // Check if contact has an avatar image
+  if (contact.avatarImage) {
+    return `<div class="assigned-initials-circle" style="background-image: url(${contact.avatarImage}); background-size: cover; background-position: center;" title="${name}"></div>`;
+  }
+  
+  // Otherwise, use colored circle with initials
   const colorRaw = contact.avatarColor || "default";
   const colorStyle = colorRaw.startsWith("--") ? `var(${colorRaw})` : colorRaw;
   return `<div class="assigned-initials-circle" style="background-color: ${colorStyle};" title="${name}">${initials}</div>`;

@@ -8,6 +8,7 @@ import { createContactDetailsHTML, buildContactSectionHTML } from '../templates/
 
 // UI behavior
 import { openOverlay } from '../ui/contacts-overlays.js';
+import { setupAvatarUploadForEditContact } from '../events/avatar-upload-handler.js';
 import { initContactEventListeners } from '../events/contacts-event-listeners.js';
 
 // Scroll behavior
@@ -135,6 +136,7 @@ window.onEditContact = function (contactId) {
   fillEditFormWithContact(contact);
   updateEditAvatar(contact);
   openOverlay('editContactOverlay');
+  setupAvatarUploadForEditContact(contact);
 };
 
 /**
@@ -155,14 +157,23 @@ function fillEditFormWithContact(contact) {
  * @param {Object} contact - The contact object
  * @param {string} contact.initials
  * @param {string} [contact.avatarColor]
+ * @param {string} [contact.avatarImage]
  */
 function updateEditAvatar(contact) {
   const avatarEl = document.getElementById('editContactAvatar');
-  avatarEl.textContent = contact.initials;
-  const backgroundColor = contact.avatarColor?.startsWith('--')
-    ? `var(${contact.avatarColor})`
-    : contact.avatarColor || 'var(--grey)';
-  avatarEl.style.backgroundColor = backgroundColor;
+  
+  // Check if contact has an avatar image
+  if (contact.avatarImage) {
+    avatarEl.style.backgroundImage = `url(${contact.avatarImage})`;
+    avatarEl.textContent = '';
+  } else {
+    avatarEl.style.backgroundImage = 'none';
+    avatarEl.textContent = contact.initials;
+    const backgroundColor = contact.avatarColor?.startsWith('--')
+      ? `var(${contact.avatarColor})`
+      : contact.avatarColor || 'var(--grey)';
+    avatarEl.style.backgroundColor = backgroundColor;
+  }
 }
 
 /**

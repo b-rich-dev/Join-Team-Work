@@ -136,13 +136,53 @@ export async function updateContact(contact) {
 }
 
 /**
- * Deletes a contact from Firebase by ID.
+ * Deletes a contact from Firebase by ID and removes it from all tasks.
  * 
  * @param {string} id - Contact ID to delete (e.g., "contact-003").
  * @returns {Promise<void>}
  */
 export async function deleteContact(id) {
+    // Delete the contact
     await saveFirebaseData({ path: `contacts/${id}`, data: null });
+    
+    // Remove contact from all tasks
+    await removeContactFromTasks(id);
+}
+
+/**
+ * Removes a contact ID from all tasks' assignedUsers arrays.
+ * 
+ * @param {string} contactId - Contact ID to remove from tasks.
+ * @returns {Promise<void>}
+ */
+async function removeContactFromTasks(contactId) {
+    try {
+        // Fetch all tasks
+        const tasksData = await getFirebaseData('tasks');
+        if (!tasksData) return;
+        
+        // Update each task that has this contact assigned
+        const updatePromises = [];
+        
+        Object.entries(tasksData).forEach(([taskId, task]) => {
+            if (task.assignedUsers && Array.isArray(task.assignedUsers)) {
+                const filteredUsers = task.assignedUsers.filter(userId => userId !== contactId);
+                
+                // Only update if the array changed
+                if (filteredUsers.length !== task.assignedUsers.length) {
+                    const updatedTask = { ...task, assignedUsers: filteredUsers };
+                    updatePromises.push(
+                        saveFirebaseData({ path: `tasks/${taskId}`, data: updatedTask })
+                    );
+                }
+            }
+        });
+        
+        // Wait for all updates to complete
+        await Promise.all(updatePromises);
+    } catch (error) {
+        console.error('Error removing contact from tasks:', error);
+    }
 }
 
 // ---------------------------

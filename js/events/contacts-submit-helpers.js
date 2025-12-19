@@ -9,6 +9,8 @@ import { renderContacts } from '../ui/render-contacts.js';
 import { createContactDetailsHTML } from '../templates/contacts-templates.js';
 // Validation orchestrators (enable-live-on-first-failure)
 import { validateNewContactOrEnableLive, validateEditedContactOrEnableLive } from './contacts-validation.js';
+// Avatar upload handler
+import { getCurrentAvatarImage, clearCurrentAvatarImage } from './avatar-upload-handler.js';
 
 /**
  * Reads and trims input values from the "New Contact" form.
@@ -74,7 +76,17 @@ export function findContactByIdOrFallback(id, fallback) {
  * @returns {Promise<Object>} The created contact.
  */
 export async function createAndRenderNewContact(payload) {
+  // Add avatar image if present
+  const avatarImage = getCurrentAvatarImage();
+  if (avatarImage) {
+    payload.avatarImage = avatarImage;
+  }
+  
   const newContact = await createContact(payload);
+  
+  // Clear avatar after saving
+  clearCurrentAvatarImage();
+  
   closeOverlay('contactOverlay', true);
   await renderContacts();
   showContactCreatedMessage();
@@ -89,11 +101,19 @@ export async function createAndRenderNewContact(payload) {
  * @returns {Object}
  */
 export function buildUpdatedContactFromInputs(name, email, phone) {
-  return {
+  const updated = {
     ...currentlyEditingContact,
     name, email, phone,
     initials: getInitials(name)
   };
+  
+  // Add or update avatar image if present
+  const avatarImage = getCurrentAvatarImage();
+  if (avatarImage !== null) {
+    updated.avatarImage = avatarImage;
+  }
+  
+  return updated;
 }
 
 /**

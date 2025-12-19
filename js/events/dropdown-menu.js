@@ -190,10 +190,10 @@ function sortContactsWithUserFirst(contacts, currentUser) {
 function renderContactsList(contacts, contactContainer, currentUser) {
   contactContainer.innerHTML = '';
   contacts.forEach((contact, i) => {
-    const { name, initials, avatarColor } = contact;
+    const { name, initials, avatarColor, avatarImage } = contact;
     const displayName = name === currentUser ? `${name} (You)` : name;
     const contactId = contact && contact.id != null ? contact.id : i;
-    contactContainer.innerHTML += renderAssignedToContacts(contactId, displayName, initials, avatarColor);
+    contactContainer.innerHTML += renderAssignedToContacts(contactId, displayName, initials, avatarColor, avatarImage);
   });
 }
 
@@ -305,7 +305,7 @@ export function filterContacts(query) {
  */
 function renderFilteredContacts(container, filteredContacts) {
   filteredContacts.forEach((contact, i) => {
-    container.innerHTML += renderAssignedToContacts(i, contact.name, contact.initials, contact.avatarColor);
+    container.innerHTML += renderAssignedToContacts(i, contact.name, contact.initials, contact.avatarColor, contact.avatarImage);
   });
 }
 
@@ -359,8 +359,17 @@ function clearAndRender(container, contacts, withExtra) {
 function renderContactCircle(contact, container) {
   const initialsDiv = document.createElement('div');
   initialsDiv.className = 'assigned-initials-circle';
-  initialsDiv.style.backgroundColor = `var(${contact.avatarColor})`;
-  initialsDiv.textContent = contact.initials;
+  
+  if (contact.avatarImage) {
+    initialsDiv.style.backgroundImage = `url(${contact.avatarImage})`;
+    initialsDiv.style.backgroundSize = 'cover';
+    initialsDiv.style.backgroundPosition = 'center';
+    initialsDiv.textContent = '';
+  } else {
+    initialsDiv.style.backgroundColor = `var(${contact.avatarColor})`;
+    initialsDiv.textContent = contact.initials;
+  }
+  
   initialsDiv.style.flex = '0 0 auto';
   container.appendChild(initialsDiv);
 }

@@ -241,6 +241,14 @@ export async function openSpecificOverlay(overlayId) {
 export function closeSpecificOverlay(overlayId) {
   const overlay = getValidatedElementById(overlayId);
   if (!overlay) return;
+  
+  // Move focus away from overlay before hiding it to prevent aria-hidden accessibility violation
+  if (overlay.contains(document.activeElement)) {
+    document.activeElement.blur();
+    // Try to focus on body or a safe element outside the overlay
+    document.body.focus();
+  }
+  
   setOverlayVisibility(overlay, false);
   manageBodyScroll(false);
   clearCurrentOverlay(overlayId);

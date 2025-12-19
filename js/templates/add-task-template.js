@@ -352,16 +352,28 @@ export function getCategoryOptions() {
  * @param {string} name - The name of the contact.
  * @param {string} initials - The initials of the contact.
  * @param {string} avatarColor - The avatar color of the contact.
+ * @param {string} [avatarImage] - Optional avatar image (base64).
  * @returns {string} The HTML string for the contact option.
  */
-export function renderAssignedToContacts(id, name, initials, avatarColor) {
+export function renderAssignedToContacts(id, name, initials, avatarColor, avatarImage = null) {
     const isSelected = isContactSelected(name, initials, avatarColor);
+    
+    let avatarStyle = '';
+    let avatarContent = initials;
+    
+    if (avatarImage) {
+        avatarStyle = `style="background-image: url(${avatarImage}); background-size: cover; background-position: center;"`;
+        avatarContent = '';
+    } else {
+        avatarStyle = `style="background-color: var(${avatarColor});"`;
+    }
+    
     return `
         <div tabindex="0" class="contact-option ${isSelected ? "assigned" : ""}"
           data-id="${id}" data-name="${name}" data-initials="${initials}" data-avatar-color="${avatarColor}">
             <div class="contact-checkbox">
                 <div class="initials-container">
-                <div class="assigned-initials-circle"style="background-color: var(${avatarColor});">${initials}</div>
+                <div class="assigned-initials-circle" ${avatarStyle}>${avatarContent}</div>
                 <div>${name}</div>
             </div>
             <img src="../assets/icons/btn/${isSelected ? "checkbox-filled-white" : "checkbox-empty-black"
