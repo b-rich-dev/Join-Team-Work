@@ -3,7 +3,7 @@ import {
   initOverlayListeners,
   redirectOnSmallScreen,
 } from "../../js/events/overlay-handler.js";
-import { clearForm, setRefreshBoardCallback } from "./add-task.js";
+import { clearForm, setRefreshBoardCallback, initTask } from "./add-task.js";
 import { initAddTaskForm } from "./add-task-auxiliary-functions.js";
 import { getAddTaskFormHTML } from "../templates/add-task-template.js";
 
@@ -22,6 +22,7 @@ let isOverlayLoaded = false;
 export async function loadAndInitAddTaskOverlay() {
   if (isOverlayLoaded) {
     clearForm();
+    await initTask();
     openSpecificOverlay("overlay");
     redirectOnSmallScreen();
     return;

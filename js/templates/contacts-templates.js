@@ -1,3 +1,5 @@
+import { getAvatarBase64 } from '../utils/avatar-utils.js';
+
 /**
  * Generates the HTML markup for a single contact in the contact list.
  * Includes an onclick handler to select the contact.
@@ -10,8 +12,8 @@ export function createContactTemplate(contact) {
   let avatarContent = contact.initials;
   
   if (contact.avatarImage) {
-    // Use background image for avatar photo
-    avatarStyle = `style="background-image: url(${contact.avatarImage}); background-size: cover; background-position: center;"`;
+    const base64 = getAvatarBase64(contact.avatarImage);
+    avatarStyle = `style="background-image: url(${base64}); background-size: cover; background-position: center;"`;
     avatarContent = '';
   } else {
     // Use colored background with initials
@@ -46,10 +48,9 @@ export function createContactDetailsHTML(contact) {
   let avatarClickHandler = '';
   
   if (contact.avatarImage) {
-    // Use background image for avatar photo
-    avatarStyle = `style="background-image: url(${contact.avatarImage}); background-size: cover; background-position: center; cursor: pointer;"`;
-    // Escape quotes properly
-    const safeUrl = contact.avatarImage.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+    const base64 = getAvatarBase64(contact.avatarImage);
+    avatarStyle = `style="background-image: url(${base64}); background-size: cover; background-position: center; cursor: pointer;"`;
+    const safeUrl = base64.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
     const safeName = (contact.name || 'Contact').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
     const safeId = contact.id || '';
     avatarClickHandler = `onclick="event.stopPropagation(); event.preventDefault(); window.showContactAvatarViewer('${safeUrl}', '${safeName}', '${safeId}'); return false;"`;

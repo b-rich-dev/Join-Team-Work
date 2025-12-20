@@ -249,9 +249,11 @@ export function isContactSelected(name, initials, avatarColor) {
  * @param {string} name - The name of the contact.
  * @param {string} initials - The initials of the contact.
  * @param {string} avatarColor - The avatar color of the contact.
+ * @param {string} avatarImage - The avatar image URL of the contact.
+ * @param {string} id - The ID of the contact.
  */
-export function toggleSelectContacts(contactElement, name, initials, avatarColor) {
-  const contact = { name, initials, avatarColor };
+export function toggleSelectContacts(contactElement, name, initials, avatarColor, avatarImage, id) {
+  const contact = { name, initials, avatarColor, avatarImage, id };
   const index = getContactIndex(selectedContacts, contact);
 
   if (index === -1) {
@@ -336,11 +338,13 @@ function displaySelectedContacts() {
   const assignedToWrapper = document.getElementById("assigned-to-options-wrapper");
   if (!assignedToArea) return;
 
-  // Store contacts with avatars for gallery
-  window.currentTaskContactsWithAvatars = selectedContacts.filter(c => c.avatarImage).map(c => ({
+  // Store ALL selected contacts for gallery (with and without avatars)
+  window.currentTaskContactsWithAvatars = selectedContacts.map(c => ({
     id: c.id || c.name,
     name: c.name,
-    avatarImage: c.avatarImage
+    initials: c.initials,
+    avatarColor: c.avatarColor,
+    avatarImage: c.avatarImage || null
   }));
 
   clearAndRender(assignedToArea, selectedContacts.slice(0, 3), true);
@@ -384,30 +388,314 @@ function clearAndRender(container, contacts, withExtra) {
 function renderContactCircle(contact, container) {
   const initialsDiv = document.createElement('div');
   initialsDiv.className = 'assigned-initials-circle';
+  initialsDiv.style.cursor = 'pointer';
   
   if (contact.avatarImage) {
-    initialsDiv.style.backgroundImage = `url(${contact.avatarImage})`;
+    // Extract base64 from object or use string directly
+    const base64 = typeof contact.avatarImage === 'string' 
+      ? contact.avatarImage 
+      : contact.avatarImage.base64;
+    
+    initialsDiv.style.backgroundImage = `url(${base64})`;
     initialsDiv.style.backgroundSize = 'cover';
     initialsDiv.style.backgroundPosition = 'center';
     initialsDiv.textContent = '';
-    
-    // Make avatar clickable and open gallery
-    initialsDiv.style.cursor = 'pointer';
-    initialsDiv.onclick = function(event) {
-      event.stopPropagation();
-      event.preventDefault();
-      if (typeof window.showTaskContactAvatarGallery === 'function') {
-        window.showTaskContactAvatarGallery(contact.id || contact.name, true);
-      }
-      return false;
-    };
   } else {
     initialsDiv.style.backgroundColor = `var(${contact.avatarColor})`;
     initialsDiv.textContent = contact.initials;
   }
   
+  // Make all contact circles clickable
+  initialsDiv.onclick = function(event) {
+    event.stopPropagation();
+    event.preventDefault();
+    openAssignedContactsGallery(contact.id || contact.name);
+    return false;
+  };
+  
   initialsDiv.style.flex = '0 0 auto';
   container.appendChild(initialsDiv);
+}
+
+/**
+ * Opens a gallery viewer for all selected contacts in assigned-to-area.
+ * Navigates to the clicked contact initially.
+ * @param {string} selectedContactId - The ID of the contact that was clicked
+ */
+async function openAssignedContactsGallery(selectedContactId) {
+  const contacts = window.currentTaskContactsWithAvatars || [];
+  
+  if (contacts.length === 0) return;
+  
+  // Check if Viewer library is loaded
+  if (typeof Viewer !== 'function') {
+    console.warn('Viewer library not loaded - falling back to simple view');
+    const contact = contacts.find(c => c.id === selectedContactId);
+    if (contact && contact.avatarImage) {
+      const { getAvatarBase64 } = await import('../utils/avatar-utils.js');
+      const base64 = getAvatarBase64(contact.avatarImage);
+      window.open(base64, '_blank');
+    }
+    return;
+  }
+  
+  // Import avatar utils
+  const { getAvatarBase64, normalizeAvatar } = await import('../utils/avatar-utils.js');
+  
+  // Normalize avatar metadata - ensure we get proper metadata for each contact
+  const avatarMetadata = contacts.map(contact => {
+    if (contact.avatarImage) {
+      // Check if it's already an object with metadata
+      if (typeof contact.avatarImage === 'object' && contact.avatarImage.name) {
+        return {
+          name: contact.avatarImage.name,
+          type: contact.avatarImage.type || 'image/jpeg',
+          size: contact.avatarImage.size || 0
+        };
+      }
+      // If it's a string (base64), extract actual metadata from the string
+      if (typeof contact.avatarImage === 'string') {
+        // Extract mime type from base64 header
+        const mimeMatch = contact.avatarImage.match(/^data:([^;]+);/);
+        const type = mimeMatch ? mimeMatch[1] : 'image/jpeg';
+        const ext = type.split('/')[1] || 'jpg';
+        
+        // Calculate actual size of base64 data
+        const base64Data = contact.avatarImage.split(',')[1] || '';
+        const size = Math.floor((base64Data.length * 3) / 4);
+        
+        return {
+          name: `${contact.name}.${ext}`,
+          type: type,
+          size: size
+        };
+      }
+    }
+    // For canvas-generated images (contacts without avatarImage)
+    return { name: `${contact.name}.png`, type: 'image/png', size: 0 };
+  });
+
+  // Destroy existing viewer if present
+  if (window.assignedContactsViewer) {
+    try {
+      window.assignedContactsViewer.destroy();
+    } catch (error) {
+      console.warn('Error destroying existing viewer:', error);
+    }
+    window.assignedContactsViewer = null;
+  }
+
+  // Create temporary container with all contact avatars
+  let viewerContainer = document.getElementById('temp-assigned-contacts-gallery');
+  if (viewerContainer) {
+    viewerContainer.remove();
+  }
+  
+  viewerContainer = document.createElement('div');
+  viewerContainer.id = 'temp-assigned-contacts-gallery';
+  viewerContainer.style.display = 'none';
+  
+  // Add all contact images (or placeholder for contacts without images)
+  let startIndex = 0;
+  contacts.forEach((contact, index) => {
+    const img = document.createElement('img');
+    
+    if (contact.avatarImage) {
+      // Extract base64 from object or use string directly
+      const base64 = getAvatarBase64(contact.avatarImage);
+      img.src = base64;
+    } else {
+      // Create a canvas with initials for contacts without image
+      const canvas = document.createElement('canvas');
+      canvas.width = 200;
+      canvas.height = 200;
+      const ctx = canvas.getContext('2d');
+      
+      // Draw background color
+      const color = contact.avatarColor ? getComputedStyle(document.documentElement).getPropertyValue(contact.avatarColor).trim() : '#2A3647';
+      ctx.fillStyle = color;
+      ctx.fillRect(0, 0, 200, 200);
+      
+      // Draw initials
+      ctx.fillStyle = 'white';
+      ctx.font = 'bold 80px Inter, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(contact.initials || '', 100, 100);
+      
+      img.src = canvas.toDataURL();
+    }
+    
+    img.alt = contact.name;
+    img.dataset.contactId = contact.id;
+    viewerContainer.appendChild(img);
+    
+    if (contact.id === selectedContactId) {
+      startIndex = index;
+    }
+  });
+  
+  document.body.appendChild(viewerContainer);
+
+  try {
+    // Initialize viewer with navigation
+    window.assignedContactsViewer = new Viewer(viewerContainer, {
+      inline: false,
+      button: true,
+      navbar: contacts.length > 1,
+      title: [1, (image, imageData) => {
+        const index = imageData?.index ?? 0;
+        
+        if (avatarMetadata[index]) {
+          const metadata = avatarMetadata[index];
+          const fileType = metadata.type?.split('/')[1]?.toUpperCase() || 'Unknown';
+          const sizeKB = (metadata.size / 1024).toFixed(2);
+          return `${metadata.name}   •   ${fileType}   •   ${sizeKB} KB`;
+        }
+        
+        if (contacts[index]) {
+          return contacts[index].name;
+        }
+        
+        return 'Contact';
+      }],
+      toolbar: {
+        zoomIn: 1,
+        zoomOut: 1,
+        oneToOne: 1,
+        reset: 1,
+        prev: contacts.length > 1 ? 1 : 0,
+        play: contacts.length > 1 ? { show: 1, size: 'large' } : 0,
+        next: contacts.length > 1 ? 1 : 0,
+        rotateLeft: 1,
+        rotateRight: 1,
+        flipHorizontal: 1,
+        flipVertical: 1,
+        delete: {
+          show: 1,
+          size: 'large'
+        }
+      },
+      tooltip: true,
+      movable: true,
+      zoomable: true,
+      rotatable: true,
+      transition: true,
+      fullscreen: true,
+      keyboard: true,
+      initialViewIndex: startIndex,
+      shown: function() {
+        // Attach delete handler after viewer is shown
+        setupDeleteButtonHandler(viewerContainer, contacts);
+      }
+    });
+
+    // Show the viewer at the clicked contact
+    window.assignedContactsViewer.show();
+    
+    // Prevent aria-hidden accessibility violation by removing focus before hiding
+    viewerContainer.addEventListener('hide', function() {
+      const viewerElement = document.querySelector('.viewer-container');
+      if (viewerElement && viewerElement.contains(document.activeElement)) {
+        document.activeElement.blur();
+        document.body.focus();
+      }
+    });
+    
+    // Clean up on hide
+    viewerContainer.addEventListener('hidden', function() {
+      setTimeout(() => {
+        if (window.assignedContactsViewer) {
+          try {
+            window.assignedContactsViewer.destroy();
+          } catch (e) {}
+          window.assignedContactsViewer = null;
+        }
+        if (viewerContainer && viewerContainer.parentNode) {
+          viewerContainer.remove();
+        }
+      }, 100);
+    });
+
+  } catch (error) {
+    console.error('Error initializing viewer:', error);
+    viewerContainer.remove();
+  }
+}
+
+/**
+ * Sets up the delete button handler in the viewer.
+ * @param {HTMLElement} viewerContainer - The viewer container element
+ * @param {Array} contacts - Array of all contacts in the viewer
+ */
+function setupDeleteButtonHandler(viewerContainer, contacts) {
+  // Try multiple selectors and search patterns
+  const selectors = [
+    'li[data-viewer-action="delete"] button',
+    'button[data-viewer-action="delete"]',
+    '.viewer-toolbar li[data-viewer-action="delete"]',
+    '[data-viewer-action="delete"]'
+  ];
+  
+  let deleteButton = null;
+  
+  // Try each selector
+  for (const selector of selectors) {
+    deleteButton = document.querySelector(selector);
+    if (deleteButton) break;
+  }
+  
+  if (!deleteButton) return;
+  
+  // Clone button to remove old event listeners
+  const newDeleteButton = deleteButton.cloneNode(true);
+  deleteButton.parentNode.replaceChild(newDeleteButton, deleteButton);
+  
+  // Add click handler
+  newDeleteButton.addEventListener('click', function(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    // Get currently viewed contact
+    const currentIndex = window.assignedContactsViewer ? window.assignedContactsViewer.index : 0;
+    const currentContact = contacts[currentIndex];
+    
+    if (!currentContact) return;
+    
+    // Find and remove from selectedContacts
+    const index = selectedContacts.findIndex(c => 
+      c.name === currentContact.name && c.initials === currentContact.initials
+    );
+    
+    if (index !== -1) {
+      selectedContacts.splice(index, 1);
+      
+      // Update the dropdown checkbox state
+      const contactOption = document.querySelector(
+        `.contact-option[data-name="${currentContact.name}"][data-initials="${currentContact.initials}"]`
+      );
+      if (contactOption) {
+        contactOption.classList.remove("assigned");
+        const checkboxIcon = contactOption.querySelector(".checkbox-icon");
+        if (checkboxIcon) {
+          checkboxIcon.src = "../assets/icons/btn/checkbox-empty-black.svg";
+          checkboxIcon.classList.remove("checked");
+        }
+      }
+      
+      // Close viewer first
+      if (window.assignedContactsViewer) {
+        try {
+          window.assignedContactsViewer.hide();
+        } catch(e) {}
+      }
+      
+      // Update display after a short delay
+      setTimeout(() => {
+        displaySelectedContacts();
+      }, 100);
+    }
+  });
 }
 
 /** * Renders an extra count circle in the assigned to area.

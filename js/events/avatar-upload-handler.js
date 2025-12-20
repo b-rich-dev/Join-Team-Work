@@ -1,18 +1,11 @@
-/**
- * Avatar Upload Handler
- * Handles avatar image upload, compression, and preview for contacts.
- */
-
 let currentAvatarImage = null;
 
-// Store handler references to properly remove them
 let newContactClickHandler = null;
 let newContactChangeHandler = null;
 let editContactClickHandler = null;
 let editContactChangeHandler = null;
 
-/**
- * Shows error message for wrong file format.
+/** * Shows error message for wrong file format.
  */
 function showAvatarWrongFormatErrorMsg() {
     const msg = document.getElementById('avatarWrongFormatErrorMsg');
@@ -21,8 +14,7 @@ function showAvatarWrongFormatErrorMsg() {
     msg.classList.add('slide-in');
 }
 
-/**
- * Hides error message for wrong file format.
+/** * Hides error message for wrong file format.
  */
 async function hideAvatarWrongFormatErrorMsg() {
     const msg = document.getElementById('avatarWrongFormatErrorMsg');
@@ -33,8 +25,7 @@ async function hideAvatarWrongFormatErrorMsg() {
     msg.classList.add('hidden');
 }
 
-/**
- * Shows error message for file size limit.
+/** * Shows error message for file size limit.
  */
 function showAvatarLimitErrorMsg() {
     const msg = document.getElementById('avatarLimitErrorMsg');
@@ -126,14 +117,17 @@ function compressAvatarImage(file, maxWidth = 200, maxHeight = 200, quality = 0.
 }
 
 /**
- * Calculates the size in bytes of a base64 string (payload only).
- * @param {string} base64String - The base64 data URL.
+ * Calculates the byte size of a base64 string.
+ * @param {string} dataUrl - The base64 data URL.
  * @returns {number} Size in bytes.
  */
-function base64PayloadBytes(base64String) {
-    if (!base64String) return 0;
-    const base64Data = base64String.split(',')[1] || base64String;
-    return Math.ceil((base64Data.length * 3) / 4);
+function base64PayloadBytes(dataUrl) {
+    if (!dataUrl) return 0;
+    const comma = dataUrl.indexOf(',');
+    const b64 = comma >= 0 ? dataUrl.slice(comma + 1) : dataUrl;
+    const len = b64.length;
+    const padding = b64.endsWith('==') ? 2 : b64.endsWith('=') ? 1 : 0;
+    return Math.max(0, Math.floor((len * 3) / 4) - padding);
 }
 
 /**
@@ -162,8 +156,13 @@ async function handleAvatarFileSelection(file, avatarElement) {
             return false;
         }
         
-        // Store the image
-        currentAvatarImage = compressedBase64;
+        // Store the image with metadata
+        currentAvatarImage = {
+            name: file.name,
+            type: file.type,
+            base64: compressedBase64,
+            size: size
+        };
         
         // Update avatar display
         updateAvatarDisplay(avatarElement, compressedBase64);
@@ -340,8 +339,21 @@ export function setupAvatarUploadForEditContact(contact) {
     
     // Load existing avatar image if present
     if (contact.avatarImage) {
-        currentAvatarImage = contact.avatarImage;
-        updateAvatarDisplay(avatarElement, contact.avatarImage);
+        // Handle both old format (string) and new format (object)
+        if (typeof contact.avatarImage === 'string') {
+            // Old format: just base64 string
+            currentAvatarImage = {
+                name: 'avatar.jpg',
+                type: 'image/jpeg',
+                base64: contact.avatarImage,
+                size: base64PayloadBytes(contact.avatarImage)
+            };
+            updateAvatarDisplay(avatarElement, contact.avatarImage);
+        } else {
+            // New format: object with metadata
+            currentAvatarImage = contact.avatarImage;
+            updateAvatarDisplay(avatarElement, contact.avatarImage.base64);
+        }
     } else {
         currentAvatarImage = null;
         resetAvatarDisplay(avatarElement, contact.initials, contact.avatarColor);

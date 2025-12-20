@@ -81,8 +81,10 @@ function attachAttachmentListener() {
 
                     const blob = new Blob([file], { type: file.type });
                     const compressedBase64 = await compressImage(file, 800, 800, 0.8);
+                    const compressedSize = base64PayloadBytes(compressedBase64);
+                    
                     // Prüfe Upload-Limit (Gesamtgröße inkl. neuem Anhang)
-                    const newTotalBytes = currentAttachmentsBytes() + base64PayloadBytes(compressedBase64);
+                    const newTotalBytes = currentAttachmentsBytes() + compressedSize;
                     if (newTotalBytes > MAX_TOTAL_BYTES) {
                         showSizeLimitErrorMsg();
                         continue;
@@ -90,7 +92,8 @@ function attachAttachmentListener() {
                     window.taskAttachments.push({
                         name: file.name,
                         type: blob.type,
-                        base64: compressedBase64
+                        base64: compressedBase64,
+                        size: compressedSize
                     });
                 }
                 render();
@@ -211,6 +214,10 @@ async function render() {
         const img = document.createElement('img');
         img.src = image.base64;
         img.alt = image.name;
+        img.setAttribute('data-attachment-index', index);
+        img.setAttribute('data-name', image.name);
+        img.setAttribute('data-type', image.type || '');
+        img.setAttribute('data-size', (image.size || 0).toString());
         imageElement.appendChild(img);
         imageElement.appendChild(description);
         imageElement.appendChild(deletebtn);
@@ -239,11 +246,37 @@ async function render() {
     // Initialisiere Viewer nur einmal für die ganze Galerie
     if (window.taskAttachments.length > 0) {
         if (deleteAllBtn) deleteAllBtn.style.display = 'flex';
+        
+        // Verwende window.taskAttachments direkt für Metadaten (diese haben garantiert type und size)
+        const attachmentMetadata = window.taskAttachments.map(att => ({
+          name: att.name || 'Unknown',
+          type: att.type || '',
+          size: att.size || 0
+        }));
+        
         myGallery = new Viewer(gallery, {
             inline: false,
             button: true,
             navbar: true,
-            title: true,
+            title: [1, (image, imageData) => {
+                const index = imageData?.index ?? 0;
+                const metadata = attachmentMetadata[index] || {};
+                
+                const name = metadata.name || 'Unknown';
+                const type = metadata.type || '';
+                const size = metadata.size || 0;
+                
+                let fileType = 'FILE';
+                if (type && type.includes('/')) {
+                    fileType = type.split('/')[1]?.toUpperCase() || 'FILE';
+                } else if (type) {
+                    fileType = type.toUpperCase();
+                }
+                
+                const sizeKB = size > 0 ? (size / 1024).toFixed(2) : '0.00';
+                
+                return `${name}   •   ${fileType}   •   ${sizeKB} KB`;
+            }],
             toolbar: {
                 download: {
                     show: 1,
@@ -411,7 +444,6 @@ async function handleDrop(e) {
             }
 
             const blob = new Blob([file], { type: file.type });
-            console.log("Datei ausgewählt:", blob);
 
             const compressedBase64 = await compressImage(file, 800, 800, 0.8);
             // Prüfe Upload-Limit (Gesamtgröße inkl. neuem Anhang)

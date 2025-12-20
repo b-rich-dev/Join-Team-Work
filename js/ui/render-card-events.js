@@ -183,11 +183,36 @@ function renderTaskOverlayHtml(container, task, taskId, boardData) {
         window.taskDetailViewer = null;
       }
       if (hasImages && typeof Viewer === 'function') {
+        // Speichere Attachment-Metadaten aus den Original-Bildern
+        const attachmentMetadata = Array.from(gallery.querySelectorAll('img')).map(img => ({
+          name: img.getAttribute('data-name') || img.alt || 'Unknown',
+          type: img.getAttribute('data-type') || '',
+          size: parseInt(img.getAttribute('data-size')) || 0
+        }));
+        
         window.taskDetailViewer = new Viewer(gallery, {
           inline: false,
           button: true,
           navbar: true,
-          title: true,
+          title: [1, (image, imageData) => {
+            const index = imageData?.index ?? 0;
+            const metadata = attachmentMetadata[index] || {};
+            
+            const name = metadata.name || 'Unknown';
+            const type = metadata.type || '';
+            const size = metadata.size || 0;
+            
+            let fileType = 'FILE';
+            if (type && type.includes('/')) {
+                fileType = type.split('/')[1]?.toUpperCase() || 'FILE';
+            } else if (type) {
+                fileType = type.toUpperCase();
+            }
+            
+            const sizeKB = size > 0 ? (size / 1024).toFixed(2) : '0.00';
+            
+            return `${name}   •   ${fileType}   •   ${sizeKB} KB`;
+          }],
           toolbar: {
             download: { show: 1, size: 'large' },
             zoomIn: 1,

@@ -317,18 +317,20 @@
 }
 
 .viewer-title {
-  color: #ccc;
+  color: #fff;
   display: inline-block;
-  font-size: 12px;
-  line-height: 1.2;
-  margin: 5px 5%;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.4;
+  margin: 8px 5%;
   max-width: 90%;
-  min-height: 14px;
-  opacity: 0.8;
+  min-height: 18px;
+  opacity: 0.95;
   overflow: hidden;
   text-overflow: ellipsis;
   transition: opacity 0.15s;
   white-space: nowrap;
+  letter-spacing: 0.3px;
 }
 
 .viewer-title:hover {

@@ -38,8 +38,8 @@ function setupAssignedUsersDropdown() {
     event.stopPropagation();
     const contactOption = event.target.closest(".contact-option");
     if (contactOption) {
-      const { name, initials, avatarColor } = contactOption.dataset;
-      toggleSelectContacts(contactOption, name, initials, avatarColor);
+      const { name, initials, avatarColor, avatarImage, id } = contactOption.dataset;
+      toggleSelectContacts(contactOption, name, initials, avatarColor, avatarImage, id);
 
       const invalidArea = document.getElementById("dropdown-assigned-to");
       const assignedUsersError = document.getElementById("assigned-to-error");

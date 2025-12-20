@@ -69,13 +69,45 @@ function setupSubtaskModule(container, taskToEdit) {
 }
 
 function setupAttachmentsModule(container, taskToEdit) {
-  import("../pages/add-task-attachment-functions.js").then(() => {
+  import("../pages/add-task-attachment-functions.js").then((module) => {
     try {
       // Prefill attachments for edit form
       const existing = Array.isArray(taskToEdit?.attachments)
         ? JSON.parse(JSON.stringify(taskToEdit.attachments))
         : [];
-      window.taskAttachments = existing;
+      
+      // Ergänze fehlende Felder für Rückwärtskompatibilität
+      const normalized = existing.map(att => {
+        const normalized = { ...att };
+        
+        // Ergänze size falls nicht vorhanden
+        if (typeof normalized.size !== 'number' || normalized.size === 0) {
+          if (normalized.base64 && typeof window.base64PayloadBytes === 'function') {
+            normalized.size = window.base64PayloadBytes(normalized.base64);
+          } else {
+            normalized.size = 0;
+          }
+        }
+        
+        // Ergänze type falls nicht vorhanden (versuche aus base64 zu erkennen)
+        if (!normalized.type) {
+          if (normalized.base64?.startsWith('data:image/png')) {
+            normalized.type = 'image/png';
+          } else if (normalized.base64?.startsWith('data:image/jpeg') || normalized.base64?.startsWith('data:image/jpg')) {
+            normalized.type = 'image/jpeg';
+          } else if (normalized.base64?.startsWith('data:image/')) {
+            // Extrahiere MIME-Type aus data URL
+            const match = normalized.base64.match(/^data:([^;]+);/);
+            normalized.type = match ? match[1] : 'image/jpeg';
+          } else {
+            normalized.type = 'image/jpeg'; // Default
+          }
+        }
+        
+        return normalized;
+      });
+      
+      window.taskAttachments = normalized;
       if (typeof window.initAttachmentUI === "function") {
         window.initAttachmentUI();
       }

@@ -370,7 +370,7 @@ export function renderAssignedToContacts(id, name, initials, avatarColor, avatar
     
     return `
         <div tabindex="0" class="contact-option ${isSelected ? "assigned" : ""}"
-          data-id="${id}" data-name="${name}" data-initials="${initials}" data-avatar-color="${avatarColor}">
+          data-id="${id}" data-name="${name}" data-initials="${initials}" data-avatar-color="${avatarColor}" data-avatar-image="${avatarImage || ''}">
             <div class="contact-checkbox">
                 <div class="initials-container">
                 <div class="assigned-initials-circle" ${avatarStyle}>${avatarContent}</div>

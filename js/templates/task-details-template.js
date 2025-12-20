@@ -327,6 +327,44 @@ function getTaskAssignmentSection(task, allContactsObject) {
 }
 
 /**
+ * Normalizes attachment data by calculating missing size and type fields.
+ * @param {object} attachment - The attachment object.
+ * @returns {object} The normalized attachment object.
+ */
+function normalizeAttachment(attachment) {
+  const normalized = { ...attachment };
+  
+  // Calculate size if missing
+  if (typeof normalized.size !== 'number' || normalized.size === 0) {
+    if (normalized.base64) {
+      const comma = normalized.base64.indexOf(',');
+      const b64 = comma >= 0 ? normalized.base64.slice(comma + 1) : normalized.base64;
+      const len = b64.length;
+      const padding = b64.endsWith('==') ? 2 : b64.endsWith('=') ? 1 : 0;
+      normalized.size = Math.max(0, Math.floor((len * 3) / 4) - padding);
+    } else {
+      normalized.size = 0;
+    }
+  }
+  
+  // Determine type if missing
+  if (!normalized.type) {
+    if (normalized.base64?.startsWith('data:image/png')) {
+      normalized.type = 'image/png';
+    } else if (normalized.base64?.startsWith('data:image/jpeg') || normalized.base64?.startsWith('data:image/jpg')) {
+      normalized.type = 'image/jpeg';
+    } else if (normalized.base64?.startsWith('data:image/')) {
+      const match = normalized.base64.match(/^data:([^;]+);/);
+      normalized.type = match ? match[1] : 'image/jpeg';
+    } else {
+      normalized.type = 'image/jpeg';
+    }
+  }
+  
+  return normalized;
+}
+
+/**
  * Creates the HTML section for task attachments.
  * @param {object} task - The task object.
  * @returns {string} The HTML string for the attachments section.
@@ -335,12 +373,13 @@ function getTaskAttachmentsSection(task) {
   if (!task?.attachments || task.attachments.length === 0) return "";
   
   const attachmentsHtml = task.attachments.map((attachment, index) => {
-    const isImage = attachment.type && attachment.type.startsWith('image/');
+    const normalized = normalizeAttachment(attachment);
+    const isImage = normalized.type && normalized.type.startsWith('image/');
     
     return `
-      <div class="attachment-item" data-tooltip="${attachment.name}" data-index="${index}">
+      <div class="attachment-item" data-tooltip="${normalized.name}" data-index="${index}">
         ${isImage ? 
-          `<img src="${attachment.base64}" alt="${attachment.name}" />` :
+          `<img src="${normalized.base64}" alt="${normalized.name}" data-attachment-index="${index}" data-name="${normalized.name}" data-type="${normalized.type}" data-size="${normalized.size}" />` :
           `<div class="attachment-file-icon">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M14 2H6C4.9 2 4 2.9 4 4V20C4 21.1 4.9 22 6 22H18C19.1 22 20 21.1 20 20V8L14 2Z" stroke="#2A3647" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -348,8 +387,8 @@ function getTaskAttachmentsSection(task) {
             </svg>
           </div>`
         }
-        <p class="attachment-description">${attachment.name}</p>
-        <div class="delete-attachment-btn" onclick="downloadAttachment('${attachment.base64}', '${attachment.name}', '${attachment.type}')">
+        <p class="attachment-description">${normalized.name}</p>
+        <div class="delete-attachment-btn" onclick="downloadAttachment('${normalized.base64}', '${normalized.name}', '${normalized.type}')">
           <svg width="20" height="20" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" style="position: relative; left: 2px;">
             <mask id="mask0_266054_1268" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="24" height="24">
             <rect width="24" height="24" fill="#D9D9D9"/>

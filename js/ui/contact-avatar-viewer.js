@@ -308,7 +308,7 @@ window.showContactAvatarViewer = function(imageUrl, contactName, contactId = nul
  * @param {string} selectedContactId - The ID of the contact whose avatar was clicked.
  * @param {boolean} isEditMode - Whether the gallery is shown in edit mode (enables delete button).
  */
-window.showTaskContactAvatarGallery = function(selectedContactId, isEditMode = false) {
+window.showTaskContactAvatarGallery = async function(selectedContactId, isEditMode = false) {
   const contacts = window.currentTaskContactsWithAvatars || [];
   
   if (contacts.length === 0) return;
@@ -339,12 +339,23 @@ window.showTaskContactAvatarGallery = function(selectedContactId, isEditMode = f
   viewerContainer.id = 'temp-avatar-gallery';
   viewerContainer.style.display = 'none';
   
+  // Import avatar utils
+  const { getAvatarBase64, normalizeAvatar } = await import('../utils/avatar-utils.js');
+  
+  // Normalize avatar metadata
+  const avatarMetadata = contacts.map(contact => {
+    const normalized = normalizeAvatar(contact.avatarImage);
+    return normalized || { name: contact.name, type: 'image/jpeg', size: 0 };
+  });
+  
   // Add all contact images
-  contacts.forEach(contact => {
+  contacts.forEach((contact, index) => {
     const img = document.createElement('img');
-    img.src = contact.avatarImage;
+    const base64 = getAvatarBase64(contact.avatarImage);
+    img.src = base64 || '';
     img.alt = contact.name;
     img.dataset.contactId = contact.id;
+    img.dataset.contactIndex = index;
     viewerContainer.appendChild(img);
   });
   
@@ -357,9 +368,16 @@ window.showTaskContactAvatarGallery = function(selectedContactId, isEditMode = f
       button: true,
       navbar: true, // Enable navigation bar
       title: [1, (image, imageData) => {
-        const contactId = image.dataset.contactId;
-        const contact = contacts.find(c => c.id === contactId);
-        return contact ? `${contact.name} - Avatar` : 'Avatar';
+        const index = imageData?.index ?? 0;
+        const contact = contacts[index];
+        const metadata = avatarMetadata[index];
+        
+        if (!contact || !metadata) return 'Avatar';
+        
+        const fileType = metadata.type ? metadata.type.split('/')[1]?.toUpperCase() || 'IMAGE' : 'IMAGE';
+        const sizeKB = metadata.size > 0 ? (metadata.size / 1024).toFixed(2) : '0.00';
+        
+        return `${contact.name}   •   ${fileType}   •   ${sizeKB} KB`;
       }],
       toolbar: {
         download: {

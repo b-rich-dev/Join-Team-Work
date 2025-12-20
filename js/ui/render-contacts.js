@@ -8,6 +8,7 @@ import { createContactDetailsHTML, buildContactSectionHTML } from '../templates/
 
 // UI behavior
 import { openOverlay } from '../ui/contacts-overlays.js';
+import { getAvatarBase64 } from '../utils/avatar-utils.js';
 import { setupAvatarUploadForEditContact } from '../events/avatar-upload-handler.js';
 import { initContactEventListeners } from '../events/contacts-event-listeners.js';
 
@@ -164,7 +165,8 @@ function updateEditAvatar(contact) {
   
   // Check if contact has an avatar image
   if (contact.avatarImage) {
-    avatarEl.style.backgroundImage = `url(${contact.avatarImage})`;
+    const base64 = getAvatarBase64(contact.avatarImage);
+    avatarEl.style.backgroundImage = `url(${base64})`;
     avatarEl.textContent = '';
   } else {
     avatarEl.style.backgroundImage = 'none';

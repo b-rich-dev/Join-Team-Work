@@ -1,10 +1,6 @@
-// The contact currently being edited in the edit overlay
 export let currentlyEditingContact = null;
-
-// The ID of the contact currently shown in the detail view
 export let activeContactId = null;
 
-// In-memory storage for all contacts (populated at runtime)
 const allContacts = {};
 
 /**

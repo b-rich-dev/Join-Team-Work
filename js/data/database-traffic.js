@@ -1,16 +1,10 @@
 /**
- * login-fetch function for minimal data traffic. use querystring with "email" and look in database
- * for dataset which matches email login input.
- * @param {string} key - key in Firebase > users to check.
- * @param {string} userEmail - input string.
- * @returns user dataset or empty object.
- * important: need this rule in Firebase:
- * "users": {
- *   ".indexOn": ["email"] 
- * }
- * encodeURIComponent : ensures correct unicode-encoding of string; %22 means "; mandatory for Firebase.
+ * fetch function for data traffic from Firebase.
+ * @param {string} category - Database category to fetch from.
+ * @param {string} [queryString] - Optional query string for filtering data.
+ * @returns {object|null|boolean} - Fetched data object, null if not found, or false on error.
  */
-async function getFirebaseData(category, queryString='') {
+async function getFirebaseData(category, queryString = '') {
   let baseUrl = `https://join-46697-default-rtdb.europe-west1.firebasedatabase.app/${category}.json`;
   let url = baseUrl + queryString;
   try {
@@ -39,23 +33,20 @@ async function checkUserInFirebase(category, databaseKey, inputString) {
   fetchedUser = data;
 }
 
-
-// Function for collecting new user (and potentially new contact) data an store them to Firebase
-
 let fetchedData = null;
 let currentDataContainer;
 let currentCategory = null;
 
 const objectFields = [
   [
-    {id: "new-name", key: "displayName"},
-    {id: "new-email", key: "email"},
-    {id: "password-first" , key: "password"}
+    { id: "new-name", key: "displayName" },
+    { id: "new-email", key: "email" },
+    { id: "password-first", key: "password" }
   ],
   [
-    {id: "newContactName", key: "name"},
-    {id: "newContactEmail", key: "email"},
-    {id: "newContactPhone", key: "phone"}
+    { id: "newContactName", key: "name" },
+    { id: "newContactEmail", key: "email" },
+    { id: "newContactPhone", key: "phone" }
   ]
 ]
 
@@ -67,7 +58,6 @@ async function objectBuilding(requestedCategory) {
   if (!fetchedData) await getData(requestedCategory);
   setDataContainer(requestedCategory);
   let objectFields = chooseFieldsMap(requestedCategory);
-  console.log("objectFields, requestedCategory: ", objectFields, requestedCategory);
   const [pushObjectId, entryData] = createNewObject(objectFields, requestedCategory, "demoUser");
   await sendNewObject(pushObjectId, entryData, requestedCategory);
   confirmSignup();
@@ -80,7 +70,6 @@ async function objectBuilding(requestedCategory) {
 async function getData(category) {
   const data = await getFirebaseData(category);
   fetchedData = data;
-  console.log("data: ", data);
 }
 
 /**
@@ -110,7 +99,7 @@ function setDataContainer(requestedCategory) {
  * @returns selected objectFields.
  */
 function chooseFieldsMap(requestedCategory) {
-  if(requestedCategory == "users") 
+  if (requestedCategory == "users")
     return objectFields[0];
   else if (requestedCategory == "contacts")
     return objectFields[1];
@@ -163,7 +152,7 @@ function loopOverInputs(fieldMap, obj) {
  * @returns complete new object.
  */
 function specificEntries(requestedCategory, obj) {
-  if(requestedCategory == "users") {
+  if (requestedCategory == "users") {
     obj.associatedContacts = "";
     obj.email = obj.email.toLowerCase();
     return obj;
@@ -187,7 +176,9 @@ function getInitials(fullName) {
   return first + last;
 }
 
-// es fehlt Funktion, die eine Zufallsfarbe wählt und z.B. "var(--dark)" zurückgibt.
+/** specific helper function 2 for "contacts"; choose random color from predefined set.
+ * @returns color-string.
+ */
 function getRandomColor() {
   return color = "--dark";
 }
@@ -210,8 +201,7 @@ function setNextId(category) {
  * @returns last existing (or initialized) key (string).
  */
 function getLastKey(category) {
-  if(!currentDataContainer || Object.keys(currentDataContainer).length == 0) {
-    console.log("you initialized a new category: ", category);
+  if (!currentDataContainer || Object.keys(currentDataContainer).length == 0) {
     return `${category}-000`
   } else {
     const itemKeys = Object.keys(currentDataContainer);
@@ -247,7 +237,6 @@ function determineStoragePath(pushObjectId, requestedCategory) {
     path = `${requestedCategory}/${pushObjectId}`;
     fetchedData = fetchedData || {};
   }
-  console.log("path: ", path, "upated local data: " , fetchedData);
   return path;
 }
 
@@ -272,7 +261,6 @@ async function saveToFirebase(path, data) {
       body: data === null ? undefined : JSON.stringify(data),
     });
     const resText = await response.text();
-    console.log("Firebase response:", response.status, resText);
     if (!response.ok) {
       throw new Error("Firebase update failed: " + response.statusText);
     }
@@ -280,10 +268,3 @@ async function saveToFirebase(path, data) {
     console.error("Fetching data failed:", error);
   }
 }
-
-async function getKeys() {
-let myData = await getFirebaseData('users', '?shallow=true');
-console.log('keys: ', myData);
-}
-
-// getKeys();

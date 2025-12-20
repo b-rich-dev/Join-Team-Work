@@ -129,6 +129,9 @@
   font-weight: bold;
   color: #333;
   margin-bottom: clamp(2px, 0.7vw, 5px);
+  word-wrap: break-word;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 .task-description {
