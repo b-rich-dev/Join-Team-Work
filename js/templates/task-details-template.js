@@ -186,10 +186,14 @@ export function renderAssignedToContactsWithSelection(
   
   let avatarStyle = '';
   let avatarContent = initials;
+  let avatarClickHandler = '';
   
   if (avatarImage) {
-    avatarStyle = `style="background-image: url(${avatarImage}); background-size: cover; background-position: center;"`;
+    avatarStyle = `style="background-image: url(${avatarImage}); background-size: cover; background-position: center; cursor: pointer;"`;
     avatarContent = '';
+    // Pass contact ID for gallery navigation
+    const contactId = contact.id || '';
+    avatarClickHandler = `onclick="event.stopPropagation(); event.preventDefault(); window.showTaskContactAvatarGallery('${contactId}', false); return false;"`;
   } else {
     avatarStyle = `style="background-color: var(${avatarColor});"`;
   }
@@ -198,7 +202,7 @@ export function renderAssignedToContactsWithSelection(
         <div class="contact-option ${assignedClass}" data-name="${name}" data-initials="${initials}" data-avatar-color="${avatarColor}">
             <div class="contact-checkbox">
                 <div class="initials-container">
-                    <div class="assigned-initials-circle" ${avatarStyle}>${avatarContent}</div>
+                    <div class="assigned-initials-circle" ${avatarStyle} ${avatarClickHandler}>${avatarContent}</div>
                 </div>
             </div>
         </div>
@@ -214,7 +218,13 @@ export function renderAssignedToContactsWithSelection(
  */
 function getFilteredContacts(assignedUserIDs, allContactsObject) {
   if (!assignedUserIDs) return [];
-  return assignedUserIDs.map((id) => allContactsObject[id]).filter(Boolean);
+  return assignedUserIDs.map((id) => {
+    const contact = allContactsObject[id];
+    if (contact) {
+      return { ...contact, id }; // Add the ID to the contact object
+    }
+    return null;
+  }).filter(Boolean);
 }
 
 /**
@@ -228,6 +238,17 @@ function getAssignedContactsHtml(assignedUserIDs, allContactsObject) {
     assignedUserIDs,
     allContactsObject
   );
+  
+  // Store contacts with avatars for gallery viewer
+  if (typeof window !== 'undefined') {
+    window.currentTaskContactsWithAvatars = assignedContacts
+      .filter(c => c.avatarImage)
+      .map(c => ({
+        id: c.id,
+        name: c.name,
+        avatarImage: c.avatarImage
+      }));
+  }
   
   if (assignedContacts.length <= 3) {
     return assignedContacts

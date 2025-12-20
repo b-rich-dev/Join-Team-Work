@@ -327,20 +327,23 @@ body {
   z-index: 1000;
   width: min(90vw, 326px);
   height: min(12vw, 74px);
-  display: flex;
+  display: none;
   justify-content: center;
   align-items: center;
   transform: translate(-50%, 100%) scale(0.8);
   opacity: 0;
   transition: transform 0.5s cubic-bezier(0.4, 1.6, 0.4, 1), opacity 1.4s ease;
+  pointer-events: none;
 }
 
 #find-task-info-no-found-Msg.slide-in {
+  display: flex;
   transform: translate(-50%, 0) scale(1);
   opacity: 1;
 }
 
 #find-task-info-no-found-Msg.slide-out {
+  display: flex;
   transform: translate(-50%, 100%) scale(0.8);
   opacity: 0;
 }

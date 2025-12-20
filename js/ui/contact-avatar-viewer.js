@@ -5,6 +5,131 @@
 let contactAvatarViewer = null;
 
 /**
+ * Removes a contact from the task assignment (for edit mode).
+ * @param {string} contactId - The ID of the contact to remove
+ * @param {string} contactName - The name of the contact
+ */
+async function removeContactFromTaskAssignment(contactId, contactName) {
+  try {
+    // Import necessary modules
+    const dropdownModule = await import('../events/dropdown-menu.js');
+    
+    // Remove contact from selectedContacts
+    const removed = dropdownModule.removeSelectedContact(contactId, contactName);
+    
+    if (!removed) {
+      console.warn(`Contact ${contactName} not found in selectedContacts`);
+      return;
+    }
+    
+    // Update currentTaskContactsWithAvatars
+    if (window.currentTaskContactsWithAvatars) {
+      const avatarIndex = window.currentTaskContactsWithAvatars.findIndex(c => 
+        c.id === contactId || c.name === contactName
+      );
+      if (avatarIndex !== -1) {
+        window.currentTaskContactsWithAvatars.splice(avatarIndex, 1);
+      }
+    }
+    
+    // Refresh UI - force re-render of assigned contacts
+    const assignedToArea = document.getElementById("assigned-to-area");
+    const assignedToAreaFull = document.getElementById("assigned-to-area-full");
+    
+    if (assignedToArea || assignedToAreaFull) {
+      // Manually trigger displaySelectedContacts
+      const { selectedContacts } = dropdownModule;
+      
+      if (assignedToArea) {
+        assignedToArea.innerHTML = '';
+        const mainContainer = document.createElement('div');
+        mainContainer.className = 'assigned-main-container';
+        
+        selectedContacts.slice(0, 3).forEach(contact => {
+          const initialsDiv = document.createElement('div');
+          initialsDiv.className = 'assigned-initials-circle';
+          
+          if (contact.avatarImage) {
+            initialsDiv.style.backgroundImage = `url(${contact.avatarImage})`;
+            initialsDiv.style.backgroundSize = 'cover';
+            initialsDiv.style.backgroundPosition = 'center';
+            initialsDiv.textContent = '';
+            
+            initialsDiv.style.cursor = 'pointer';
+            initialsDiv.onclick = function(event) {
+              event.stopPropagation();
+              event.preventDefault();
+              if (typeof window.showTaskContactAvatarGallery === 'function') {
+                window.showTaskContactAvatarGallery(contact.id || contact.name, true);
+              }
+              return false;
+            };
+          } else {
+            initialsDiv.style.backgroundColor = `var(${contact.avatarColor})`;
+            initialsDiv.textContent = contact.initials;
+          }
+          
+          initialsDiv.style.flex = '0 0 auto';
+          mainContainer.appendChild(initialsDiv);
+        });
+        
+        // Add extra count if needed
+        const extraCount = selectedContacts.length - 3;
+        if (extraCount > 0) {
+          const extraDiv = document.createElement('div');
+          extraDiv.className = 'assigned-initials-circle';
+          extraDiv.style.backgroundColor = 'var(--sidebarGrey)';
+          extraDiv.textContent = `… +${extraCount}`;
+          extraDiv.style.fontSize = '0.8rem';
+          extraDiv.style.flex = '0 0 auto';
+          mainContainer.appendChild(extraDiv);
+        }
+        
+        assignedToArea.appendChild(mainContainer);
+      }
+      
+      if (assignedToAreaFull) {
+        assignedToAreaFull.innerHTML = '';
+        const mainContainer = document.createElement('div');
+        mainContainer.className = 'assigned-main-container';
+        
+        selectedContacts.forEach(contact => {
+          const initialsDiv = document.createElement('div');
+          initialsDiv.className = 'assigned-initials-circle';
+          
+          if (contact.avatarImage) {
+            initialsDiv.style.backgroundImage = `url(${contact.avatarImage})`;
+            initialsDiv.style.backgroundSize = 'cover';
+            initialsDiv.style.backgroundPosition = 'center';
+            initialsDiv.textContent = '';
+            
+            initialsDiv.style.cursor = 'pointer';
+            initialsDiv.onclick = function(event) {
+              event.stopPropagation();
+              event.preventDefault();
+              if (typeof window.showTaskContactAvatarGallery === 'function') {
+                window.showTaskContactAvatarGallery(contact.id || contact.name, true);
+              }
+              return false;
+            };
+          } else {
+            initialsDiv.style.backgroundColor = `var(${contact.avatarColor})`;
+            initialsDiv.textContent = contact.initials;
+          }
+          
+          initialsDiv.style.flex = '0 0 auto';
+          mainContainer.appendChild(initialsDiv);
+        });
+        
+        assignedToAreaFull.appendChild(mainContainer);
+      }
+    }
+  } catch (error) {
+    console.error('Error removing contact from assignment:', error);
+  }
+}
+
+/**
  * Deletes the avatar of a contact
  * @param {string} contactId - The ID of the contact
  * @param {string} contactName - The name of the contact
@@ -175,6 +300,155 @@ window.showContactAvatarViewer = function(imageUrl, contactName, contactId = nul
   } catch (error) {
     console.error('Error showing viewer:', error);
     alert('Error showing image: ' + error.message);
+  }
+};
+
+/**
+ * Shows a gallery of all task contact avatars with navigation.
+ * @param {string} selectedContactId - The ID of the contact whose avatar was clicked.
+ * @param {boolean} isEditMode - Whether the gallery is shown in edit mode (enables delete button).
+ */
+window.showTaskContactAvatarGallery = function(selectedContactId, isEditMode = false) {
+  const contacts = window.currentTaskContactsWithAvatars || [];
+  
+  if (contacts.length === 0) return;
+  
+  // Check if Viewer library is loaded
+  if (typeof Viewer !== 'function') {
+    console.error('Viewer library not loaded!');
+    return;
+  }
+
+  // Destroy existing viewer if present
+  if (contactAvatarViewer) {
+    try {
+      contactAvatarViewer.destroy();
+    } catch (error) {
+      console.warn('Error destroying existing viewer:', error);
+    }
+    contactAvatarViewer = null;
+  }
+
+  // Create temporary container with all contact avatars
+  let viewerContainer = document.getElementById('temp-avatar-gallery');
+  if (viewerContainer) {
+    viewerContainer.remove();
+  }
+  
+  viewerContainer = document.createElement('div');
+  viewerContainer.id = 'temp-avatar-gallery';
+  viewerContainer.style.display = 'none';
+  
+  // Add all contact images
+  contacts.forEach(contact => {
+    const img = document.createElement('img');
+    img.src = contact.avatarImage;
+    img.alt = contact.name;
+    img.dataset.contactId = contact.id;
+    viewerContainer.appendChild(img);
+  });
+  
+  document.body.appendChild(viewerContainer);
+
+  try {
+    // Initialize viewer with navigation enabled
+    contactAvatarViewer = new Viewer(viewerContainer, {
+      inline: false,
+      button: true,
+      navbar: true, // Enable navigation bar
+      title: [1, (image, imageData) => {
+        const contactId = image.dataset.contactId;
+        const contact = contacts.find(c => c.id === contactId);
+        return contact ? `${contact.name} - Avatar` : 'Avatar';
+      }],
+      toolbar: {
+        download: {
+          show: 1,
+          size: 'large'
+        },
+        zoomIn: 1,
+        zoomOut: 1,
+        oneToOne: 1,
+        reset: 1,
+        prev: contacts.length > 1 ? 1 : 0,
+        play: contacts.length > 1 ? { show: 1, size: 'large' } : 0,
+        next: contacts.length > 1 ? 1 : 0,
+        rotateLeft: 1,
+        rotateRight: 1,
+        delete: isEditMode ? {
+          show: 1,
+          size: 'large'
+        } : 0
+      },
+      tooltip: true,
+      movable: true,
+      zoomable: true,
+      rotatable: true,
+      transition: true,
+      fullscreen: true,
+      keyboard: true,
+      download: function(url, imageName) {
+        const activeImage = viewerContainer.querySelector('img[src="' + url + '"]');
+        const contactId = activeImage ? activeImage.dataset.contactId : '';
+        const contact = contacts.find(c => c.id === contactId);
+        const fileName = contact ? `${contact.name}_avatar.png` : 'avatar.png';
+        
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      },
+      delete: isEditMode ? async function() {
+        // Get current image index from viewer
+        const currentIndex = contactAvatarViewer.index;
+        
+        // Get contact from the contacts array using the index
+        const contact = contacts[currentIndex];
+        
+        if (!contact) {
+          console.error('Contact not found!');
+          return;
+        }
+        
+        const contactId = contact.id;
+        const contactName = contact.name;
+        
+        // Close viewer first
+        if (contactAvatarViewer) {
+          contactAvatarViewer.hide();
+        }
+        
+        // Remove contact from assignment
+        await removeContactFromTaskAssignment(contactId, contactName);
+      } : undefined,
+      hide: function(event) {
+        if (document.activeElement && document.activeElement.blur) {
+          document.activeElement.blur();
+        }
+        setTimeout(() => {
+          if (viewerContainer && viewerContainer.parentNode) {
+            viewerContainer.remove();
+          }
+        }, 300);
+      },
+      hidden: function() {
+        if (document.activeElement && document.activeElement.classList && 
+            document.activeElement.classList.contains('viewer-button')) {
+          document.activeElement.blur();
+        }
+      }
+    });
+    
+    // Find the index of the selected contact and show that image
+    const selectedIndex = contacts.findIndex(c => c.id === selectedContactId);
+    contactAvatarViewer.show();
+    if (selectedIndex > 0) {
+      contactAvatarViewer.view(selectedIndex);
+    }
+  } catch (error) {
+    console.error('Error showing gallery:', error);
   }
 };
 

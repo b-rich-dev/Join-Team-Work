@@ -4,6 +4,24 @@ export let currentContacts = [];
 export let selectedCategory = null;
 export let selectedContacts = [];
 
+/**
+ * Removes a contact from selectedContacts by ID or name.
+ * @param {string} contactId - The ID of the contact to remove.
+ * @param {string} contactName - The name of the contact to remove.
+ * @returns {boolean} True if contact was removed, false otherwise.
+ */
+export function removeSelectedContact(contactId, contactName) {
+  const index = selectedContacts.findIndex(c => 
+    c.id === contactId || c.name === contactName
+  );
+  
+  if (index !== -1) {
+    selectedContacts.splice(index, 1);
+    return true;
+  }
+  return false;
+}
+
 /** * Toggles the dropdown icon for category or assigned contacts.
  * @param {string} id - The ID of the dropdown to toggle.
  */
@@ -318,6 +336,13 @@ function displaySelectedContacts() {
   const assignedToWrapper = document.getElementById("assigned-to-options-wrapper");
   if (!assignedToArea) return;
 
+  // Store contacts with avatars for gallery
+  window.currentTaskContactsWithAvatars = selectedContacts.filter(c => c.avatarImage).map(c => ({
+    id: c.id || c.name,
+    name: c.name,
+    avatarImage: c.avatarImage
+  }));
+
   clearAndRender(assignedToArea, selectedContacts.slice(0, 3), true);
   if (assignedToAreaFull) {
     clearAndRender(assignedToAreaFull, selectedContacts, false);
@@ -365,6 +390,17 @@ function renderContactCircle(contact, container) {
     initialsDiv.style.backgroundSize = 'cover';
     initialsDiv.style.backgroundPosition = 'center';
     initialsDiv.textContent = '';
+    
+    // Make avatar clickable and open gallery
+    initialsDiv.style.cursor = 'pointer';
+    initialsDiv.onclick = function(event) {
+      event.stopPropagation();
+      event.preventDefault();
+      if (typeof window.showTaskContactAvatarGallery === 'function') {
+        window.showTaskContactAvatarGallery(contact.id || contact.name, true);
+      }
+      return false;
+    };
   } else {
     initialsDiv.style.backgroundColor = `var(${contact.avatarColor})`;
     initialsDiv.textContent = contact.initials;
