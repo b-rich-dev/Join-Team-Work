@@ -186,16 +186,43 @@ async function deleteContactAvatar(contactId, contactName) {
 /**
  * Shows a contact avatar in the viewer.
  * This function is globally accessible via window.showContactAvatarViewer
- * @param {string} imageUrl - The URL of the avatar image
+ * @param {string|object} imageUrl - The URL of the avatar image or avatar object with metadata
  * @param {string} contactName - The name of the contact
  * @param {string} contactId - The ID of the contact (optional, needed for delete)
  */
-window.showContactAvatarViewer = function(imageUrl, contactName, contactId = null) {
+window.showContactAvatarViewer = async function(imageUrl, contactName, contactId = null) {
   // Check if Viewer library is loaded
   if (typeof Viewer !== 'function') {
     console.error('Viewer library not loaded!');
     alert('Image viewer is not available.');
     return;
+  }
+
+  // Extract base64 and metadata
+  let base64Url = imageUrl;
+  let metadata = null;
+  
+  if (typeof imageUrl === 'object' && imageUrl.base64) {
+    // It's an avatar object with metadata
+    base64Url = imageUrl.base64;
+    metadata = {
+      name: imageUrl.name || `${contactName}.jpg`,
+      type: imageUrl.type || 'image/jpeg',
+      size: imageUrl.size || 0
+    };
+  } else if (typeof imageUrl === 'string') {
+    // It's a base64 string, extract metadata
+    const mimeMatch = imageUrl.match(/^data:([^;]+);/);
+    const type = mimeMatch ? mimeMatch[1] : 'image/jpeg';
+    const ext = type.split('/')[1] || 'jpg';
+    const base64Data = imageUrl.split(',')[1] || '';
+    const size = Math.floor((base64Data.length * 3) / 4);
+    
+    metadata = {
+      name: `${contactName}.${ext}`,
+      type: type,
+      size: size
+    };
   }
 
   // Destroy existing viewer if present
@@ -217,7 +244,7 @@ window.showContactAvatarViewer = function(imageUrl, contactName, contactId = nul
   viewerContainer = document.createElement('div');
   viewerContainer.id = 'temp-avatar-viewer';
   viewerContainer.style.display = 'none';
-  viewerContainer.innerHTML = `<img src="${imageUrl}" alt="${contactName}">`;
+  viewerContainer.innerHTML = `<img src="${base64Url}" alt="${contactName}">`;
   document.body.appendChild(viewerContainer);
 
   try {
@@ -226,7 +253,14 @@ window.showContactAvatarViewer = function(imageUrl, contactName, contactId = nul
       inline: false,
       button: true,
       navbar: false,
-      title: [1, (image, imageData) => `${contactName} - Avatar`],
+      title: [1, (image, imageData) => {
+        if (metadata) {
+          const fileType = metadata.type.split('/')[1]?.toUpperCase() || 'IMAGE';
+          const sizeKB = (metadata.size / 1024).toFixed(2);
+          return `${contactName}   •   ${fileType}   •   ${sizeKB} KB`;
+        }
+        return `${contactName} - Avatar`;
+      }],
       toolbar: {
         download: {
           show: 1,
@@ -253,8 +287,8 @@ window.showContactAvatarViewer = function(imageUrl, contactName, contactId = nul
       download: function(url, imageName) {
         // Custom download function
         const link = document.createElement('a');
-        link.href = imageUrl;
-        link.download = `${contactName}_avatar.png`;
+        link.href = base64Url;
+        link.download = metadata ? metadata.name : `${contactName}_avatar.png`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -344,15 +378,65 @@ window.showTaskContactAvatarGallery = async function(selectedContactId, isEditMo
   
   // Normalize avatar metadata
   const avatarMetadata = contacts.map(contact => {
-    const normalized = normalizeAvatar(contact.avatarImage);
-    return normalized || { name: contact.name, type: 'image/jpeg', size: 0 };
+    if (contact.avatarImage) {
+      // Check if it's already an object with metadata
+      if (typeof contact.avatarImage === 'object' && contact.avatarImage.name) {
+        return {
+          name: contact.avatarImage.name,
+          type: contact.avatarImage.type || 'image/jpeg',
+          size: contact.avatarImage.size || 0
+        };
+      }
+      // If it's a string (base64), extract actual metadata from the string
+      if (typeof contact.avatarImage === 'string') {
+        // Extract mime type from base64 header
+        const mimeMatch = contact.avatarImage.match(/^data:([^;]+);/);
+        const type = mimeMatch ? mimeMatch[1] : 'image/jpeg';
+        const ext = type.split('/')[1] || 'jpg';
+        
+        // Calculate actual size of base64 data
+        const base64Data = contact.avatarImage.split(',')[1] || '';
+        const size = Math.floor((base64Data.length * 3) / 4);
+        
+        return {
+          name: `${contact.name}.${ext}`,
+          type: type,
+          size: size
+        };
+      }
+    }
+    return { name: contact.name, type: 'image/jpeg', size: 0 };
   });
   
-  // Add all contact images
+  // Add all contact images (or placeholder for contacts without images)
   contacts.forEach((contact, index) => {
     const img = document.createElement('img');
-    const base64 = getAvatarBase64(contact.avatarImage);
-    img.src = base64 || '';
+    
+    if (contact.avatarImage) {
+      const base64 = getAvatarBase64(contact.avatarImage);
+      img.src = base64 || '';
+    } else {
+      // Create a canvas with initials for contacts without image
+      const canvas = document.createElement('canvas');
+      canvas.width = 200;
+      canvas.height = 200;
+      const ctx = canvas.getContext('2d');
+      
+      // Draw background color
+      const color = contact.avatarColor ? getComputedStyle(document.documentElement).getPropertyValue(contact.avatarColor).trim() : '#2A3647';
+      ctx.fillStyle = color;
+      ctx.fillRect(0, 0, 200, 200);
+      
+      // Draw initials
+      ctx.fillStyle = 'white';
+      ctx.font = 'bold 80px Inter, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(contact.initials || '', 100, 100);
+      
+      img.src = canvas.toDataURL();
+    }
+    
     img.alt = contact.name;
     img.dataset.contactId = contact.id;
     img.dataset.contactIndex = index;
@@ -368,16 +452,42 @@ window.showTaskContactAvatarGallery = async function(selectedContactId, isEditMo
       button: true,
       navbar: true, // Enable navigation bar
       title: [1, (image, imageData) => {
-        const index = imageData?.index ?? 0;
-        const contact = contacts[index];
-        const metadata = avatarMetadata[index];
+        // Find actual index by comparing image.src with contact avatarImage
+        let actualIndex = -1;
+        if (image && image.src) {
+          actualIndex = contacts.findIndex(contact => {
+            if (!contact.avatarImage) return false;
+            const base64 = getAvatarBase64(contact.avatarImage);
+            return base64 === image.src;
+          });
+        }
         
-        if (!contact || !metadata) return 'Avatar';
+        // If no match found (actualIndex === -1), it's a canvas-generated image (no real avatar)
+        // In this case, we need to find which contact has no avatarImage
+        if (actualIndex === -1) {
+          // This is a canvas image for a contact without avatar - just show name
+          const noAvatarContacts = contacts.filter(c => !c.avatarImage);
+          if (noAvatarContacts.length > 0) {
+            // Try to find which one by checking dataset or just use first
+            return noAvatarContacts[0].name;
+          }
+          return 'Contact';
+        }
         
-        const fileType = metadata.type ? metadata.type.split('/')[1]?.toUpperCase() || 'IMAGE' : 'IMAGE';
-        const sizeKB = metadata.size > 0 ? (metadata.size / 1024).toFixed(2) : '0.00';
+        const contact = contacts[actualIndex];
+        const metadata = avatarMetadata[actualIndex];
         
-        return `${contact.name}   •   ${fileType}   •   ${sizeKB} KB`;
+        if (!contact) return 'Contact';
+        
+        // If contact has avatarImage, show full metadata
+        if (contact.avatarImage && metadata) {
+          const fileType = metadata.type ? metadata.type.split('/')[1]?.toUpperCase() || 'IMAGE' : 'IMAGE';
+          const sizeKB = metadata.size > 0 ? (metadata.size / 1024).toFixed(2) : '0.00';
+          return `${contact.name}   •   ${fileType}   •   ${sizeKB} KB`;
+        }
+        
+        // No avatar - just show name
+        return contact.name;
       }],
       toolbar: {
         download: {

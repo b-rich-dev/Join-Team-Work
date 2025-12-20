@@ -1,5 +1,5 @@
 import { firebaseData } from "../../main.js";
-import { currentContacts, getAssignedToOptions, setCategory, toggleCategoryDropdown, toggleSelectContacts, toggleAssignedToDropdown, setSortedContacts, selectedCategory, selectedContacts, resetDropdownState, setBorderColorGrey, } from "./dropdown-menu.js";
+import { currentContacts, getAssignedToOptions, setCategory, toggleCategoryDropdown, toggleSelectContacts, toggleAssignedToDropdown, setSortedContacts, selectedCategory, selectedContacts, resetDropdownState, setBorderColorGrey, contactsMap } from "./dropdown-menu.js";
 
 /** Initializes the dropdown menus for category and assigned contacts.
  * Sets up event listeners and populates the dropdowns with contacts.
@@ -38,8 +38,21 @@ function setupAssignedUsersDropdown() {
     event.stopPropagation();
     const contactOption = event.target.closest(".contact-option");
     if (contactOption) {
-      const { name, initials, avatarColor, avatarImage, id } = contactOption.dataset;
-      toggleSelectContacts(contactOption, name, initials, avatarColor, avatarImage, id);
+      const id = contactOption.dataset.id;
+      let contact = contactsMap.get(id);
+      
+      // Fallback: search in currentContacts if not found in map
+      if (!contact) {
+        const name = contactOption.dataset.name;
+        const initials = contactOption.dataset.initials;
+        contact = currentContacts.find(c => 
+          c.name === name && c.initials === initials
+        );
+      }
+      
+      if (contact) {
+        toggleSelectContacts(contactOption, contact.name, contact.initials, contact.avatarColor, contact.avatarImage, id);
+      }
 
       const invalidArea = document.getElementById("dropdown-assigned-to");
       const assignedUsersError = document.getElementById("assigned-to-error");

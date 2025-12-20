@@ -189,7 +189,11 @@ export function renderAssignedToContactsWithSelection(
   let avatarClickHandler = '';
   
   if (avatarImage) {
-    avatarStyle = `style="background-image: url(${avatarImage}); background-size: cover; background-position: center; cursor: pointer;"`;
+    // Extract base64 from object or use string directly
+    const base64 = typeof avatarImage === 'string' 
+      ? avatarImage 
+      : (avatarImage?.base64 || avatarImage);
+    avatarStyle = `style="background-image: url(${base64}); background-size: cover; background-position: center; cursor: pointer;"`;
     avatarContent = '';
     // Pass contact ID for gallery navigation
     const contactId = contact.id || '';
@@ -242,11 +246,12 @@ function getAssignedContactsHtml(assignedUserIDs, allContactsObject) {
   // Store contacts with avatars for gallery viewer
   if (typeof window !== 'undefined') {
     window.currentTaskContactsWithAvatars = assignedContacts
-      .filter(c => c.avatarImage)
       .map(c => ({
         id: c.id,
         name: c.name,
-        avatarImage: c.avatarImage
+        initials: c.initials,
+        avatarColor: c.avatarColor,
+        avatarImage: c.avatarImage || null
       }));
   }
   

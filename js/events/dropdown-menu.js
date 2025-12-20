@@ -3,6 +3,7 @@ import { getCategoryOptions, renderAssignedToContacts } from "../templates/add-t
 export let currentContacts = [];
 export let selectedCategory = null;
 export let selectedContacts = [];
+export const contactsMap = new Map();
 
 /**
  * Removes a contact from selectedContacts by ID or name.
@@ -211,6 +212,10 @@ function renderContactsList(contacts, contactContainer, currentUser) {
     const { name, initials, avatarColor, avatarImage } = contact;
     const displayName = name === currentUser ? `${name} (You)` : name;
     const contactId = contact && contact.id != null ? contact.id : i;
+    
+    // Store full contact object in map to preserve avatarImage object
+    contactsMap.set(contactId, contact);
+    
     contactContainer.innerHTML += renderAssignedToContacts(contactId, displayName, initials, avatarColor, avatarImage);
   });
 }
@@ -394,7 +399,7 @@ function renderContactCircle(contact, container) {
     // Extract base64 from object or use string directly
     const base64 = typeof contact.avatarImage === 'string' 
       ? contact.avatarImage 
-      : contact.avatarImage.base64;
+      : (contact.avatarImage?.base64 || contact.avatarImage);
     
     initialsDiv.style.backgroundImage = `url(${base64})`;
     initialsDiv.style.backgroundSize = 'cover';
@@ -423,14 +428,14 @@ function renderContactCircle(contact, container) {
  * @param {string} selectedContactId - The ID of the contact that was clicked
  */
 async function openAssignedContactsGallery(selectedContactId) {
-  const contacts = window.currentTaskContactsWithAvatars || [];
+  const assignedContacts = window.currentTaskContactsWithAvatars || [];
   
-  if (contacts.length === 0) return;
+  if (assignedContacts.length === 0) return;
   
   // Check if Viewer library is loaded
   if (typeof Viewer !== 'function') {
     console.warn('Viewer library not loaded - falling back to simple view');
-    const contact = contacts.find(c => c.id === selectedContactId);
+    const contact = assignedContacts.find(c => c.id === selectedContactId);
     if (contact && contact.avatarImage) {
       const { getAvatarBase64 } = await import('../utils/avatar-utils.js');
       const base64 = getAvatarBase64(contact.avatarImage);
@@ -441,6 +446,19 @@ async function openAssignedContactsGallery(selectedContactId) {
   
   // Import avatar utils
   const { getAvatarBase64, normalizeAvatar } = await import('../utils/avatar-utils.js');
+  
+  // Get full contact objects with metadata from contactsMap or currentContacts
+  const contacts = assignedContacts.map(c => {
+    // Try to get full contact from contactsMap first
+    const fullContact = contactsMap.get(c.id);
+    if (fullContact) return fullContact;
+    
+    // Fallback to currentContacts
+    const foundContact = currentContacts.find(contact => 
+      contact.id === c.id || (contact.name === c.name && contact.initials === c.initials)
+    );
+    return foundContact || c;
+  });
   
   // Normalize avatar metadata - ensure we get proper metadata for each contact
   const avatarMetadata = contacts.map(contact => {
@@ -544,20 +562,42 @@ async function openAssignedContactsGallery(selectedContactId) {
       button: true,
       navbar: contacts.length > 1,
       title: [1, (image, imageData) => {
-        const index = imageData?.index ?? 0;
+        // imageData.index is always 0 when navigating, so we need to find the actual index
+        // by matching the image src with our contacts
+        let actualIndex = -1;
         
-        if (avatarMetadata[index]) {
-          const metadata = avatarMetadata[index];
+        if (image && image.src) {
+          actualIndex = contacts.findIndex(contact => {
+            if (!contact.avatarImage) return false;
+            const base64 = getAvatarBase64(contact.avatarImage);
+            return base64 === image.src;
+          });
+        }
+        
+        // If no match found (actualIndex === -1), it's a canvas-generated image (no real avatar)
+        if (actualIndex === -1) {
+          // This is a canvas image for a contact without avatar - just show name
+          const noAvatarContacts = contacts.filter(c => !c.avatarImage);
+          if (noAvatarContacts.length > 0) {
+            return noAvatarContacts[0].name;
+          }
+          return 'Contact';
+        }
+        
+        const contact = contacts[actualIndex];
+        const metadata = avatarMetadata[actualIndex];
+        
+        if (!contact) return 'Contact';
+        
+        // If contact has avatarImage, show full metadata
+        if (contact.avatarImage && metadata) {
           const fileType = metadata.type?.split('/')[1]?.toUpperCase() || 'Unknown';
           const sizeKB = (metadata.size / 1024).toFixed(2);
-          return `${metadata.name}   •   ${fileType}   •   ${sizeKB} KB`;
+          return `${contact.name}   •   ${fileType}   •   ${sizeKB} KB`;
         }
         
-        if (contacts[index]) {
-          return contacts[index].name;
-        }
-        
-        return 'Contact';
+        // No avatar - just show name
+        return contact.name;
       }],
       toolbar: {
         zoomIn: 1,
@@ -587,20 +627,17 @@ async function openAssignedContactsGallery(selectedContactId) {
       shown: function() {
         // Attach delete handler after viewer is shown
         setupDeleteButtonHandler(viewerContainer, contacts);
+      },
+      hide: function() {
+        // Remove focus from the active element to prevent aria-hidden warning
+        if (document.activeElement instanceof HTMLElement) {
+          document.activeElement.blur();
+        }
       }
     });
 
     // Show the viewer at the clicked contact
     window.assignedContactsViewer.show();
-    
-    // Prevent aria-hidden accessibility violation by removing focus before hiding
-    viewerContainer.addEventListener('hide', function() {
-      const viewerElement = document.querySelector('.viewer-container');
-      if (viewerElement && viewerElement.contains(document.activeElement)) {
-        document.activeElement.blur();
-        document.body.focus();
-      }
-    });
     
     // Clean up on hide
     viewerContainer.addEventListener('hidden', function() {

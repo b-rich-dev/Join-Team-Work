@@ -195,8 +195,13 @@ function renderTaskOverlayHtml(container, task, taskId, boardData) {
           button: true,
           navbar: true,
           title: [1, (image, imageData) => {
-            const index = imageData?.index ?? 0;
-            const metadata = attachmentMetadata[index] || {};
+            // Find actual index by comparing image.src
+            let actualIndex = 0;
+            if (image && image.src) {
+                actualIndex = attachmentMetadata.findIndex(meta => meta.src === image.src);
+                if (actualIndex === -1) actualIndex = 0;
+            }
+            const metadata = attachmentMetadata[actualIndex] || {};
             
             const name = metadata.name || 'Unknown';
             const type = metadata.type || '';

@@ -362,7 +362,12 @@ export function renderAssignedToContacts(id, name, initials, avatarColor, avatar
     let avatarContent = initials;
     
     if (avatarImage) {
-        avatarStyle = `style="background-image: url(${avatarImage}); background-size: cover; background-position: center;"`;
+        // Extract base64 from object or use string directly
+        const base64 = typeof avatarImage === 'string' 
+            ? avatarImage 
+            : (avatarImage?.base64 || avatarImage);
+        
+        avatarStyle = `style="background-image: url(${base64}); background-size: cover; background-position: center;"`;
         avatarContent = '';
     } else {
         avatarStyle = `style="background-color: var(${avatarColor});"`;

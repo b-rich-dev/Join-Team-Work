@@ -183,7 +183,11 @@ function renderContactAvatar(contact) {
   
   // Check if contact has an avatar image
   if (contact.avatarImage) {
-    return `<div class="assigned-initials-circle" style="background-image: url(${contact.avatarImage}); background-size: cover; background-position: center;" title="${name}"></div>`;
+    // Extract base64 from object or use string directly
+    const base64 = typeof contact.avatarImage === 'string' 
+      ? contact.avatarImage 
+      : (contact.avatarImage?.base64 || contact.avatarImage);
+    return `<div class="assigned-initials-circle" style="background-image: url(${base64}); background-size: cover; background-position: center;" title="${name}"></div>`;
   }
   
   // Otherwise, use colored circle with initials

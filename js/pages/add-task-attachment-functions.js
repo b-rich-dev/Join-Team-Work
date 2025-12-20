@@ -259,8 +259,16 @@ async function render() {
             button: true,
             navbar: true,
             title: [1, (image, imageData) => {
-                const index = imageData?.index ?? 0;
-                const metadata = attachmentMetadata[index] || {};
+                // Find actual index by comparing image.src with attachment base64
+                let actualIndex = 0;
+                if (image && image.src) {
+                    actualIndex = window.taskAttachments.findIndex(att => {
+                        const base64 = typeof att === 'string' ? att : att.base64;
+                        return base64 === image.src;
+                    });
+                    if (actualIndex === -1) actualIndex = 0;
+                }
+                const metadata = attachmentMetadata[actualIndex] || {};
                 
                 const name = metadata.name || 'Unknown';
                 const type = metadata.type || '';
