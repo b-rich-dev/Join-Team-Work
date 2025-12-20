@@ -43,10 +43,16 @@ export function createContactTemplate(contact) {
 export function createContactDetailsHTML(contact) {
   let avatarStyle = '';
   let avatarContent = contact.initials;
+  let avatarClickHandler = '';
   
   if (contact.avatarImage) {
     // Use background image for avatar photo
-    avatarStyle = `style="background-image: url(${contact.avatarImage}); background-size: cover; background-position: center;"`;
+    avatarStyle = `style="background-image: url(${contact.avatarImage}); background-size: cover; background-position: center; cursor: pointer;"`;
+    // Escape quotes properly
+    const safeUrl = contact.avatarImage.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+    const safeName = (contact.name || 'Contact').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+    const safeId = contact.id || '';
+    avatarClickHandler = `onclick="event.stopPropagation(); event.preventDefault(); window.showContactAvatarViewer('${safeUrl}', '${safeName}', '${safeId}'); return false;"`;
     avatarContent = '';
   } else {
     // Use colored background with initials
@@ -60,7 +66,7 @@ export function createContactDetailsHTML(contact) {
   
   return `
     <div class="contact-details-header">
-      <div class="contact-details-avatar-big" ${avatarStyle}>${avatarContent}</div>
+      <div class="contact-details-avatar-big" ${avatarStyle} ${avatarClickHandler}>${avatarContent}</div>
       <div class="contact-details-name-actions">
         <h2>${contact.name}</h2>
         <div class="contact-details-actions">

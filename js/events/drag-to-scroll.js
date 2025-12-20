@@ -64,7 +64,7 @@ function bindPointerDragEvents(scrollContainer, dragState) {
 
 function startPointerDrag(e, dragState) {
     // Don't interfere with clicks on interactive elements
-    if (e.target.closest('button, a, input, textarea, select, [role="button"], .contact')) {
+    if (e.target.closest('button, a, input, textarea, select, [role="button"], .contact, .contact-details-avatar-big')) {
         return;
     }
     
@@ -119,7 +119,7 @@ function bindMouseDragEvents(scrollContainer, dragState) {
  */
 function startMouseDrag(mouseEvent, dragState) {
     // Don't interfere with clicks on interactive elements
-    if (mouseEvent.target.closest('button, a, input, textarea, select, [role="button"], .contact')) {
+    if (mouseEvent.target.closest('button, a, input, textarea, select, [role="button"], .contact, .contact-details-avatar-big')) {
         return;
     }
     
@@ -166,7 +166,7 @@ function bindTouchDragEvents(scrollContainer, dragState) {
 
 function startTouchDrag(e, dragState) {
     // Don't interfere with touches on interactive elements
-    if (e.target.closest('button, a, input, textarea, select, [role="button"], .contact')) {
+    if (e.target.closest('button, a, input, textarea, select, [role="button"], .contact, .contact-details-avatar-big')) {
         return;
     }
     

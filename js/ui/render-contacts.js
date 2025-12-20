@@ -195,6 +195,7 @@ function initDragScrollOnElements() {
  * Initializes the contacts page
  */
 function init() {
+  console.log('Contacts page initializing...');
   initDragScrollOnElements();
   renderContacts();
   initContactEventListeners();

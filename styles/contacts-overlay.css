@@ -226,7 +226,8 @@
 }
 
 /* Delete Contact Warning */
-#deleteContactWarning {
+#deleteContactWarning,
+#deleteAvatarWarning {
     position: fixed;
     inset: 0;
     background-color: rgba(0, 0, 0, 0.5);
@@ -239,7 +240,8 @@
     pointer-events: none;
 }
 
-#deleteContactWarning:not(.hidden) {
+#deleteContactWarning:not(.hidden),
+#deleteAvatarWarning:not(.hidden) {
     opacity: 1;
     pointer-events: auto;
 }
