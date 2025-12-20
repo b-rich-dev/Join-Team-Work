@@ -1,7 +1,3 @@
-/*
- * General Styles & Layout
- * Styles that apply globally or define the main structural layout of the application.
- */
 body,
 html {
     margin: 0;
@@ -24,10 +20,6 @@ html {
     min-height: calc(100vh - 96px);
 }
 
-/*
- * Sidebar Styles
- * Styles related to the contacts sidebar, including its general appearance and the "Add New Contact" button.
- */
 .contacts-sidebar {
     min-width: 456px;
     background-color: var(--white);
@@ -51,10 +43,6 @@ html {
     }
 }
 
-/*
- * Contact List Items
- * Styles for individual contact entries displayed in the sidebar, including their layout, hover states, and active states.
- */
 .contact-initial {
     font-weight: 400;
     border-bottom: 1px solid var(--white);
@@ -138,10 +126,6 @@ html {
     color: var(--lightBlue);
 }
 
-/*
- * Contact Details Section
- * Styles for the displayed details of a selected contact, including the header, avatar, name, actions, and information blocks.
- */
 .contacts-details {
     flex-grow: 1;
     padding-top: 108px;
@@ -248,10 +232,6 @@ html {
     color: var(--lightBlue);
 }
 
-/*
- * Utility Classes & Responsiveness
- * General utility classes for hiding elements and styles related to touch/drag interactions and responsive design.
- */
 .hidden {
     display: none !important;
 }
@@ -278,10 +258,6 @@ html {
     overflow: hidden;
 }
 
-/*
- * Styles for screens up to 1350px wide
- * Adjustments for medium-sized screens, primarily affecting contact list layout and text separators.
- */
 @media (max-width: 1350px) {
     .contact {
         margin-left: 0px;

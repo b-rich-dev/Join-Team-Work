@@ -1,7 +1,3 @@
-/*
- * Animations
- * Keyframe definitions for various animations used throughout the application, primarily for sliding elements in and out.
- */
 @keyframes slideInRight {
     from {
         transform: translateX(100vw);
@@ -68,10 +64,6 @@
     }
 }
 
-/*
- * Message Display Styles
- * Styles for success or error messages, including their positioning, appearance, and animation states.
- */
 #contactSuccessMsg {
     position: absolute;
     bottom: 132px;

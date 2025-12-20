@@ -38,6 +38,7 @@
     top: 110%;
     opacity: 0;
   }
+
   to {
     top: 0%;
     opacity: 1;

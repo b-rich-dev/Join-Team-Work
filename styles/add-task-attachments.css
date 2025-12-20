@@ -22,7 +22,6 @@
     transition: bottom 0.4s ease, opacity 0.4s ease;
 }
 
-/* Entkoppelte Kinder-Selektoren (keine geschachtelte Syntax) */
 #wrongFormatErrorMsg svg,
 #attachmentLimitErrorMsg svg {
     position: absolute;
@@ -39,14 +38,12 @@
     font-weight: 400;
 }
 
-/* Sichtbar (eingeblendet) */
 #wrongFormatErrorMsg.slide-in,
 #attachmentLimitErrorMsg.slide-in {
     bottom: 50%;
     opacity: 1;
 }
 
-/* Ausblenden (nach unten rausfahren) */
 #wrongFormatErrorMsg.slide-out,
 #attachmentLimitErrorMsg.slide-out {
     bottom: -100px;

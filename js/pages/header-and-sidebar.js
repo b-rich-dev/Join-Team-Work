@@ -44,11 +44,17 @@ function initDropdown() {
   const dropdown = document.getElementById("dropdown");
   initials.addEventListener("click", (e) => {
     e.stopPropagation();
-    dropdown.classList.toggle("show");
+    const isOpen = dropdown.classList.toggle("show");
+    if (isOpen) {
+      dropdown.removeAttribute("aria-hidden");
+    } else {
+      dropdown.setAttribute("aria-hidden", "true");
+    }
   });
   document.addEventListener("click", (e) => {
     if (!e.target.closest(".profile-wrapper")) {
       dropdown.classList.remove("show");
+      dropdown.setAttribute("aria-hidden", "true");
     };
   });
 }

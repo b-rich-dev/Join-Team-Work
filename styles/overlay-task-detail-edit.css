@@ -1,10 +1,12 @@
 .subtask-text {
   transition: text-decoration 0.2s, color 0.2s;
 }
+
 .subtask-text:hover {
   cursor: pointer;
   color: var(--lightBlue);
 }
+
 .modal-content-task-edit {
   background: #fff;
   border-radius: 20px;
@@ -51,7 +53,6 @@
 }
 
 #add-task-main {
-  /* padding: 5px; */
   scrollbar-width: none;
 }
 

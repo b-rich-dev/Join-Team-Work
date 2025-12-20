@@ -1,51 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <title>My Maintenance</title>
 </head>
-<body>
-  <h2>Running Firebase Cleanup</h2>
-  <p >Click the button below to reset the <strong>Join Firebase</strong> instance.</p>
-  <p style="color: red"><strong>This action is destructive and cannot be undone.</strong></p>
-  <p><strong>Open the console to see the deleted entries.</strong></p>
-  <p>After cleanup, the database will contain:</p>
-  <ul>
-    <li> <p><code>users</code>: 6 entries</p> </li>
-    <li> <p><code>tasks</code>: 6 entries</p> </li>
-    <li> <p><code>contacts</code>: 12 entries</p> </li>
-  </ul>
-  <p>To change cleanup behavior (e.g., entry count), modify the relevant limits in the cleanup functions below.</p>
 
-  <button id="startCleanUp" onclick="startCleanUp();">start Clean up</button>
-  <button id="restoreTask001" onclick="restoreTask001();" style="margin-left:12px">restore task-001</button>
-  <button id="resetToTotal" onclick="resetToTotalReset();" style="margin-left:12px;color:white;background:#b00020">RESET to TOTAL-RESET</button>
+<body>
+  <h2>Reset Firebase Database</h2>
+  <p>Click the button below to reset the <strong>Join Firebase</strong> instance to TOTAL-RESET state.</p>
+  <p style="color: red"><strong>This action is destructive and cannot be undone.</strong></p>
+  <p><strong>Open the console to see the progress.</strong></p>
+
+  <button id="resetToTotal" onclick="resetToTotalReset();" style="color:white;background:#b00020">RESET to
+    TOTAL-RESET</button>
 
 
   <script>
-    let localData = null;
-
-    async function startCleanUp() {
-      localData = await getFirebaseData();
-      await cleanUpFirebaseDatabase(localData);
-    }
-
-    async function getFirebaseData(path = "") {
-      const url = 'https://join-46697-default-rtdb.europe-west1.firebasedatabase.app/' + path + '.json';
-      try {
-        const response = await fetch(url);
-        if (!response.ok) {
-          console.error('network response:', response.statusText);
-          return null;
-        }
-        const data = await response.json();
-        return data;
-      } catch (error) {
-        console.error('problem occurred while fetching:', error);
-        return null;
-      }
-    }
-
     async function saveToFirebase(path, data) {
       const url = `https://join-46697-default-rtdb.europe-west1.firebasedatabase.app/${path}.json`;
       try {
@@ -55,7 +26,7 @@
           body: data === null ? undefined : JSON.stringify(data),
         });
         const resText = await response.text();
-        console.log((data===null?"Deleted":"Updated"), "entry: ", path);
+        console.log((data === null ? "Deleted" : "Updated"), "entry: ", path);
         if (!response.ok) {
           throw new Error("Firebase update failed: " + response.statusText);
         }
@@ -64,87 +35,26 @@
       }
     }
 
-    async function cleanUpFirebaseDatabase(localData) {
-    const userEntries = localData.users || {};
-    const taskEntries = localData.tasks || {};
-    const contactEntries = localData.contacts || {};
+    async function resetToTotalReset() {
+      try {
+        if (!confirm('Die komplette Firebase-Datenbank wird auf TOTAL-RESET zurückgesetzt. Fortfahren?')) return;
+        const resp = await fetch('../json/total/TOTAL-RESET.json');
+        if (!resp.ok) {
+          console.error('Failed to load TOTAL-RESET.json:', resp.status, resp.statusText);
+          alert('TOTAL-RESET.json konnte nicht geladen werden.');
+          return;
+        }
+        const totalData = await resp.json();
 
-    // helper function to extract number suffix
-    const extractNum = (key, prefix) => {
-      const match = key.match(new RegExp(`^${prefix}-(\\d+)$`));
-      return match ? parseInt(match[1], 10) : null;
-    };
-
-    // 1. clean up users
-    for (const key in userEntries) {
-      const num = extractNum(key, "demoUser");
-      if (num && num > 6) {
-        await saveToFirebase(`users/${key}`, null);
+        await saveToFirebase('', totalData);
+        console.log('Firebase wurde vollständig auf TOTAL-RESET gesetzt.');
+        alert('Reset abgeschlossen: Firebase entspricht jetzt TOTAL-RESET.');
+      } catch (e) {
+        console.error('Reset auf TOTAL-RESET fehlgeschlagen:', e);
+        alert('Reset fehlgeschlagen. Details in der Konsole.');
       }
     }
-
-    // 2. clean up tasks
-    for (const key in taskEntries) {
-      const num = extractNum(key, "task");
-      if (num && num > 6) {
-        await saveToFirebase(`tasks/${key}`, null);
-      }
-    }
-
-    // 3. clean up contacts
-    for (const key in contactEntries) {
-      const num = extractNum(key, "contact");
-      if (num && num > 12) {
-        await saveToFirebase(`contacts/${key}`, null);
-      }
-    }
-    console.log("Firebase cleanup completed.");
-  }
-
-  async function restoreTask001(){
-    try {
-      // Load TOTAL-RESET from local repo and extract task-001
-      const resp = await fetch('../json/total/TOTAL-RESET.json');
-      if(!resp.ok){
-        console.error('Failed to load TOTAL-RESET.json:', resp.status, resp.statusText);
-        alert('TOTAL-RESET.json konnte nicht geladen werden.');
-        return;
-      }
-      const totalData = await resp.json();
-      const task001 = totalData?.tasks?.["task-001"];
-      if(!task001){
-        console.error('task-001 nicht in TOTAL-RESET gefunden');
-        alert('task-001 nicht in TOTAL-RESET gefunden.');
-        return;
-      }
-      await saveToFirebase('tasks/task-001', task001);
-      console.log('task-001 wurde wiederhergestellt.');
-      alert('task-001 wurde in Firebase wiederhergestellt.');
-    } catch(e){
-      console.error('Wiederherstellung fehlgeschlagen:', e);
-      alert('Wiederherstellung fehlgeschlagen. Details in der Konsole.');
-    }
-  }
-
-  async function resetToTotalReset(){
-    try {
-      if(!confirm('Die komplette Firebase-Datenbank wird auf TOTAL-RESET zurückgesetzt. Fortfahren?')) return;
-      const resp = await fetch('../json/total/TOTAL-RESET.json');
-      if(!resp.ok){
-        console.error('Failed to load TOTAL-RESET.json:', resp.status, resp.statusText);
-        alert('TOTAL-RESET.json konnte nicht geladen werden.');
-        return;
-      }
-      const totalData = await resp.json();
-      // Root PUT: ersetzt gesamte DB-Struktur
-      await saveToFirebase('', totalData);
-      console.log('Firebase wurde vollständig auf TOTAL-RESET gesetzt.');
-      alert('Reset abgeschlossen: Firebase entspricht jetzt TOTAL-RESET.');
-    } catch(e){
-      console.error('Reset auf TOTAL-RESET fehlgeschlagen:', e);
-      alert('Reset fehlgeschlagen. Details in der Konsole.');
-    }
-  }
   </script>
 </body>
+
 </html>

@@ -1,7 +1,3 @@
-/*
- * Button Specific Styles (Overlay)
- * Dedicated styles for various buttons within the overlay, defining their appearance and hover effects.
- */
 #cancelOverlayBtn {
     background-color: var(--white);
     color: var(--dark);

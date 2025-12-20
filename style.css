@@ -1,4 +1,3 @@
-/* BASCIC PAGE LAYOUT */
 .app-container {
   height: 100vh;
   height: 100dvh;
@@ -76,8 +75,8 @@
   }
 }
 
-/* landscape orientation on devices up to 1024px (e.g. mobile & tablet) */
-@media screen and (max-width: 1024px) and (orientation: landscape) {
+/* landscape orientation on touch devices (phones and tablets) */
+@media screen and (max-width: 1280px) and (orientation: landscape) and (hover: none) {
 
   #landscape-overlay {
     position: fixed;
@@ -129,7 +128,6 @@
   }
 }
 
-/* Chrome, Safari */
 .scrollable {
   overflow-y: auto;
   max-height: 100vh;
@@ -152,7 +150,6 @@
   background: #42526E;
 }
 
-/* Firefox */
 @-moz-document url-prefix() {
   .scrollable {
     scrollbar-color: #29ABE2 #E7E7E7;

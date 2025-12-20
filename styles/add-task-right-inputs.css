@@ -52,7 +52,8 @@
     }
 }
 
-.options-wrapper, .options-wrapper-assigned-to {
+.options-wrapper,
+.options-wrapper-assigned-to {
     position: absolute;
     top: calc(100% - 29px);
     left: 0;
@@ -63,7 +64,7 @@
     transform: scaleY(0);
     opacity: 0;
     transition: transform 0.25s cubic-bezier(0.4, 0.0, 0.2, 1),
-                opacity 0.2s ease;
+        opacity 0.2s ease;
 
     &.open {
         transform: scaleY(1);
@@ -158,7 +159,7 @@
         min-width: 0;
         flex: 1;
 
-        > div:last-child {
+        >div:last-child {
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
@@ -316,4 +317,3 @@
     border-color: var(--lightBlue);
     outline: none;
 }
-

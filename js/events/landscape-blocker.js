@@ -1,6 +1,6 @@
 /**
  * @file landscape-blocker.js
- * This script checks if the user is using a small screen (1024px or less)
+ * This script checks if the user is using a touch device (phone/tablet)
  * in landscape orientation. If so, it shows a blocking overlay.
  * The overlay HTML must already be in the HTML file.
  */
@@ -10,7 +10,7 @@
  * Checks screen orientation and toggles the overlay visibility
  */
 async function checkLandscapeOverlay() {
-  const isLandscape = window.matchMedia("(orientation: landscape) and (max-width: 1024px)").matches;
+  const isLandscape = window.matchMedia("(orientation: landscape) and (max-width: 1280px) and (hover: none)").matches;
   const overlay = document.getElementById("landscape-overlay");
   if (!overlay) return;
   if (isLandscape) {

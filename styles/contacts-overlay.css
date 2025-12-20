@@ -1,7 +1,3 @@
-/*
- * Overlay (Modal) Styles
- * Styles for the contact add/edit overlay, including its general layout, sections, form elements, and action buttons.
- */
 .overlay-wrapper {
     position: fixed;
     inset: 0;
@@ -172,7 +168,6 @@
     transform: scale(0.95);
 }
 
-/* Avatar Error Messages */
 #avatarWrongFormatErrorMsg,
 #avatarLimitErrorMsg {
     position: fixed;
@@ -225,7 +220,6 @@
     opacity: 0;
 }
 
-/* Delete Contact Warning */
 #deleteContactWarning,
 #deleteAvatarWarning {
     position: fixed;
@@ -266,6 +260,7 @@
         transform: scale(0.9);
         opacity: 0;
     }
+
     to {
         transform: scale(1);
         opacity: 1;
@@ -411,11 +406,6 @@ select.input-error {
     height: 55px;
 }
 
-/*
- * Styles for screens up to 1150px wide
- * Significant layout changes for the overlay (modal) to a column-based design,
- * along with adjustments for contact details and mobile-specific elements.
- */
 @media (max-width: 1150px) {
     .overlay-content {
         flex-direction: column;
@@ -517,7 +507,7 @@ select.input-error {
         z-index: 10;
         box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
     }
-    
+
     .avatar-wrapper {
         position: fixed;
         top: 250px;
@@ -525,13 +515,13 @@ select.input-error {
         transform: translate(-50%, -50%);
         z-index: 10;
     }
-    
+
     .avatar-wrapper .contact-add-avatar,
     .avatar-wrapper .contact-details-avatar-big {
         position: static;
         transform: none;
     }
-    
+
     .avatar-wrapper .avatar-upload-button {
         position: absolute;
         bottom: 0;

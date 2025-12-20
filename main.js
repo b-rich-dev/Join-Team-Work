@@ -1,11 +1,18 @@
 import { getFirebaseData } from './js/data/API.js';
 
- export let firebaseData = null;
+/**
+ * Global variable to hold Firebase data.
+ * Initialized on first load and reused thereafter.
+ */
+export let firebaseData = null;
 
+/** Loads Firebase data if not already loaded.
+ * @returns {Promise<Object>} The Firebase data object.
+ */
 export async function loadFirebaseData() {
   if (!firebaseData) {
     firebaseData = await getFirebaseData();
-    // Sync with window.firebaseData for legacy code
+
     if (typeof window !== 'undefined') {
       window.firebaseData = firebaseData;
     }
@@ -19,16 +26,13 @@ export async function loadFirebaseData() {
  * @returns {Promise<void>}
  */
 export async function refreshSummaryIfExists() {
-  // Check if we're on the summary page or if summary elements exist
   const summaryElements = document.querySelector('#to-do, #done, #urgent');
   if (summaryElements) {
     try {
-      // Call the globally available refreshSummary function
       if (typeof window.refreshSummary === 'function') {
         await window.refreshSummary();
       }
     } catch (error) {
-      // Summary module not loaded or error occurred - silently ignore
       console.debug('Summary refresh skipped:', error.message);
     }
   }

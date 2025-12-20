@@ -9,7 +9,6 @@
 
 .content-task {
   max-width: 400px;
-  /* padding: 15px; */
 }
 
 .taskCardField.priority-section,
@@ -126,7 +125,7 @@
   cursor: pointer;
 }
 
-.contact-option:hover + .contact-name {
+.contact-option:hover+.contact-name {
   display: block;
 }
 

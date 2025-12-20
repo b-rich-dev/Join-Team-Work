@@ -1,7 +1,3 @@
-/*
- * Header Styles
- * Styles for the main application header, including its layout, typography, and visual appearance.
- */
 header {
     top: 0;
     display: flex;
@@ -31,10 +27,6 @@ header h2 {
     padding-left: 80px;
 }
 
-/*
- * Header Navigation Styles
- * Styles for the navigation elements within the header, including icons and links.
- */
 .header-nav {
     display: flex;
     align-items: center;
@@ -62,10 +54,6 @@ header h2 {
     align-items: center;
 }
 
-/*
- * Header Profile Styles
- * Styles for the user profile icon/avatar in the header.
- */
 .header-profile {
     width: 56px;
     height: 56px;
@@ -84,18 +72,10 @@ header h2 {
     background-color: var(--grey);
 }
 
-/*
- * General Link Styles
- * Universal styling for anchor tags to remove default text decoration.
- */
 a {
     text-decoration: none;
 }
 
-/*
- * Profile Dropdown Menu Styles
- * Styles for the container and links within the profile dropdown menu.
- */
 .profile-wrapper {
     position: relative;
 }
@@ -133,10 +113,6 @@ a {
     display: flex;
 }
 
-/*
- * Utility Classes
- * Classes for hiding specific elements conditionally.
- */
 .hide-help-icon .header-nav a[href*="help.html"] {
     display: none;
 }
@@ -153,10 +129,6 @@ a {
     display: none;
 }
 
-/*
- * Responsive Styles for Screens up to 1024px Wide
- * Adjustments for header layout, element visibility, and dropdown positioning on larger tablets.
- */
 @media (max-width: 1024px) {
     header {
         padding: 2px 40px;
@@ -195,14 +167,10 @@ a {
     }
 
     .dropdown-help {
-    display: block;
-}
+        display: block;
+    }
 }
 
-/*
- * Responsive Styles for Screens up to 768px Wide
- * Further adjustments for smaller tablets and mobile devices, focusing on dropdown and header profile.
- */
 @media (max-width: 768px) {
     .dropdown-menu {
         top: 40px;

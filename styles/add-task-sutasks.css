@@ -17,23 +17,23 @@
 }
 
 .input-button {
-  position: absolute;
-  right: 21px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  border: hidden;
-  background-color: var(--white);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+    position: absolute;
+    right: 21px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: hidden;
+    background-color: var(--white);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 
-  &:hover {
-    background-color: var(--borderGrey);
-  }
+    &:hover {
+        background-color: var(--borderGrey);
+    }
 }
 
 #plus-icon {
@@ -50,7 +50,7 @@
     border: 1px solid var(--borderGrey);
 }
 
-.subtasks-list{
+.subtasks-list {
     max-height: 144px;
     overflow-y: auto;
 
@@ -132,9 +132,11 @@
     transition: color 0.1s ease;
     flex-shrink: 0;
 }
+
 .subtask-list:hover svg:not(.left-icon-subtask):not(.right-icon-subtask) {
     color: var(--black);
 }
+
 .subtask-list button.left,
 .subtask-list button.right {
     background: none;
@@ -237,29 +239,29 @@
 }
 
 .left-icon-subtask {
-  position: absolute;
-  right: 46px;
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: 2;
-  cursor: pointer;
-  background: none;
-  border: none;
-  padding: 0;
-  margin: 0;
-  display: inline-flex;
+    position: absolute;
+    right: 46px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 2;
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    display: inline-flex;
 }
 
 .right-icon-subtask {
-  position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: 2;
-  cursor: pointer;
-  background: none;
-  border: none;
-  padding: 0;
-  margin: 0;
-  display: inline-flex;
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 2;
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    display: inline-flex;
 }

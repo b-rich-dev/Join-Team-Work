@@ -16,7 +16,6 @@
   padding: 48px 48px 0 48px;
   overflow-y: auto;
   background-color: var(--white);
-  /* scrollbar-width: none; */
 
   h2 {
     font-size: 61px;
@@ -39,7 +38,6 @@
   display: flex;
   flex-direction: column;
   padding-top: 16px;
-  /* gap: 32px; */
 }
 
 .form-fill-part {
@@ -314,14 +312,9 @@
 }
 
 .form-buttons-part {
-  /* position: absolute; */
-  /* bottom: 54px; */
-  /* left: 286px; */
-  /* right: 54px; */
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
-  /* z-index: 1000; */
 }
 
 .sign-info {

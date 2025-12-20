@@ -4,18 +4,21 @@
   background-color: var(--white);
   color: var(--black);
 
-  &:first-child{
+  &:first-child {
     margin-left: 4px;
   }
 }
+
 #overlay-task-detail .contact-option.assigned:hover,
 #overlay-task-detail-edit .contact-option.assigned:hover {
   background-color: var(--white);
 }
+
 #overlay-task-detail-edit .contact-option.assigned {
   background-color: var(--dark) !important;
   color: var(--white) !important;
 }
+
 html body #overlay-task-detail .checkbox-icon.checked,
 html body #overlay-task-detail-edit .checkbox-icon.checked {
   opacity: 1 !important;
@@ -32,6 +35,7 @@ html body #overlay-task-detail-edit .checkbox-icon.checked {
   pointer-events: auto !important;
   position: static !important;
 }
+
 .modal-content-task {
   background-color: var(--white);
   padding: clamp(10px, 2vw, 32px);
@@ -53,9 +57,11 @@ html body #overlay-task-detail-edit .checkbox-icon.checked {
   transform: translateX(0);
   opacity: 1;
 }
+
 .task-detail-content {
   padding: 0 8px;
 }
+
 .task-detail-titleBar {
   display: flex;
   align-items: center;
@@ -64,25 +70,30 @@ html body #overlay-task-detail-edit .checkbox-icon.checked {
   font-size: clamp(1.1rem, 2vw, 22px);
   margin-bottom: clamp(6px, 1vw, 18px);
 }
+
 .task-detail-titleText {
   font-size: clamp(1.2rem, 2.5vw, 24px);
   font-weight: bold;
   margin-bottom: clamp(4px, 1vw, 12px);
 }
+
 .task-detail-description {
   font-size: clamp(0.9rem, 1.5vw, 17px);
   color: var(--grey);
   margin-bottom: clamp(6px, 1vw, 16px);
 }
+
 .task-detail-field {
   margin-bottom: clamp(8px, 2vw, 18px);
   font-size: clamp(1rem, 2vw, 18px);
 }
+
 .task-detail-priority {
   display: flex;
   align-items: center;
   gap: clamp(4px, 1vw, 14px);
 }
+
 .task-detail-priority-display {
   display: flex;
   align-items: center;
@@ -92,34 +103,41 @@ html body #overlay-task-detail-edit .checkbox-icon.checked {
   font-weight: bold;
   font-size: clamp(0.9rem, 1.5vw, 16px);
 }
+
 .task-detail-priority-display.low {
   background: #e7f5e6;
   color: #388e3c;
 }
+
 .task-detail-priority-display.medium {
   background: #fffbe6;
   color: #fbc02d;
 }
+
 .task-detail-priority-display.urgent {
   background: #ffeaea;
   color: #d32f2f;
 }
+
 .task-detail-assigned {
   font-weight: bold;
   margin-bottom: clamp(2px, 1vw, 8px);
 }
+
 .task-detail-assigned-list {
   display: flex;
   flex-wrap: wrap;
   gap: clamp(4px, 1vw, 12px);
   margin-bottom: clamp(4px, 1vw, 14px);
 }
+
 .task-detail-cardMenu {
   display: flex;
   align-items: center;
   gap: clamp(8px, 2vw, 20px);
   margin-top: clamp(8px, 2vw, 18px);
 }
+
 .task-detail-cardMenu button {
   background: var(--lightGrey);
   border: none;
@@ -129,10 +147,12 @@ html body #overlay-task-detail-edit .checkbox-icon.checked {
   cursor: pointer;
   transition: background 0.2s;
 }
+
 .task-detail-cardMenu button:hover {
   background: var(--grey);
   color: var(--white);
 }
+
 #overlay-task-detail {
   position: fixed;
   top: 0;
@@ -159,6 +179,7 @@ html body #overlay-task-detail-edit .checkbox-icon.checked {
   transform: translateX(0);
   opacity: 1;
 }
+
 .taskCardField {
   margin-bottom: 18px;
   font-size: 18px;
@@ -201,7 +222,6 @@ html body #overlay-task-detail-edit .checkbox-icon.checked {
 
 .assigned-list {
   display: flex;
-  /* flex-wrap: wrap; */
   gap: 8px;
   margin-bottom: 10px;
   overflow: auto;
@@ -235,6 +255,7 @@ html body #overlay-task-detail-edit .checkbox-icon.checked {
   gap: clamp(8px, 2vw, 20px);
   margin-top: clamp(8px, 2vw, 18px);
 }
+
 .cardMenu button {
   background: var(--white);
   border: none;
@@ -244,10 +265,12 @@ html body #overlay-task-detail-edit .checkbox-icon.checked {
   cursor: pointer;
   transition: background 0.2s;
 }
+
 .cardMenu button:hover {
   background: var(--grey);
   color: var(--white);
 }
+
 #overlay {
   position: fixed;
   top: 0;
@@ -285,13 +308,14 @@ html body #overlay-task-detail-edit .checkbox-icon.checked {
   .modal-content::-webkit-scrollbar {
     display: none;
   }
+
   position: relative;
   transform: translateX(100vw);
   opacity: 0;
   min-height: 90%;
   min-width: 90%;
   transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
-    opacity 0.4s ease-in-out;
+  opacity 0.4s ease-in-out;
 }
 
 #overlay:not(.overlay-hidden) .modal-content {
@@ -330,7 +354,6 @@ html body #overlay-task-detail-edit .checkbox-icon.checked {
   display: block;
   min-height: 100%;
   min-width: 0;
-  /* border-radius: clamp(12px, 2vw, 30px); */
   background-color: var(--white);
   overflow: hidden;
   scrollbar-width: none;
@@ -379,11 +402,10 @@ html body #overlay-task-detail-edit .checkbox-icon.checked {
   height: clamp(16px, 2vw, 20px);
 }
 
-/* Add-Task Overlay: vertikale Trennlinie zwischen left-form und right-form */
 #overlay:not(.overlay-hidden) .content-overlay .border {
-  align-self: stretch; /* sorgt für volle Höhe im Flex-Container */
-  height: auto;        /* Prozenthöhe vermeiden, da Elternhöhe im Overlay variieren kann */
-  width: 0;            /* wie im Basisstil, Linie über Border */
+  align-self: stretch;
+  height: auto;
+  width: 0;
   border-left: 1px solid var(--borderGrey);
   border-right: none;
   border-top: none;
@@ -394,6 +416,7 @@ html body #overlay-task-detail-edit .checkbox-icon.checked {
 .open-assigned-to {
   display: block;
 }
+
 .content-overlay-task {
   padding: 0;
   margin: 0;
@@ -403,6 +426,7 @@ html body #overlay-task-detail-edit .checkbox-icon.checked {
   border-radius: 30px;
   background-color: var(--white);
 }
+
 #overlay-task-detail-edit {
   position: fixed;
   top: 0;
@@ -428,12 +452,14 @@ html body #overlay-task-detail-edit .checkbox-icon.checked {
   transform: translateX(0);
   opacity: 1;
 }
+
 .task {
   width: clamp(320px, 60vw, 600px);
   max-height: 931px;
   border-radius: clamp(12px, 2vw, 30px);
   padding: clamp(12px, 2vw, 32px) clamp(8px, 2vw, 24px);
 }
+
 .assigned-main-container {
   display: flex;
   gap: clamp(2px, 1vw, 8px);

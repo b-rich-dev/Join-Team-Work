@@ -11,6 +11,7 @@ Welcome to **Join-Team-Work**, a modern web-based Kanban app for efficient task 
 - Create, edit, and delete tasks
 - Drag-and-drop for changing task status
 - Assign tasks to team members
+- Upload profile pictures (PNG/JPG) for contacts with image viewer
 - Categories and priorities for tasks
 - Search and filter functionality
 - Responsive design for desktop & mobile
