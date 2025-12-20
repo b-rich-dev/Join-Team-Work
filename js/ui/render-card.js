@@ -269,7 +269,7 @@ function getTaskCardDropdown(taskID) {
                 </svg>
               </div>
             </button>
-            <div class="dropdown-menu-board-site" role="menu">
+            <div class="dropdown-menu-board-site" role="menu" aria-hidden="true">
               <h3 class="dropdown-headline">Move to</h3>
               <div class="d-flex justify-content flex-direction">
                 <button type="button" class="move-task-up" data-task-id="${taskID}" role="menuitem">

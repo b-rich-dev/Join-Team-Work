@@ -1,6 +1,7 @@
 /* BASCIC PAGE LAYOUT */
 .app-container {
   height: 100vh;
+  height: 100dvh;
   font-family: 'Inter', sans-serif;
 }
 
@@ -54,7 +55,7 @@
   }
 
   .contacts-main {
-    padding-bottom: 64px; 
+    padding-bottom: 64px;
   }
 
   .sidebar-container {
@@ -75,8 +76,8 @@
   }
 }
 
-/* landscape orientation on devices up to 768px (e.g. mobile) */
-@media screen and (max-width: 768px) and (orientation: landscape) {
+/* landscape orientation on devices up to 1024px (e.g. mobile & tablet) */
+@media screen and (max-width: 1024px) and (orientation: landscape) {
 
   #landscape-overlay {
     position: fixed;
@@ -109,7 +110,7 @@
     pointer-events: none;
   }
 
-  .landscape-overlay-message h2 {
+  .landscape-overlay-message h4 {
     font-size: 24px;
     color: var(--white);
     background: rgba(42, 54, 71, 0.85);
@@ -121,8 +122,10 @@
     line-height: 1.4;
   }
 
-  #landscape-overlay h2 {
+  #landscape-overlay h4 {
     display: flex !important;
+    font-size: 24px;
+    color: var(--white);
   }
 }
 
@@ -151,8 +154,7 @@
 
 /* Firefox */
 @-moz-document url-prefix() {
-  .scrollable
-  {
+  .scrollable {
     scrollbar-color: #29ABE2 #E7E7E7;
     scrollbar-width: auto;
   }
@@ -162,6 +164,7 @@
   .scrollable:not(.contacts-sidebar) {
     scrollbar-width: none;
   }
+
   .scrollable:not(.contacts-sidebar)::-webkit-scrollbar {
     display: none;
   }
@@ -175,4 +178,3 @@
     overflow: auto;
   }
 }
-  

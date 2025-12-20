@@ -59,11 +59,13 @@ export function handleDropdownClick(e, dropdownMenu, dropdownBtn) {
     .querySelectorAll(".dropdown-menu-board-site.show")
     .forEach((menu) => {
       menu.classList.remove("show");
+      menu.setAttribute("aria-hidden", "true");
     });
   
   // Aktuelles Dropdown togglen
   if (!isCurrentlyOpen) {
     dropdownMenu.classList.add("show");
+    dropdownMenu.removeAttribute("aria-hidden");
     const card = dropdownBtn.closest(".task-card");
     if (card) {
       card.style.position = "relative";
@@ -270,6 +272,7 @@ if (!window.dropdownCloseListenerAdded) {
         !e.target.closest(".dropdown-menu-board-site")) {
       document.querySelectorAll(".dropdown-menu-board-site.show").forEach(menu => {
         menu.classList.remove("show");
+        menu.setAttribute("aria-hidden", "true");
       });
     }
   });
