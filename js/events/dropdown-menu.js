@@ -576,10 +576,20 @@ async function openAssignedContactsGallery(selectedContactId) {
         
         // If no match found (actualIndex === -1), it's a canvas-generated image (no real avatar)
         if (actualIndex === -1) {
-          // This is a canvas image for a contact without avatar - just show name
-          const noAvatarContacts = contacts.filter(c => !c.avatarImage);
-          if (noAvatarContacts.length > 0) {
-            return noAvatarContacts[0].name;
+          // Match canvas image with contact by comparing src to generated canvas
+          const allImages = viewerContainer.querySelectorAll('img');
+          if (image && image.src) {
+            for (let i = 0; i < allImages.length; i++) {
+              if (allImages[i].src === image.src) {
+                actualIndex = i;
+                break;
+              }
+            }
+          }
+          
+          // If we found the image index, use that contact
+          if (actualIndex >= 0 && actualIndex < contacts.length) {
+            return contacts[actualIndex].name;
           }
           return 'Contact';
         }
@@ -629,8 +639,9 @@ async function openAssignedContactsGallery(selectedContactId) {
         setupDeleteButtonHandler(viewerContainer, contacts);
       },
       hide: function() {
-        // Remove focus from the active element to prevent aria-hidden warning
-        if (document.activeElement instanceof HTMLElement) {
+        // Move focus away from viewer elements before hiding to prevent aria-hidden warning
+        if (document.activeElement && viewerContainer.contains(document.activeElement)) {
+          document.body.focus();
           document.activeElement.blur();
         }
       }

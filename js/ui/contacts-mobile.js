@@ -1,29 +1,25 @@
-/**
- * Initializes mobile-specific UI logic after the DOM is fully loaded.
+/** * Initializes mobile-specific UI logic after the DOM is fully loaded.
  * This ensures all elements are available before event listeners are attached.
  */
 document.addEventListener('DOMContentLoaded', () => {
   initializeMobileUI();
 });
 
-/**
- * Initializes mobile-specific UI features on DOM load.
+/** * Initializes mobile-specific UI features on DOM load.
  */
 function initializeMobileUI() {
   setupMobileCloseButtons();
   setupMobileDropdownHandler();
 }
 
-/**
- * Sets up the close buttons for the mobile add/edit overlays.
+/** * Sets up the close buttons for the mobile add/edit overlays.
  */
 function setupMobileCloseButtons() {
   setupButtonClick('closeOverlayBtnMobile', () => closeOverlay('contactOverlay'));
   setupButtonClick('closeEditOverlayBtnMobile', () => closeOverlay('editContactOverlay'));
 }
 
-/**
- * Adds a click event listener to a button by its ID.
+/** * Adds a click event listener to a button by its ID.
  * @param {string} id - The ID of the button element
  * @param {Function} handler - The function to call on click
  */
@@ -34,15 +30,13 @@ function setupButtonClick(id, handler) {
   }
 }
 
-/**
- * Sets up dropdown menu toggle and global close on document click.
+/** * Sets up dropdown menu toggle and global close on document click.
  */
 function setupMobileDropdownHandler() {
   document.addEventListener('click', handleDropdownClick);
 }
 
-/**
- * Handles global click events to toggle or close mobile dropdown menus.
+/** * Handles global click events to toggle or close mobile dropdown menus.
  * @param {MouseEvent} event
  */
 function handleDropdownClick(event) {
@@ -57,8 +51,7 @@ function handleDropdownClick(event) {
   closeAllDropdowns();
 }
 
-/**
- * Returns the clicked dropdown button element, if any.
+/** * Returns the clicked dropdown button element, if any.
  * @param {MouseEvent} event
  * @returns {Element|null}
  */
@@ -66,8 +59,7 @@ function getClickedDropdownButton(event) {
   return event.target.closest('.dropdown-mobile-btn');
 }
 
-/**
- * Returns the dropdown menu associated with a button.
+/** * Returns the dropdown menu associated with a button.
  * @param {Element} dropdownBtn
  * @returns {Element|null}
  */
@@ -76,8 +68,7 @@ function getAssociatedDropdownMenu(dropdownBtn) {
   return (menu && menu.classList.contains('mobile-dropdown-menu')) ? menu : null;
 }
 
-/**
- * Closes all dropdowns except the one provided.
+/** * Closes all dropdowns except the one provided.
  * @param {Element|null} excludeMenu - The menu to keep open
  */
 function closeAllOtherDropdowns(excludeMenu) {
@@ -86,8 +77,7 @@ function closeAllOtherDropdowns(excludeMenu) {
   });
 }
 
-/**
- * Closes all dropdown menus.
+/** * Closes all dropdown menus.
  */
 function closeAllDropdowns() {
   document.querySelectorAll('.mobile-dropdown-menu.show').forEach(menu => {
@@ -95,8 +85,7 @@ function closeAllDropdowns() {
   });
 }
 
-/**
- * Toggles the visibility of a dropdown menu.
+/** * Toggles the visibility of a dropdown menu.
  * @param {Element|null} menu
  */
 function toggleDropdownMenu(menu) {

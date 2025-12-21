@@ -1,14 +1,8 @@
-/**
- * Delete Avatar Warning Module
- * Handles the confirmation dialog before deleting a contact's avatar.
- */
-
 let deleteAvatarCallback = null;
 let deleteAvatarSuccessCallback = null;
 let listenersInitialized = false;
 
-/**
- * Initialize listeners once when module loads
+/** * Initialize listeners once when module loads
  */
 function initializeListeners() {
     if (listenersInitialized) return;
@@ -26,13 +20,11 @@ function initializeListeners() {
     listenersInitialized = true;
 }
 
-/**
- * Shows the delete avatar warning dialog.
+/** * Shows the delete avatar warning dialog.
  * @param {Function} onConfirm - Callback function to execute when user confirms deletion.
  * @param {Function} onSuccess - Optional callback for success message.
  */
 export function showDeleteAvatarWarning(onConfirm, onSuccess = null) {
-    // Set callbacks FIRST before showing dialog
     deleteAvatarCallback = onConfirm;
     deleteAvatarSuccessCallback = onSuccess;
     
@@ -43,50 +35,31 @@ export function showDeleteAvatarWarning(onConfirm, onSuccess = null) {
         return;
     }
     
-    // Initialize listeners once
     initializeListeners();
-    
     warningElement.classList.remove('hidden');
 }
 
-/**
- * Hides the delete avatar warning dialog.
+/** * Hides the delete avatar warning dialog.
  */
 export function hideDeleteAvatarWarning() {
     const warningElement = document.getElementById('deleteAvatarWarning');
     if (!warningElement) return;
     
     warningElement.classList.add('hidden');
-    // Don't set callbacks to null here, they might still be in use
+
     setTimeout(() => {
         deleteAvatarCallback = null;
         deleteAvatarSuccessCallback = null;
     }, 100);
 }
 
-/**
- * Shows a success message after avatar deletion.
+/** * Shows a success message after avatar deletion.
  * @param {string} message - The success message to display.
  */
 export function showAvatarDeleteSuccess(message) {
-    // Create success notification
     const notification = document.createElement('div');
     notification.className = 'avatar-delete-success';
     notification.textContent = message;
-    notification.style.cssText = `
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background: #29ABE2;
-        color: white;
-        padding: 20px 40px;
-        border-radius: 8px;
-        font-size: 16px;
-        z-index: 10000;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-    `;
-    
     document.body.appendChild(notification);
     
     setTimeout(() => {
@@ -96,29 +69,13 @@ export function showAvatarDeleteSuccess(message) {
     }, 2000);
 }
 
-/**
- * Shows an error message.
+/** * Shows an error message.
  * @param {string} message - The error message to display.
  */
 export function showAvatarDeleteError(message) {
-    // Create error notification
     const notification = document.createElement('div');
     notification.className = 'avatar-delete-error';
     notification.textContent = message;
-    notification.style.cssText = `
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background: #FF3D00;
-        color: white;
-        padding: 20px 40px;
-        border-radius: 8px;
-        font-size: 16px;
-        z-index: 10000;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-    `;
-    
     document.body.appendChild(notification);
     
     setTimeout(() => {
@@ -128,8 +85,7 @@ export function showAvatarDeleteError(message) {
     }, 3000);
 }
 
-/**
- * Handles clicks on the backdrop (outside the dialog content).
+/** * Handles clicks on the backdrop (outside the dialog content).
  * @param {MouseEvent} event - The click event.
  */
 function handleBackdropClick(event) {
@@ -138,15 +94,13 @@ function handleBackdropClick(event) {
     }
 }
 
-/**
- * Handles the cancel action (No button or X button).
+/** * Handles the cancel action (No button or X button).
  */
 function handleCancel() {
     hideDeleteAvatarWarning();
 }
 
-/**
- * Handles the confirm action (Yes button).
+/** * Handles the confirm action (Yes button).
  */
 async function handleConfirm() {
     if (!deleteAvatarCallback || typeof deleteAvatarCallback !== 'function') {
@@ -155,7 +109,6 @@ async function handleConfirm() {
         return;
     }
     
-    // Call the callback
     await deleteAvatarCallback();
     hideDeleteAvatarWarning();
 }

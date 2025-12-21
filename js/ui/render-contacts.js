@@ -1,22 +1,14 @@
-// Data fetching & state management
 import { getFirebaseData } from '../data/API.js';
 import { cleanContacts, groupContactsByInitials } from '../data/contacts-utils.js';
 import { setCurrentlyEditingContact, setActiveContactId, getContactById, activeContactId, setAllContacts } from '../data/contacts-state.js';
-
-// Template rendering
 import { createContactDetailsHTML, buildContactSectionHTML } from '../templates/contacts-templates.js';
-
-// UI behavior
 import { openOverlay } from '../ui/contacts-overlays.js';
 import { getAvatarBase64 } from '../utils/avatar-utils.js';
 import { setupAvatarUploadForEditContact } from '../events/avatar-upload-handler.js';
 import { initContactEventListeners } from '../events/contacts-event-listeners.js';
-
-// Scroll behavior
 import { enableMouseDragScroll } from '../events/drag-to-scroll.js';
 
-/**
- * Loads contacts from Firebase, processes them, renders list and stores them globally.
+/** * Loads contacts from Firebase, processes them, renders list and stores them globally.
  */
 export async function renderContacts() {
   const fullData = await getFirebaseData();
@@ -33,9 +25,7 @@ export async function renderContacts() {
   renderGroupedSections(listContainer, groupedContacts);
 }
 
-/**
- * Renders all contact groups (A–Z) into the contact list container.
- * 
+/** * Renders all contact groups (A–Z) into the contact list container.
  * @param {HTMLElement} container - The DOM element where contacts should be rendered.
  * @param {object} groupedContacts - An object with initials as keys and arrays of contacts as values.
  */
@@ -46,16 +36,14 @@ function renderGroupedSections(container, groupedContacts) {
   }
 }
 
-/**
- * Clears the container before inserting fresh contact list.
+/** * Clears the container before inserting fresh contact list.
  * @param {HTMLElement} container 
  */
 function resetContactListUI(container) {
   container.innerHTML = '';
 }
 
-/**
- * Handles the user click on a contact → toggles detail view.
+/** * Handles the user click on a contact → toggles detail view.
  * @param {object} contact - The contact object that was clicked.
  */
 function onContactClick(contact) {
@@ -70,8 +58,7 @@ function onContactClick(contact) {
   }
 }
 
-/**
- * Removes the 'active' class from all contact elements in the list.
+/** * Removes the 'active' class from all contact elements in the list.
  */
 function clearAllContactSelections() {
   document.querySelectorAll('.contact').forEach(contactElement => {
@@ -79,8 +66,7 @@ function clearAllContactSelections() {
   });
 }
 
-/**
- * Hides the contact details card and clears active state.
+/** * Hides the contact details card and clears active state.
  * @param {HTMLElement} detailsCard - The contact details card element.
  * @param {HTMLElement} contactElement - The contact element in the list.
  */
@@ -91,8 +77,7 @@ function hideContactDetails(detailsCard, contactElement) {
   setActiveContactId(null);
 }
 
-/**
- * Fills and shows the contact details card.
+/** * Fills and shows the contact details card.
  * @param {HTMLElement} detailsCard - The contact details card element.
  * @param {object} contact - The contact to show.
  * @param {HTMLElement} contactElement - The clicked contact element in the list.
@@ -114,11 +99,9 @@ function showContactDetails(detailsCard, contact, contactElement, skipAnimation 
   }
 }
 
-/**
- * Called when a contact in the list is clicked.
+/** * Called when a contact in the list is clicked.
  * This shows or hides the contact's detailed view.
  * Used via onclick="onContactClickById('contact-id')" in the contact template.
- *
  * @param {string} contactId - The ID of the contact that was clicked.
  */
 window.onContactClickById = function (contactId) {
@@ -126,8 +109,7 @@ window.onContactClickById = function (contactId) {
   if (contact) onContactClick(contact);
 };
 
-/**
- * Opens the edit overlay for a given contact ID.
+/** * Opens the edit overlay for a given contact ID.
  * @param {string} contactId - The ID of the contact to edit
  */
 window.onEditContact = function (contactId) {
@@ -140,8 +122,7 @@ window.onEditContact = function (contactId) {
   setupAvatarUploadForEditContact(contact);
 };
 
-/**
- * Fills the edit contact form fields with the given contact's data.
+/** * Fills the edit contact form fields with the given contact's data.
  * @param {Object} contact - The contact object
  * @param {string} contact.name
  * @param {string} contact.email
@@ -153,8 +134,7 @@ function fillEditFormWithContact(contact) {
   document.getElementById('editPhoneInput').value = contact.phone;
 }
 
-/**
- * Updates the avatar element in the edit overlay.
+/** * Updates the avatar element in the edit overlay.
  * @param {Object} contact - The contact object
  * @param {string} contact.initials
  * @param {string} [contact.avatarColor]
@@ -162,8 +142,7 @@ function fillEditFormWithContact(contact) {
  */
 function updateEditAvatar(contact) {
   const avatarEl = document.getElementById('editContactAvatar');
-  
-  // Check if contact has an avatar image
+
   if (contact.avatarImage) {
     const base64 = getAvatarBase64(contact.avatarImage);
     avatarEl.style.backgroundImage = `url(${base64})`;
@@ -171,15 +150,12 @@ function updateEditAvatar(contact) {
   } else {
     avatarEl.style.backgroundImage = 'none';
     avatarEl.textContent = contact.initials;
-    const backgroundColor = contact.avatarColor?.startsWith('--')
-      ? `var(${contact.avatarColor})`
-      : contact.avatarColor || 'var(--grey)';
+    const backgroundColor = contact.avatarColor?.startsWith('--') ? `var(${contact.avatarColor})` : contact.avatarColor || 'var(--grey)';
     avatarEl.style.backgroundColor = backgroundColor;
   }
 }
 
-/**
- * Initializes drag-to-scroll functionality on specific scrollable UI panels
+/** * Initializes drag-to-scroll functionality on specific scrollable UI panels
  * after the DOM is fully loaded.
  */
 function initDragScrollOnElements() {
@@ -193,26 +169,23 @@ function initDragScrollOnElements() {
   });
 }
 
-/**
- * Initializes the contacts page
+/** * Initializes the contacts page
  */
 function init() {
-  console.log('Contacts page initializing...');
   initDragScrollOnElements();
   renderContacts();
   initContactEventListeners();
 }
 
-// Check if DOM is already loaded or wait for it
+/** * Initialize when DOM is ready
+ */
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', init);
 } else {
-  // DOM already loaded, init immediately
   init();
 }
 
-/**
- * Closes the contact details view on mobile devices.
+/** * Closes the contact details view on mobile devices.
  * This function can be called globally via window.closeMobileContactView().
  */
 window.closeMobileContactView = function () {

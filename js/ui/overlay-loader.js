@@ -1,6 +1,4 @@
-
-/**
- * Loads the detail overlay HTML once and returns the element.
+/** * Loads the detail overlay HTML once and returns the element.
  * @param {HTMLElement|null} detailOverlayElement - The current detail overlay element (if already loaded).
  * @param {function} loadOverlayHtmlOnce - Function to load overlay HTML.
  * @returns {Promise<HTMLElement>} The loaded detail overlay element.
@@ -16,8 +14,7 @@ export async function loadDetailOverlayHtmlOnce(
   );
 }
 
-/**
- * Loads the edit overlay HTML once and returns the element.
+/** * Loads the edit overlay HTML once and returns the element.
  * @param {HTMLElement|null} editOverlayElement - The current edit overlay element (if already loaded).
  * @param {function} loadOverlayHtmlOnce - Function to load overlay HTML.
  * @returns {Promise<HTMLElement>} The loaded edit overlay element.

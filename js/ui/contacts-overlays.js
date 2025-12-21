@@ -1,6 +1,4 @@
-/**
- * Opens a modal overlay with a slide-in effect.
- *
+/** * Opens a modal overlay with a slide-in effect.
  * @param {string} id - The ID of the overlay element to open.
  */
 export function openOverlay(id) {
@@ -11,16 +9,13 @@ export function openOverlay(id) {
   }
   overlay.classList.remove('hidden', 'slide-out');
   overlay.classList.add('active');
-  // Force reflow to ensure the transition works
   void overlay.offsetWidth;
   requestAnimationFrame(() => {
     overlay.classList.add('slide-in');
   });
 }
 
-/**
- * Closes a modal overlay with a slide-out effect.
- *
+/** * Closes a modal overlay with a slide-out effect.
  * @param {string} id - The ID of the overlay element to close.
  * @param {boolean} [immediate=false] - If true, closes immediately without animation.
  */
@@ -39,8 +34,7 @@ export function closeOverlay(id, immediate = false) {
   }, 400);
 }
 
-/**
- * Displays a "Contact successfully created" message for a short duration.
+/** * Displays a "Contact successfully created" message for a short duration.
  */
 export function showContactCreatedMessage() {
   const message = document.getElementById('contactSuccessMsg');

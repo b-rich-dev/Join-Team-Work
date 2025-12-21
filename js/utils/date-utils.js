@@ -1,5 +1,4 @@
-/**
- * Returns the current date in DD.MM.YYYY format.
+/** * Returns the current date in DD.MM.YYYY format.
  * @returns {string} The formatted date.
  */
 export function getFormattedDate() {

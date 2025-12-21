@@ -1,7 +1,6 @@
 import { getFirebaseData } from './js/data/API.js';
 
-/**
- * Global variable to hold Firebase data.
+/** * Global variable to hold Firebase data.
  * Initialized on first load and reused thereafter.
  */
 export let firebaseData = null;
@@ -20,8 +19,7 @@ export async function loadFirebaseData() {
   return firebaseData;
 }
 
-/**
- * Refreshes the summary page if it exists in the DOM.
+/** * Refreshes the summary page if it exists in the DOM.
  * This allows updating summary statistics from other pages.
  * @returns {Promise<void>}
  */

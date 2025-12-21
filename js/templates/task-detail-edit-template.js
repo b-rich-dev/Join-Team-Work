@@ -1,14 +1,6 @@
-import {
-  getAddTaskFormHTML,
-  renderLeftFormFields,
-  renderRightFormFields,
-  renderFormButtons,
-} from "./add-task-template.js";
+import { getAddTaskFormHTML, renderLeftFormFields, renderRightFormFields, renderFormButtons } from "./add-task-template.js";
 import { initPriorityButtonLogic } from "../events/priorety-handler.js";
-import {
-  openSpecificOverlay,
-  initOverlayListeners,
-} from "../events/overlay-handler.js";
+import { openSpecificOverlay, initOverlayListeners } from "../events/overlay-handler.js";
 import { renderAssignedToContacts } from "../templates/add-task-template.js";
 import { initDatePicker } from "../templates/add-task-template.js";
 import { initSubtaskManagementLogic } from "../events/subtask-handler.js";
@@ -16,15 +8,8 @@ import { getContacts } from "../data/storage.js";
 import { CWDATA } from "../data/task-to-firbase.js";
 import { selectedContacts } from "../events/dropdown-menu.js";
 
-/**
- * Opens the task detail edit overlay and initializes it with the provided task data.
- * @param {object} task - The task data to populate the form.
- * @returns {Promise<void>} Resolves when the overlay is opened and initialized.
- */
-/**
- * Opens the task detail edit overlay and initializes it with the provided task data.
- * @param {object} task - The task data to populate the form.
- * @returns {Promise<void>} Resolves when the overlay is opened and initialized.
+/** * Opens the task detail edit overlay for a given task.
+ * @param {object} task - The task data to populate the edit form.
  */
 export async function openTaskDetailEditOverlay(task) {
   const editOverlayHtml = await fetchEditOverlayHtml();
@@ -40,8 +25,7 @@ export async function openTaskDetailEditOverlay(task) {
   initOverlayListeners("overlay-task-detail-edit");
 }
 
-/**
- * Fetches the edit overlay HTML template.
+/** * Fetches the edit overlay HTML template.
  * @returns {Promise<string>} The HTML string of the edit overlay.
  */
 async function fetchEditOverlayHtml() {
@@ -49,8 +33,7 @@ async function fetchEditOverlayHtml() {
   return await response.text();
 }
 
-/**
- * Gets the overlay container element.
+/** * Gets the overlay container element.
  * @returns {HTMLElement|null} The overlay container element or null.
  */
 function getOverlayContainer() {
@@ -62,8 +45,7 @@ function getOverlayContainer() {
   return overlayContainer;
 }
 
-/**
- * Gets the edit form container element.
+/** * Gets the edit form container element.
  * @returns {HTMLElement|null} The edit form container element or null.
  */
 function getEditFormContainer() {
@@ -80,8 +62,7 @@ function getEditFormContainer() {
   return container;
 }
 
-/**
- * Initializes modules for the edit form (priority, dropdown, date picker, subtasks, assigned contacts).
+/** * Initializes modules for the edit form (priority, dropdown, date picker, subtasks, assigned contacts).
  * @param {HTMLElement} container - The edit form container element.
  * @param {object} task - The task data to populate the form.
  * @returns {Promise<void>} Resolves when modules are initialized.
@@ -94,8 +75,7 @@ async function initEditFormModules(container, task) {
   await initAssignedContactsModule(task);
 }
 
-/**
- * Initializes the priority button logic.
+/** * Initializes the priority button logic.
  * @param {HTMLElement} container - The edit form container element.
  * @returns {Promise<void>}
  */
@@ -111,39 +91,23 @@ async function initPriorityModule(container) {
   }
 }
 
-/**
- * Initializes the assigned-to dropdown logic.
+/** * Initializes the assigned-to dropdown logic.
  * @param {HTMLElement} container - The edit form container element.
  * @returns {Promise<void>}
  */
 async function initAssignedToDropdownModule(container, task) {
   try {
     const mod = await import("../events/dropdown-menu-auxiliary-function.js");
-    const contactsData = window.firebaseData?.contacts
-      ? Object.entries(window.firebaseData.contacts).map(([id, obj]) => ({ ...obj, id }))
-      : [];
+    const contactsData = window.firebaseData?.contacts ? Object.entries(window.firebaseData.contacts).map(([id, obj]) => ({ ...obj, id })) : [];
     await mod.initDropdowns(contactsData);
-    const assignedSource = Array.isArray(task?.assignedUsers)
-      ? task.assignedUsers
-      : Array.isArray(task?.assignedTo)
-      ? task.assignedTo
-      : (typeof task?.assignedTo === "string" && task.assignedTo)
-      ? task.assignedTo
-          .split(",")
-          .map((s) => s.trim())
-          .filter(Boolean)
-      : [];
+    const assignedSource = Array.isArray(task?.assignedUsers) ? task.assignedUsers : Array.isArray(task?.assignedTo) ? task.assignedTo : (typeof task?.assignedTo === "string" && task.assignedTo) ? task.assignedTo.split(",").map((s) => s.trim()).filter(Boolean) : [];
     await mod.setAssignedContactsFromTaskForCard(assignedSource);
   } catch (e) {
-    console.error(
-      "Error initializing assignedTo dropdown via auxiliary module:",
-      e
-    );
+    console.error("Error initializing assignedTo dropdown via auxiliary module:", e);
   }
 }
 
-/**
- * Initializes the date picker logic.
+/** * Initializes the date picker logic.
  * @param {HTMLElement} container - The edit form container element.
  * @returns {Promise<void>}
  */
@@ -159,8 +123,7 @@ async function initDatePickerModule(container) {
   }
 }
 
-/**
- * Initializes the subtask management logic.
+/** * Initializes the subtask management logic.
  * @param {HTMLElement} container - The edit form container element.
  * @returns {Promise<void>}
  */
@@ -176,8 +139,7 @@ async function initSubtaskModule(container) {
   }
 }
 
-/**
- * Initializes assigned contacts for the edit form.
+/** * Initializes assigned contacts for the edit form.
  * @param {object} task - The task data to populate the form.
  * @returns {Promise<void>}
  */
@@ -196,8 +158,7 @@ async function initAssignedContactsModule(task) {
   }
 }
 
-/**
- * Sets up prevention of form submission for the edit form.
+/** * Sets up prevention of form submission for the edit form.
  * @param {HTMLElement} container - The edit form container element.
  */
 function setupEditFormSubmitPrevention(container) {
@@ -209,14 +170,8 @@ function setupEditFormSubmitPrevention(container) {
   }
 }
 
-/**
- * Saves the changes of a task and passes them to the database.
- * @param {string} taskId - The ID of the task to be edited.
- * @returns {Promise<void>} Resolves when the task is saved.
- */
-/**
- * Saves the changes of a task and passes them to the database.
- * @param {string} taskId - The ID of the task to be edited.
+/** * Saves the edited task data from the form to the database.
+ * @param {string} taskId - The ID of the task being edited.
  * @returns {Promise<void>} Resolves when the task is saved.
  */
 export async function saveEditedTask(taskId) {
@@ -236,8 +191,7 @@ export async function saveEditedTask(taskId) {
   }
 }
 
-/**
- * Gets the edit form element.
+/** * Gets the edit form element.
  * @returns {HTMLFormElement|null} The edit form element or null.
  */
 function getEditForm() {
@@ -249,8 +203,7 @@ function getEditForm() {
   return form;
 }
 
-/**
- * Builds the edited task object from the form data.
+/** * Builds the edited task object from the form data.
  * @param {HTMLFormElement} form - The edit form element.
  * @param {string} taskId - The ID of the task to be edited.
  * @returns {object} The edited task object.
@@ -265,25 +218,10 @@ function buildEditTaskObject(form, taskId) {
   const subtasksCompleted = checkedSubtasks.filter(Boolean).length;
   const assignedUsers = getAssignedUsersFromForm(form);
   const formattedDate = getFormattedDate();
-  return {
-    assignedUsers,
-    boardID: "board-1",
-    checkedSubtasks,
-    columnID: "inProgress",
-    createdAt: formattedDate,
-    deadline,
-    description,
-    priority,
-    subtasksCompleted,
-    title,
-    totalSubtasks,
-    type,
-    updatedAt: formattedDate,
-  };
+  return { assignedUsers, boardID: "board-1", checkedSubtasks, columnID: "inProgress", createdAt: formattedDate, deadline, description, priority, subtasksCompleted, title, totalSubtasks, type, updatedAt: formattedDate };
 }
 
-/**
- * Gets the task type from the form.
+/** * Gets the task type from the form.
  * @param {HTMLFormElement} form - The edit form element.
  * @returns {string} The task type.
  */
@@ -298,8 +236,7 @@ function getTaskType(form) {
   return "";
 }
 
-/**
- * Gets the task priority from the form.
+/** * Gets the task priority from the form.
  * @param {HTMLFormElement} form - The edit form element.
  * @returns {string} The task priority.
  */
@@ -313,8 +250,7 @@ function getTaskPriority(form) {
   }
 }
 
-/**
- * Gets subtasks and their checked status from the form.
+/** * Gets subtasks and their checked status from the form.
  * @param {HTMLFormElement} form - The edit form element.
  * @param {string} taskId - The ID of the task to be edited.
  * @returns {{ totalSubtasks: string[], checkedSubtasks: boolean[] }} Subtasks and their checked status.
@@ -326,19 +262,14 @@ function getSubtasksFromForm(form, taskId) {
   if (totalSubtasks.length === 0 || totalSubtasks.every((v) => v === "")) {
     const task = window.firebaseData?.tasks?.[taskId];
     if (task) {
-      totalSubtasks = Array.isArray(task.totalSubtasks)
-        ? [...task.totalSubtasks]
-        : [];
-      checkedSubtasks = Array.isArray(task.checkedSubtasks)
-        ? [...task.checkedSubtasks]
-        : [];
+      totalSubtasks = Array.isArray(task.totalSubtasks) ? [...task.totalSubtasks] : [];
+      checkedSubtasks = Array.isArray(task.checkedSubtasks) ? [...task.checkedSubtasks] : [];
     }
   }
   return { totalSubtasks, checkedSubtasks };
 }
 
-/**
- * Gets assigned user IDs from the form.
+/** * Gets assigned user IDs from the form.
  * @param {HTMLFormElement} form - The edit form element.
  * @returns {string[]} Array of assigned user IDs.
  */
@@ -358,8 +289,7 @@ function getAssignedUsersFromForm(form) {
   return ids;
 }
 
-/**
- * Gets the current date formatted as DD.MM.YYYY.
+/** * Gets the current date formatted as DD.MM.YYYY.
  * @returns {string} The formatted date string.
  */
 function getFormattedDate() {
@@ -370,6 +300,8 @@ function getFormattedDate() {
   return `${day}.${month}.${year}`;
 }
 
+/** Event listener for saving the edited task when the save button is clicked. 
+*/
 document.addEventListener("click", function (e) {
   if (e.target.classList.contains("save-edit-task-btn")) {
     const taskId = e.target.getAttribute("data-task-id");

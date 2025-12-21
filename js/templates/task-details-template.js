@@ -1,4 +1,11 @@
 import { CWDATA, allData } from "../data/task-to-firbase.js";
+import { firebaseData } from "../../main.js";
+import { getTaskAttachmentsSection } from "./task-details-attachments.js";
+import { getTaskSubtasksSection } from "./task-details-subtasks.js";
+import { getTaskAssignmentSection } from "./task-details-contacts.js";
+
+/** * Event listener for delete task buttons in task detail overlays. 
+*/
 document.addEventListener("click", function (e) {
   const btn = e.target.closest(".delete-task-btn");
   if (btn) {
@@ -6,28 +13,18 @@ document.addEventListener("click", function (e) {
     CWDATA({ [taskId]: null }, allData);
   }
 });
-import { renderAssignedToContacts } from "../templates/add-task-template.js";
-import { firebaseData } from "../../main.js";
 
-/**
- * Formats a date from "DD.MM.YYYY" to "DD/MM/YYYY".
+/** * Formats a date from "DD.MM.YYYY" to "DD/MM/YYYY".
  * @param {string} dateString - The date string in format "DD.MM.YYYY".
  * @returns {string} The formatted date string in format "DD/MM/YYYY".
  */
 function getFormattedDate(dateString) {
   const parts = dateString.split(".");
   const date = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`);
-  return date
-    .toLocaleDateString("de-DE", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-    })
-    .replace(/\./g, "/");
+  return date.toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric" }).replace(/\./g, "/");
 }
 
-/**
- * Checks if a date string in format "DD.MM.YYYY" is valid.
+/** * Checks if a date string in format "DD.MM.YYYY" is valid.
  * @param {string} dateString - The date string to check.
  * @returns {boolean} True if the date is valid, otherwise false.
  */
@@ -39,8 +36,7 @@ function isValidDate(dateString) {
   return !isNaN(new Date(isoDate).getTime());
 }
 
-/**
- * Formats a deadline date string.
+/** * Formats a deadline date string.
  * @param {string} deadline - The deadline date string.
  * @returns {string} The formatted deadline or an empty string if invalid.
  */
@@ -48,13 +44,11 @@ function formatDeadline(deadline) {
   return isValidDate(deadline) ? getFormattedDate(deadline) : "";
 }
 
-/**
- * Creates the HTML header for a task card.
+/** * Creates the HTML header for a task card.
  * @param {object} task - The task object.
  * @returns {string} The HTML string for the task header.
  */
 function getTaskHeader(task) {
-  // Gleiche Kategorie-Klassen wie auf den Board-Karten
   let taskTypeClass = "category-default";
   if (task.type === "User Story") taskTypeClass = "category-user-story";
   else if (task.type === "Technical Task")
@@ -68,34 +62,27 @@ function getTaskHeader(task) {
   `;
 }
 
-/**
- * Creates the HTML description section for a task card.
+/** * Creates the HTML description section for a task card.
  * @param {object} task - The task object.
  * @returns {string} The HTML string for the task description.
  */
 function getTaskDescription(task) {
-  return `
-    <div class="taskCardField description">
-      <p>${task.description ?? ""}</p>
-    </div>
-  `;
+  return `<div class="taskCardField description">
+            <p>${task.description ?? ""}</p>
+          </div>`;
 }
 
-/**
- * Creates the HTML due date section for a task card.
+/** * Creates the HTML due date section for a task card.
  * @param {string} formattedDeadline - The already formatted due date.
  * @returns {string} The HTML string for the due date.
  */
 function getTaskDueDate(formattedDeadline) {
-  return `
-    <div class="taskCardField date">
-      <p>Due date:</p><p>${formattedDeadline}</p>
-    </div>
-  `;
+  return `<div class="taskCardField date">
+            <p>Due date:</p><p>${formattedDeadline}</p>
+          </div>`;
 }
 
-/**
- * Returns the formatted priority text.
+/** * Returns the formatted priority text.
  * @param {string} priority - The priority string (e.g., "urgent").
  * @returns {string} The formatted priority text.
  */
@@ -103,444 +90,52 @@ function getPriorityText(priority) {
   return priority ? priority.charAt(0).toUpperCase() + priority.slice(1) : "No";
 }
 
-/**
- * Creates the HTML display section for priority.
+/** * Creates the HTML display section for priority.
  * @param {string} priorityClass - The CSS class for the priority.
  * @param {string} priorityText - The priority text to display.
  * @returns {string} The HTML string for the priority display.
  */
 function getPriorityDisplayHtml(priorityClass, priorityText) {
-  return `
-    <div class="priority-display ${priorityClass}" data-priority="${priorityClass}">
-      <p>${priorityText}</p>
-      <img src="../assets/icons/property/${priorityClass}.svg" alt="" aria-hidden="true">
-    </div>
-  `;
+  return `<div class="priority-display ${priorityClass}" data-priority="${priorityClass}">
+            <p>${priorityText}</p>
+            <img src="../assets/icons/property/${priorityClass}.svg" alt="" aria-hidden="true">
+          </div>`;
 }
 
-/**
- * Creates the HTML priority section for a task card.
+/** * Creates the HTML priority section for a task card.
  * @param {object} task - The task object.
  * @returns {string} The HTML string for the task priority section.
  */
 function getTaskPriority(task) {
   const priorityClass = task.priority?.toLowerCase() ?? "";
   const priorityText = getPriorityText(task.priority);
-  return `
-    <div class="taskCardField priority-section">
-      <p>Priority:</p>${getPriorityDisplayHtml(priorityClass, priorityText)}
-    </div>
-  `;
+  return `<div class="taskCardField priority-section">
+            <p>Priority:</p>${getPriorityDisplayHtml(priorityClass, priorityText)}
+          </div>`;
 }
 
-/**
- * Checks if a contact matches the given details.
- * @param {object} contact - The contact object.
- * @param {string} name - The contact's name.
- * @param {string} initials - The contact's initials.
- * @param {string} avatarColor - The contact's avatar color.
- * @returns {boolean} True if the contact matches, otherwise false.
- */
-function contactMatches(contact, name, initials, avatarColor) {
-  return (
-    contact.name === name &&
-    contact.initials === initials &&
-    contact.avatarColor === avatarColor
-  );
-}
-
-/**
- * Checks if a contact is in the list of assigned contacts.
- * @param {string} name - The name of the contact to check.
- * @param {string} initials - The initials of the contact to check.
- * @param {string} avatarColor - The avatar color of the contact to check.
- * @param {Array<object>} assignedContacts - The list of already assigned contact objects.
- * @returns {boolean} True if the contact is assigned, otherwise false.
- */
-function isContactSelected(name, initials, avatarColor, assignedContacts) {
-  return (
-    assignedContacts?.some((c) =>
-      contactMatches(c, name, initials, avatarColor)
-    ) ?? false
-  );
-}
-
-/**
- * Renders the HTML for a contact with selection status.
- * @param {object} contact - The contact object to render.
- * @param {Array<object>} assignedContactObjects - The list of already assigned contact objects for comparison.
- * @returns {string} The HTML string for the contact option.
- */
-export function renderAssignedToContactsWithSelection(
-  contact,
-  assignedContactObjects
-) {
-  const { name, initials, avatarColor, avatarImage } = contact;
-  const isSelected = isContactSelected(
-    name,
-    initials,
-    avatarColor,
-    assignedContactObjects
-  );
-  const assignedClass = isSelected ? "assigned" : "";
-  
-  let avatarStyle = '';
-  let avatarContent = initials;
-  let avatarClickHandler = '';
-  
-  if (avatarImage) {
-    // Extract base64 from object or use string directly
-    const base64 = typeof avatarImage === 'string' 
-      ? avatarImage 
-      : (avatarImage?.base64 || avatarImage);
-    avatarStyle = `style="background-image: url(${base64}); background-size: cover; background-position: center; cursor: pointer;"`;
-    avatarContent = '';
-    // Pass contact ID for gallery navigation
-    const contactId = contact.id || '';
-    avatarClickHandler = `onclick="event.stopPropagation(); event.preventDefault(); window.showTaskContactAvatarGallery('${contactId}', false); return false;"`;
-  } else {
-    avatarStyle = `style="background-color: var(${avatarColor});"`;
-  }
-  
-  return `
-        <div class="contact-option ${assignedClass}" data-name="${name}" data-initials="${initials}" data-avatar-color="${avatarColor}">
-            <div class="contact-checkbox">
-                <div class="initials-container">
-                    <div class="assigned-initials-circle" ${avatarStyle} ${avatarClickHandler}>${avatarContent}</div>
-                </div>
-            </div>
-        </div>
-        <div class="contact-name">${name}</div>
-    `;
-}
-
-/**
- * Filters contact objects based on assigned user IDs.
- * @param {Array<string>} assignedUserIDs - A list of user IDs.
- * @param {object} allContactsObject - An object containing all contact objects by ID.
- * @returns {Array<object>} A filtered list of contact objects.
- */
-function getFilteredContacts(assignedUserIDs, allContactsObject) {
-  if (!assignedUserIDs) return [];
-  return assignedUserIDs.map((id) => {
-    const contact = allContactsObject[id];
-    if (contact) {
-      return { ...contact, id }; // Add the ID to the contact object
-    }
-    return null;
-  }).filter(Boolean);
-}
-
-/**
- * Generates the HTML string for assigned contacts with max 3 visible.
- * @param {Array<string>} assignedUserIDs - A list of user IDs assigned to a task.
- * @param {object} allContactsObject - An object containing all contact objects by ID.
- * @returns {string} The HTML string for the list of assigned contacts.
- */
-function getAssignedContactsHtml(assignedUserIDs, allContactsObject) {
-  const assignedContacts = getFilteredContacts(
-    assignedUserIDs,
-    allContactsObject
-  );
-  
-  // Store contacts with avatars for gallery viewer
-  if (typeof window !== 'undefined') {
-    window.currentTaskContactsWithAvatars = assignedContacts
-      .map(c => ({
-        id: c.id,
-        name: c.name,
-        initials: c.initials,
-        avatarColor: c.avatarColor,
-        avatarImage: c.avatarImage || null
-      }));
-  }
-  
-  if (assignedContacts.length <= 3) {
-    return assignedContacts
-      .map((c) => renderAssignedToContactsWithSelection(c, assignedContacts))
-      .join("");
-  }
-  
-  // Show first 3 contacts
-  const visibleContacts = assignedContacts.slice(0, 3);
-  const hiddenContacts = assignedContacts.slice(3);
-  const remainingCount = hiddenContacts.length;
-  
-  let html = visibleContacts
-    .map((c) => renderAssignedToContactsWithSelection(c, assignedContacts))
-    .join("");
-    
-  // Add "show more" button
-  html += `
-    <div class="contact-option show-more-contacts" onclick="toggleMoreContacts(this)">
-      <div class="contact-checkbox">
-        <div class="initials-container">
-          <div class="assigned-initials-circle" style="background-color: var(--grey);">...+${remainingCount}</div>
-        </div>
-      </div>
-    </div>
-  `;
-  
-  // Add hidden contacts
-  html += `<div class="hidden-contacts" style="display: none;" onclick="toggleMoreContacts(this)">`;
-  html += hiddenContacts
-    .map((c) => renderAssignedToContactsWithSelection(c, assignedContacts))
-    .join("");
-  html += `</div>`;
-  
-  return html;
-}
-
-/**
- * Toggles the visibility of additional contacts.
- * @param {HTMLElement} element - The "show more" button element or any contact element.
- */
-window.toggleMoreContacts = function(element) {
-  const assignedList = element.closest('.assigned-list');
-  const hiddenContacts = assignedList.querySelector('.hidden-contacts');
-  const showMoreButton = assignedList.querySelector('.show-more-contacts');
-  
-  if (hiddenContacts.style.display === 'none' || hiddenContacts.style.display === '') {
-    // Versteckte Kontakte anzeigen, grauen Kreis verstecken
-    hiddenContacts.style.display = 'flex';
-    hiddenContacts.style.gap = '8px';
-    showMoreButton.style.display = 'none';
-  } else {
-    // Versteckte Kontakte verstecken, grauen Kreis wieder anzeigen
-    hiddenContacts.style.display = 'none';
-    showMoreButton.style.display = 'block';
-  }
-};
-
-/**
- * Creates the HTML section for task assignment.
- * @param {object} task - The task object.
- * @param {object} allContactsObject - An object containing all contact objects by ID.
- * @returns {string} The HTML string for the task assignment section.
- */
-function getTaskAssignmentSection(task, allContactsObject) {
-  const contactsHtml = getAssignedContactsHtml(
-    task.assignedUsers,
-    allContactsObject
-  );
-  return `
-    <div class="taskCardField assigned-section">
-      <p class="assigned-title">Assigned To: </p>
-      <div class="entryList assigned-list">${contactsHtml}</div>
-    </div>
-  `;
-}
-
-/**
- * Normalizes attachment data by calculating missing size and type fields.
- * @param {object} attachment - The attachment object.
- * @returns {object} The normalized attachment object.
- */
-function normalizeAttachment(attachment) {
-  const normalized = { ...attachment };
-  
-  // Calculate size if missing
-  if (typeof normalized.size !== 'number' || normalized.size === 0) {
-    if (normalized.base64) {
-      const comma = normalized.base64.indexOf(',');
-      const b64 = comma >= 0 ? normalized.base64.slice(comma + 1) : normalized.base64;
-      const len = b64.length;
-      const padding = b64.endsWith('==') ? 2 : b64.endsWith('=') ? 1 : 0;
-      normalized.size = Math.max(0, Math.floor((len * 3) / 4) - padding);
-    } else {
-      normalized.size = 0;
-    }
-  }
-  
-  // Determine type if missing
-  if (!normalized.type) {
-    if (normalized.base64?.startsWith('data:image/png')) {
-      normalized.type = 'image/png';
-    } else if (normalized.base64?.startsWith('data:image/jpeg') || normalized.base64?.startsWith('data:image/jpg')) {
-      normalized.type = 'image/jpeg';
-    } else if (normalized.base64?.startsWith('data:image/')) {
-      const match = normalized.base64.match(/^data:([^;]+);/);
-      normalized.type = match ? match[1] : 'image/jpeg';
-    } else {
-      normalized.type = 'image/jpeg';
-    }
-  }
-  
-  return normalized;
-}
-
-/**
- * Creates the HTML section for task attachments.
- * @param {object} task - The task object.
- * @returns {string} The HTML string for the attachments section.
- */
-function getTaskAttachmentsSection(task) {
-  if (!task?.attachments || task.attachments.length === 0) return "";
-  
-  const attachmentsHtml = task.attachments.map((attachment, index) => {
-    const normalized = normalizeAttachment(attachment);
-    const isImage = normalized.type && normalized.type.startsWith('image/');
-    
-    return `
-      <div class="attachment-item" data-tooltip="${normalized.name}" data-index="${index}">
-        ${isImage ? 
-          `<img src="${normalized.base64}" alt="${normalized.name}" data-attachment-index="${index}" data-name="${normalized.name}" data-type="${normalized.type}" data-size="${normalized.size}" />` :
-          `<div class="attachment-file-icon">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M14 2H6C4.9 2 4 2.9 4 4V20C4 21.1 4.9 22 6 22H18C19.1 22 20 21.1 20 20V8L14 2Z" stroke="#2A3647" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              <polyline points="14,2 14,8 20,8" stroke="#2A3647" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </div>`
-        }
-        <p class="attachment-description">${normalized.name}</p>
-        <div class="delete-attachment-btn" onclick="downloadAttachment('${normalized.base64}', '${normalized.name}', '${normalized.type}')">
-          <svg width="20" height="20" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" style="position: relative; left: 2px;">
-            <mask id="mask0_266054_1268" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="24" height="24">
-            <rect width="24" height="24" fill="#D9D9D9"/>
-            </mask>
-            <g mask="url(#mask0_266054_1268)">
-            <mask id="mask1_266054_1268" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="-1" y="0" width="25" height="24">
-            <rect x="-0.144531" width="24" height="24" fill="#D9D9D9"/>
-            </mask>
-            <g mask="url(#mask1_266054_1268)">
-            <path d="M10.8555 12.1501V6.1001C9.5888 6.33343 8.60547 6.94593 7.90547 7.9376C7.20547 8.92926 6.85547 9.9501 6.85547 11.0001H6.35547C5.3888 11.0001 4.5638 11.3418 3.88047 12.0251C3.19714 12.7084 2.85547 13.5334 2.85547 14.5001C2.85547 15.4668 3.19714 16.2918 3.88047 16.9751C4.5638 17.6584 5.3888 18.0001 6.35547 18.0001H18.3555C19.0555 18.0001 19.6471 17.7584 20.1305 17.2751C20.6138 16.7918 20.8555 16.2001 20.8555 15.5001C20.8555 14.8001 20.6138 14.2084 20.1305 13.7251C19.6471 13.2418 19.0555 13.0001 18.3555 13.0001H16.8555V11.0001C16.8555 10.2001 16.6721 9.45426 16.3055 8.7626C15.9388 8.07093 15.4555 7.48343 14.8555 7.0001V4.6751C16.0888 5.25843 17.0638 6.12093 17.7805 7.2626C18.4971 8.40426 18.8555 9.6501 18.8555 11.0001C20.0055 11.1334 20.9596 11.6293 21.718 12.4876C22.4763 13.3459 22.8555 14.3501 22.8555 15.5001C22.8555 16.7501 22.418 17.8126 21.543 18.6876C20.668 19.5626 19.6055 20.0001 18.3555 20.0001H6.35547C4.8388 20.0001 3.54297 19.4751 2.46797 18.4251C1.39297 17.3751 0.855469 16.0918 0.855469 14.5751C0.855469 13.2751 1.24714 12.1168 2.03047 11.1001C2.8138 10.0834 3.8388 9.43343 5.10547 9.1501C5.3888 7.9501 6.09714 6.80843 7.23047 5.7251C8.3638 4.64176 9.57214 4.1001 10.8555 4.1001C11.4055 4.1001 11.8763 4.29593 12.268 4.6876C12.6596 5.07926 12.8555 5.5501 12.8555 6.1001V12.1501L13.7555 11.2751C13.9388 11.0918 14.168 11.0001 14.443 11.0001C14.718 11.0001 14.9555 11.1001 15.1555 11.3001C15.3388 11.4834 15.4305 11.7168 15.4305 12.0001C15.4305 12.2834 15.3388 12.5168 15.1555 12.7001L12.5555 15.3001C12.3555 15.5001 12.1221 15.6001 11.8555 15.6001C11.5888 15.6001 11.3555 15.5001 11.1555 15.3001L8.55547 12.7001C8.37214 12.5168 8.2763 12.2876 8.26797 12.0126C8.25964 11.7376 8.35547 11.5001 8.55547 11.3001C8.7388 11.1168 8.96797 11.0209 9.24297 11.0126C9.51797 11.0043 9.75547 11.0918 9.95547 11.2751L10.8555 12.1501Z" fill="white"/>
-            </g>
-            </g>
-          </svg>
-        </div>
-      </div>
-    `;
-  }).join("");
-
-  return `
-    <div class="taskCardField attachments-section">
-      <p class="attachments-title">Attachments:</p>
-      <div id="task-attachment-list" class="attachment-list">${attachmentsHtml}</div>
-    </div>
-  `;
-}
-
-/**
- * Creates the HTML string for a single subtask.
- * @param {string} subtaskName - The name of the subtask.
- * @param {boolean} isChecked - Whether the subtask is checked.
- * @param {string} taskId - The ID of the parent task.
- * @param {number} subtaskIndex - The index of the subtask.
- * @returns {string} The HTML string for the subtask.
- */
-function createSubtaskHtml(subtaskName, isChecked, taskId, subtaskIndex) {
-  return `
-    <div class="subtask-item">
-      <label for="subtask-${taskId}-${subtaskIndex}" class="subtask-label" style="cursor:pointer;">
-        <input type="checkbox" class="subtask-checkbox" id="subtask-${taskId}-${subtaskIndex}"
-          data-task-id="${taskId}" data-subtask-index="${subtaskIndex}" ${
-    isChecked ? "checked" : ""
-  } onclick="toggleCheckbox(this)">
-        <span class="checkbox-svg-wrapper" onclick="toggleCheckbox(this.parentElement.querySelector('input[type=checkbox]'))" style="display:inline-flex;align-items:center;cursor:pointer;">
-          ${
-            isChecked
-              ? `<svg class="checkbox-icon checked" width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect x="1" y="1" width="16" height="16" rx="3" stroke="#2A3647" stroke-width="2" fill="white"/>
-                <path d="M3 9L7 13L15 3.5" stroke="#2A3647" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>`
-              : `<svg class="checkbox-icon" width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect x="1" y="1" width="16" height="16" rx="3" stroke="#2A3647" stroke-width="2" fill="white"/>
-              </svg>`
-          }
-        </span>
-        <span>${subtaskName}</span>
-      </label>
-    </div>
-  `;
-}
-
-/**
- * Gets the checked status of a subtask.
- * @param {object} task - The task object containing the subtasks.
- * @param {number} index - The index of the subtask.
- * @returns {boolean} True if the subtask is checked, otherwise false.
- */
-function getSubtaskCheckedStatus(task, index) {
-  return (
-    Array.isArray(task.checkedSubtasks) && task.checkedSubtasks[index] === true
-  );
-}
-
-/**
- * Renders a single subtask.
- * @param {object} task - The task object containing the subtask.
- * @param {number} i - The index of the subtask.
- * @returns {string} The HTML string of the rendered subtask.
- */
-function renderSingleSubtask(task, i) {
-  const subtaskName = task.totalSubtasks[i];
-  const isChecked = getSubtaskCheckedStatus(task, i);
-  return createSubtaskHtml(subtaskName, isChecked, task.id, i);
-}
-
-/**
- * Renders all subtasks for a given task.
- * @param {object} task - The task object.
- * @returns {string} The combined HTML string of all subtasks.
- */
-function renderSubtasks(task) {
-  if (!task?.totalSubtasks || Object.keys(task.totalSubtasks).length === 0)
-    return "";
-  let subtasksHtml = "";
-  for (const i in task.totalSubtasks) {
-    subtasksHtml += renderSingleSubtask(task, i);
-  }
-  return subtasksHtml;
-}
-
-/**
- * Creates the HTML section for the subtasks of a task card.
- * @param {object} task - The task object.
- * @returns {string} The HTML string for the subtasks section.
- */
-function getTaskSubtasksSection(task) {
-  const subtasksHtml = renderSubtasks(task);
-  if (subtasksHtml === "") return "";
-  setTimeout(() => {
-    document.querySelectorAll(".subtask-label").forEach((label) => {
-      const checkbox = label.querySelector(".subtask-checkbox");
-      const icon = label.querySelector(".checkbox-icon");
-      if (!checkbox || !icon) return;
-      label.addEventListener("click", function (e) {
-        if (e.target.tagName === "SPAN") return;
-        setTimeout(() => {
-          if (checkbox.checked) {
-            icon.src = "../assets/icons/btn/checkbox-filled-white.svg";
-            icon.alt = "checkbox filled";
-            icon.classList.add("checked");
-          } else {
-            icon.src = "../assets/icons/btn/checkbox-empty-black.svg";
-            icon.alt = "checkbox empty";
-            icon.classList.remove("checked");
-          }
-        }, 0);
-      });
-    });
-  }, 0);
-  return `
-    <div class="taskCardField subtasks-section">
-      <p class="subtasks-title">Subtasks:</p>
-      <div class="subtaskList">${subtasksHtml}</div>
-    </div>
-  `;
-}
-
-/**
- * Returns the HTML for the edit button.
+/** * Returns the HTML for the edit button.
  * @param {string} taskId - The ID of the task.
  * @returns {string} The HTML string for the edit button.
  */
 function getEditButtonHtml(taskId) {
-  return `<button class="edit-task-btn" data-task-id="${taskId}" aria-label="Edit task"><svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M2 13.5V16H4.5L14.13 6.37L11.63 3.87L2 13.5ZM16.73 5.04C17.1 4.67 17.1 4.09 16.73 3.72L15.28 2.27C14.91 1.9 14.33 1.9 13.96 2.27L12.54 3.69L15.04 6.19L16.73 5.04Z" fill="currentColor"/></svg>Edit</button>`;
+  return `<button class="edit-task-btn" data-task-id="${taskId}" aria-label="Edit task">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M2 13.5V16H4.5L14.13 6.37L11.63 3.87L2 13.5ZM16.73 5.04C17.1 4.67 17.1 4.09 16.73 3.72L15.28 2.27C14.91 1.9 14.33 1.9 13.96 2.27L12.54 3.69L15.04 6.19L16.73 5.04Z" fill="currentColor"/></svg>Edit
+          </button>`;
 }
+
+/** * Returns the HTML for a vertical separator.
+ * @returns {string} The HTML string for the vertical separator.
+ */
 function getVerticalSeparator() {
-  return `<span class="task-detail-separator" style="display:flex;align-items:center;"><svg width="1" height="24" viewBox="0 0 1 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect width="1" height="24" fill="#D1D1D1"/></svg></span>`;
+  return `<span class="task-detail-separator" style="display:flex;align-items:center;">
+            <svg width="1" height="24" viewBox="0 0 1 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect width="1" height="24" fill="#D1D1D1"/></svg>
+          </span>`;
 }
+
+/** * Returns the SVG paths for the delete button icon.
+ * @returns {string} The SVG paths as a string.
+ */
 function getDeleteButtonSvgPaths() {
   return (
     `<path d="M3 18C2.45 18 1.97917 17.8042 1.5875 17.4125C1.19583 17.0208 1 16.55 1 16V3C0.716667 3 0.479167 2.90417 0.2875 2.7125C0.0958333 2.52083 0 2.28333 0 2C0 1.71667 0.0958333 1.47917 0.2875 1.2875C0.479167 1.09583 0.716667 1 1 1H5C5 0.716667 5.09583 0.47917 5.2875 0.2875C5.47917 0.47917 5.71667 0.716667 6 0H10C10.2833 0 10.5208 0.0958333 10.7125 0.2875C10.9042 0.47917 11 0.716667 11 1H15C15.2833 1 15.5208 1.09583 15.7125 1.2875C15.9042 1.47917 16 1.71667 16 2C16 2.28333 15.9042 2.52083 15.7125 2.7125C15.5208 2.90417 15.2833 3 15 3V16C15 16.55 14.8042 17.0208 14.4125 17.4125C14.0208 17.8042 13.55 18 13 18H3ZM3 3V16H13V3H3ZM5 13C5 13.2833 5.09583 13.5208 5.2875 13.7125C5.47917 13.9042 5.71667 14 6 14C6.28333 14 6.52083 13.9042 6.7125 13.7125C6.90417 13.5208 7 13.2833 7 13V6C7 5.71667 6.90417 5.47917 6.7125 5.2875C6.52083 5.09583 6.28333 5 6 5C5.71667 5 5.47917 5.09583 5.2875 5.2875C5.09583 5.47917 5 5.71667 5 6V13ZM9 13C9 13.2833 9.09583 13.5208 9.2875 13.7125C9.47917 13.9042 9.71667 14 10 14C10.2833 14 10.5208 13.9042 10.7125 13.7125C10.9042 13.5208 11 13.2833 11 13V6C11 5.71667 10.9042 5.47917 10.7125 5.2875C10.5208 5.09583 10.2833 5 10 5C9.71667 5 9.47917 5.09583 9.2875 5.2875C9.09583 5.47917 9 5.71667 9 6V13Z" fill="#2A3647"/>` +
@@ -548,105 +143,47 @@ function getDeleteButtonSvgPaths() {
   );
 }
 
-/**
-/**
- * Erstellt den HTML-String für den Löschen-Button einer Aufgabe.
- * @param {string} taskId - Die ID der Aufgabe.
- * @returns {string} Der HTML-String des Löschen-Buttons.
+/** * Returns the HTML for the delete button.
+ * @param {string} taskId - The ID of the task.
+ * @returns {string} The HTML string for the delete button.
  */
 function getDeleteButtonHtml(taskId) {
-  return `
-    <button class="delete-task-btn" data-task-id="${taskId}" aria-label="Delete task">
-      <svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <path d="M6 7V13H8V7H6ZM10 7V13H12V7H10ZM4 15V5H14V15C14 15.55 13.55 16 13 16H5C4.45 16 4 15.55 4 15ZM16 3H13.5L12.71 2.21C12.53 2.03 12.28 1.92 12 1.92H6C5.72 1.92 5.47 2.03 5.29 2.21L4.5 3H2V5H16V3Z" fill="currentColor"/>
-      </svg>
-      Delete
-    </button>
-  `;
+  return `<button class="delete-task-btn" data-task-id="${taskId}" aria-label="Delete task">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path d="M6 7V13H8V7H6ZM10 7V13H12V7H10ZM4 15V5H14V15C14 15.55 13.55 16 13 16H5C4.45 16 4 15.55 4 15ZM16 3H13.5L12.71 2.21C12.53 2.03 12.28 1.92 12 1.92H6C5.72 1.92 5.47 2.03 5.29 2.21L4.5 3H2V5H16V3Z" fill="currentColor"/>
+            </svg>Delete
+          </button>`;
 }
 
-/**
- * Erstellt das HTML-Menü für eine Aufgabenkarte (Bearbeiten und Löschen).
- * @param {string} taskId - Die ID der Aufgabe.
- * @returns {string} Der HTML-String für das Kartenmenü.
+/** * Generates the HTML for the card menu containing edit and delete buttons.
+ * @param {string} taskId - The ID of the task.
+ * @returns {string} The HTML string for the card menu.
  */
 function getCardMenu(taskId) {
-  return `
-    <div class="cardMenu" style="display:flex;align-items:center;gap:16px;">
-      ${getDeleteButtonHtml(taskId)}
-      ${getVerticalSeparator()}
-      ${getEditButtonHtml(taskId)}
-    </div>
-  `;
+  return `<div class="cardMenu" style="display:flex;align-items:center;gap:16px;">
+            ${getDeleteButtonHtml(taskId)}
+            ${getVerticalSeparator()}
+            ${getEditButtonHtml(taskId)}
+          </div>`;
 }
 
-/**
- * Downloads an attachment file from base64 data, converting it back to original format.
- * @param {string} base64Data - The base64 encoded file data.
- * @param {string} filename - The filename for the download.
- * @param {string} mimeType - The original MIME type of the file.
- */
-window.downloadAttachment = function(base64Data, filename, mimeType) {
-  try {
-    // Convert base64 to blob with correct MIME type
-    const byteCharacters = atob(base64Data.split(',')[1]);
-    const byteNumbers = new Array(byteCharacters.length);
-    
-    for (let i = 0; i < byteCharacters.length; i++) {
-      byteNumbers[i] = byteCharacters.charCodeAt(i);
-    }
-    
-    const byteArray = new Uint8Array(byteNumbers);
-    const blob = new Blob([byteArray], { type: mimeType || 'application/octet-stream' });
-    
-    // Create download URL from blob
-    const url = window.URL.createObjectURL(blob);
-    
-    // Create temporary anchor element for download
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = filename || 'attachment';
-    
-    // Temporarily add to DOM, click, then remove
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    
-    // Clean up the URL object
-    window.URL.revokeObjectURL(url);
-    
-  } catch (error) {
-    console.error('Download failed:', error);
-    // Fallback to direct base64 download
-    const link = document.createElement('a');
-    link.href = base64Data;
-    link.download = filename || 'attachment';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  }
-};
-
-/**
- * Erstellt das vollständige HTML-Overlay für eine Aufgabe.
- * @param {object} task - Das Aufgabenobjekt, das angezeigt werden soll.
- * @param {string} taskId - Die ID der Aufgabe.
- * @returns {string} Der komplette HTML-String des Aufgaben-Overlays.
+/** Generates the complete HTML overlay for a task.
+ * @param {object} task - The task object containing all task details.
+ * @param {string} taskId - The unique identifier for the task.
+ * @returns {string} The complete HTML string for the task overlay.
  */
 export function getTaskOverlay(task, taskId) {
   if (!firebaseData?.contacts) return `<div class="task-overlay-error"></div>`;
   if (!task) return `<div class="task-overlay-error">Task data missing</div>`;
   const contactsObject = firebaseData.contacts;
   const formattedDeadline = formatDeadline(task.deadline ?? "");
-  return `
-    <main class="content-task">
-      ${getTaskHeader(task)}
-      ${getTaskDescription(task)}
-      ${getTaskDueDate(formattedDeadline)}
-      ${getTaskPriority(task)}
-      ${getTaskAssignmentSection(task, contactsObject)}
-      ${getTaskAttachmentsSection(task)}
-      ${getTaskSubtasksSection(task)}${getCardMenu(taskId)}
-    </main>
-  `;
+  return `<main class="content-task">
+            ${getTaskHeader(task)}
+            ${getTaskDescription(task)}
+            ${getTaskDueDate(formattedDeadline)}
+            ${getTaskPriority(task)}
+            ${getTaskAssignmentSection(task, contactsObject)}
+            ${getTaskAttachmentsSection(task)}
+            ${getTaskSubtasksSection(task)}${getCardMenu(taskId)}
+          </main>`;
 }

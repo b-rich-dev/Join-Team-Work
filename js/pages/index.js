@@ -3,36 +3,7 @@ let secondChance = true;
 
 sessionStorage.clear();
 
-// Add keyboard navigation event listeners
-document.addEventListener('DOMContentLoaded', () => {
-  // Clear red alerts when focusing inputs
-  const emailInput = document.getElementById('login-email');
-  const passwordInput = document.getElementById('login-password');
-  
-  if (emailInput) {
-    emailInput.addEventListener('focus', clearRedAlerts);
-  }
-  if (passwordInput) {
-    passwordInput.addEventListener('focus', clearRedAlerts);
-  }
-
-  // Guest Login button
-  const guestLoginBtn = document.getElementById('guest-login-btn');
-  if (guestLoginBtn) {
-    guestLoginBtn.addEventListener('click', directLogin);
-  }
-
-  // Sign up redirect buttons
-  const signupButtons = document.querySelectorAll('.signup-redirect-btn');
-  signupButtons.forEach(btn => {
-    btn.addEventListener('click', () => {
-      location.href = './html/sign-up.html';
-    });
-  });
-});
-
-/**
- * onload-function: handles start animation, remove overlay when finished.
+/** * onload-function: handles start animation, remove overlay when finished.
  * prevents false positioning when page is reloaded
  */
 function removeOverlay() {
@@ -45,8 +16,7 @@ function removeOverlay() {
   }, 1000);
 }
 
-/**
- * onlick-function of "Login"-button. check whether input fields are filled.
+/** * onlick-function of "Login"-button. check whether input fields are filled.
  */
 function handleLogin(){
   clearRedAlerts();
@@ -57,25 +27,18 @@ function handleLogin(){
   startValidation(userEmail, userPw);
 }
 
+/** * Validates user credentials by checking email in Firebase and verifying password.
+ * First checks if the user exists in Firebase, then validates the password.
+ * @param {string} userEmail - The email address entered by the user.
+ * @param {string} userPw - The password entered by the user.
+ * @returns {Promise<void>}
+ */
 async function startValidation(userEmail, userPw) {
   await checkUserInFirebase('users', 'email', userEmail);
   validateLogin(userPw);
 }
 
-/**
- * check in database whether a user-dataset contains the email corresponding to the login-input.
- * @param {string} key - Database key to check against
- * @param {string} emailInput 
- * @param {string} passwordInput 
- */
-// async function checkUserInFirebase(category, databaseKey, inputString) {
-//   let queryString = `?orderBy=%22${databaseKey}%22&equalTo=%22${encodeURIComponent(inputString.toLowerCase())}%22`;
-//   const data = await getFirebaseData(category, queryString);
-//   fetchedUser = data;
-// }
-
-/**
- * helper function for "checkUserInFirebase"; check wether login is valid.
+/** * helper function for "checkUserInFirebase"; check wether login is valid.
  * @param {string} userEmail
  * @param {string} userPw 
  */
@@ -88,8 +51,7 @@ function validateLogin(userPw) {
   window.location.href = 'html/summary.html';
 }
 
-/**
- * helper function for "validateLogin"; if email is not found in database, 
+/** * helper function for "validateLogin"; if email is not found in database, 
  * "fetchedUser" is empty and email check false.
  * @returns boolean
  */
@@ -99,8 +61,7 @@ function checkEmail() {
   } else return true;
 }
 
-/**
- * helper function for "validateLogin"; if email is correct, 
+/** * helper function for "validateLogin"; if email is correct, 
  * compare password from input to password in "fetchedUser".
  * @param {string} userPw - user password from login input.
  * @returns boolean
@@ -113,8 +74,7 @@ function validatePassword(userPw) {
   } else return true;
 }
 
-/**
- * helper function for "validatePasswor"; if user made a typo, he gets a second chance
+/** * helper function for "validatePasswor"; if user made a typo, he gets a second chance
  * to write the password correctly. If password is still false: -> sign up.
  * @returns boolean
  */
@@ -129,8 +89,7 @@ function tryAgain() {
   }
 }
 
-/**
- * helper function for "validateLogin"; get user name from "fetchedUser", set name to sessionStorage.
+/** * helper function for "validateLogin"; get user name from "fetchedUser", set name to sessionStorage.
  */
 function setSessionStorage() {
   const userDetails = Object.values(fetchedUser)[0];
@@ -139,8 +98,33 @@ function setSessionStorage() {
   initialsForHeader(displayName);
 }
 
-/**
- * helper function for "setSessionStorage"; set initials for "header", to sessionstorStorage.
+/** Eventlistener for DOMContentLoaded: setup input focus listeners and button event listeners
+ */
+document.addEventListener('DOMContentLoaded', () => {
+  const emailInput = document.getElementById('login-email');
+  const passwordInput = document.getElementById('login-password');
+  
+  if (emailInput) {
+    emailInput.addEventListener('focus', clearRedAlerts);
+  }
+  if (passwordInput) {
+    passwordInput.addEventListener('focus', clearRedAlerts);
+  }
+
+  const guestLoginBtn = document.getElementById('guest-login-btn');
+  if (guestLoginBtn) {
+    guestLoginBtn.addEventListener('click', directLogin);
+  }
+
+  const signupButtons = document.querySelectorAll('.signup-redirect-btn');
+  signupButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      location.href = './html/sign-up.html';
+    });
+  });
+});
+
+/** * helper function for "setSessionStorage"; set initials for "header", to sessionstorStorage.
  * @param {string} displayName - user name corresponding to email-adress
  */
 function initialsForHeader(displayName) {
@@ -148,8 +132,7 @@ function initialsForHeader(displayName) {
   sessionStorage.setItem('headerInitials', initials);
 }
 
-/**
- * helper function for "initialsForHeader"; get initals from first and last part of user name.
+/** * helper function for "initialsForHeader"; get initals from first and last part of user name.
  * @param {string} fullName -user name
  * @returns initials (string).
  */
@@ -161,8 +144,7 @@ function getInitials(fullName) {
   return first + last;
 }
 
-/**
- * helper function for "validateLogin"; show alert message and add red input borders
+/** * helper function for "validateLogin"; show alert message and add red input borders
  */
 function loginAlert() {
   document.getElementById('login-email').closest('.input-frame').classList.add('active');

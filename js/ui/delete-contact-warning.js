@@ -1,12 +1,10 @@
-/**
- * Delete Contact Warning Module
+/** * Delete Contact Warning Module
  * Handles the confirmation dialog before deleting a contact.
  */
 
 let deleteConfirmCallback = null;
 
-/**
- * Shows the delete contact warning dialog.
+/** * Shows the delete contact warning dialog.
  * @param {Function} onConfirm - Callback function to execute when user confirms deletion.
  */
 export function showDeleteContactWarning(onConfirm) {
@@ -22,8 +20,7 @@ export function showDeleteContactWarning(onConfirm) {
     setupDeleteWarningListeners();
 }
 
-/**
- * Hides the delete contact warning dialog.
+/** * Hides the delete contact warning dialog.
  */
 export function hideDeleteContactWarning() {
     const warningElement = document.getElementById('deleteContactWarning');
@@ -34,8 +31,7 @@ export function hideDeleteContactWarning() {
     removeDeleteWarningListeners();
 }
 
-/**
- * Sets up event listeners for the warning dialog buttons.
+/** * Sets up event listeners for the warning dialog buttons.
  */
 function setupDeleteWarningListeners() {
     const warningElement = document.getElementById('deleteContactWarning');
@@ -49,8 +45,7 @@ function setupDeleteWarningListeners() {
     if (yesBtn) yesBtn.addEventListener('click', handleConfirm);
 }
 
-/**
- * Removes event listeners from the warning dialog buttons.
+/** * Removes event listeners from the warning dialog buttons.
  */
 function removeDeleteWarningListeners() {
     const warningElement = document.getElementById('deleteContactWarning');
@@ -64,8 +59,7 @@ function removeDeleteWarningListeners() {
     if (yesBtn) yesBtn.removeEventListener('click', handleConfirm);
 }
 
-/**
- * Handles clicks on the backdrop (outside the dialog content).
+/** * Handles clicks on the backdrop (outside the dialog content).
  * @param {MouseEvent} event - The click event.
  */
 function handleBackdropClick(event) {
@@ -74,15 +68,13 @@ function handleBackdropClick(event) {
     }
 }
 
-/**
- * Handles the cancel action (No button or X button).
+/** * Handles the cancel action (No button or X button).
  */
 function handleCancel() {
     hideDeleteContactWarning();
 }
 
-/**
- * Handles the confirm action (Yes button).
+/** * Handles the confirm action (Yes button).
  */
 function handleConfirm() {
     if (deleteConfirmCallback && typeof deleteConfirmCallback === 'function') {

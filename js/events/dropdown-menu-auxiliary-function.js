@@ -253,6 +253,11 @@ export function setAssignedContactsFromTaskForCard(assignedUsers) {
  * @param {string} idVal - The ID of the contact to find.
  */
 function findContactById(idVal) {
+  // First try contactsMap (fastest)
+  const mapContact = contactsMap.get(idVal);
+  if (mapContact) return mapContact;
+
+  // Fallback to currentContacts array
   return currentContacts.find(
     (c) =>
       c.id === idVal ||

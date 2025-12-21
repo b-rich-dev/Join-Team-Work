@@ -1,7 +1,8 @@
 let fetchedUser = null;
 let emailString;
 
-// Add keyboard support for custom checkbox
+/** Eventlistener for DOMContentLoaded: setup checkbox event listeners
+ */
 document.addEventListener('DOMContentLoaded', () => {
   const checkbox = document.getElementById('customCheckbox');
   if (checkbox) {
@@ -15,8 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-/**
- * onclick-function on "signup"-button
+/** * onclick-function on "signup"-button
  */
 function startValidation() {
   const nameToCheck = document.getElementById("new-name").value.trim();
@@ -24,8 +24,7 @@ function startValidation() {
   handleEmptyInputs(nameToCheck, emailToCheck);
 }
 
-/**
- * helper function for "startValidation"; if both input-fields are filled, pass to validation.
+/** * helper function for "startValidation"; if both input-fields are filled, pass to validation.
  * @param {string} nameToCheck - value from user input
  * @param {string} emailToCheck - value from user input
  */
@@ -38,8 +37,7 @@ function handleEmptyInputs(nameToCheck, emailToCheck) {
   }
 }
 
-/**
- * helper function for "handleEmptyInputs"; signup-validation:
+/** * helper function for "handleEmptyInputs"; signup-validation:
  * progressive validation by calling helper functions.
  * @param {string} newName - value from user input
  * @param {string} newEmail - value from user input
@@ -56,8 +54,7 @@ function validateInputs(newName, newEmail) {
   checkUserData(newName, newEmail);
 }
 
-/**
- * helper function for "validateInputs". check for valid pattern (all unicode letter signs ok); if invalid: show red alerts
+/** * helper function for "validateInputs". check for valid pattern (all unicode letter signs ok); if invalid: show red alerts
  * @param {string} name - user name from input
  * @returns boolean
  */
@@ -71,8 +68,7 @@ function validateNamePattern(name) {
   return true;
 }
 
-/**
- * helper function for "validateInputs"; check for valid pattern; if invalid: show red alerts.
+/** * helper function for "validateInputs"; check for valid pattern; if invalid: show red alerts.
  * if valid: emailString = global variable emailString (for database request).
  * @param {string} email - user email
  * @returns boolean
@@ -88,8 +84,7 @@ function validateEmailPattern(email) {
   return true;
 }
 
-/**
- * helper function for "validateInputs"; check for minimal password-length of 8 signs
+/** * helper function for "validateInputs"; check for minimal password-length of 8 signs
  * @returns boolean
  */
 function passwordLength() {
@@ -102,8 +97,7 @@ function passwordLength() {
   return validateRegistrationPasswords();
 }
 
-/**
- * helper function for "passwordLength". check whether passwords are identical.
+/** * helper function for "passwordLength". check whether passwords are identical.
  * if not: show red alerts.
  * @returns boolean
  */
@@ -119,8 +113,7 @@ function validateRegistrationPasswords() {
   return valid;
 }
 
-/**
- * helper function for "validateInputs"; when form is correctly filled,
+/** * helper function for "validateInputs"; when form is correctly filled,
  * check whether user is already registrated.
  * @param {string} nameToCheck - check name in data
  * @param {string} emailToCheck - check email in data
@@ -132,8 +125,7 @@ async function checkUserData(nameToCheck, emailToCheck) {
   finishDataCheck(nameToCheck, nameExists, emailExists);
 }
 
-/**
- * helper function for "checkUserData"; show messages.
+/** * helper function for "checkUserData"; show messages.
  * @param {string} nameToCheck - string from "name"-input.
  * @param {boolean} nameExists - name is (not) in fetched dataset.
  * @param {boolean} emailExists - email is (not) in fetche dataset.
@@ -151,8 +143,7 @@ function finishDataCheck(nameToCheck, nameExists, emailExists) {
   }
 }
 
-/**
- * helper function for "checkUserData"; checks whether name or email is already in database
+/** * helper function for "checkUserData"; checks whether name or email is already in database
  * @param {string} value - value from user input
  * @param {string} infoKey - checked key of user-informations
  * @returns boolean
@@ -165,8 +156,7 @@ function doesValueExist(value, infoKey) {
   } else return false;
 }
 
-/**
- * helper function for "validateInputs". if form is filled, check "Policy"-checkbox
+/** * helper function for "validateInputs". if form is filled, check "Policy"-checkbox
  * @param {string} validEmail - checked email
  */
 function checkRequiredFields(storedEmail) {
@@ -175,8 +165,7 @@ function checkRequiredFields(storedEmail) {
   } else return;
 }
 
-/**
- * helper function for "checkRequiredFieldss". check status of checkbox, start next step.
+/** * helper function for "checkRequiredFieldss". check status of checkbox, start next step.
  */
 function checkboxChecked() {
   document.getElementById("unchecked").classList.contains("d-none")
@@ -184,8 +173,7 @@ function checkboxChecked() {
     : document.getElementById('no-privPolicy').classList.remove("d-none");
 }
 
-/**
- * onclick-function of checkbox "accept policy"; toggle its icons
+/** * onclick-function of checkbox "accept policy"; toggle its icons
  */
 function toggleCheckbox() {
   const unchecked = document.getElementById('unchecked');
@@ -196,13 +184,11 @@ function toggleCheckbox() {
   checked.classList.toggle("d-none");
   warning.classList.add("d-none");
   
-  // Update aria-checked state
   const isChecked = checked.classList.contains('d-none') ? 'false' : 'true';
   checkbox?.setAttribute('aria-checked', isChecked);
 }
 
-/**
- * popup-message after successful sign up
+/** * popup-message after successful sign up
  */
 function confirmSignup() {
   const text = "You signed up successfully";
@@ -212,8 +198,7 @@ function confirmSignup() {
   goToPage(link);
 }
 
-/**
- * main function for popup handling ("signup"-page)
+/** * main function for popup handling ("signup"-page)
  * @param {string} text - message text to display
  * @param {string} color - background-color of overlay
  * @param {string} link - target of redirection
@@ -226,8 +211,7 @@ function showPopup(text, color, link="") {
   startAnimation();
 }
 
-/**
- * execute animation after short delai
+/** * execute animation after short delai
  */
 function startAnimation() {
   setTimeout(() => {
@@ -236,8 +220,7 @@ function startAnimation() {
   }, 200);
 }
 
-/**
- * remove overlay and message-box.
+/** * remove overlay and message-box.
  */
 function closeOverlay() {
   const overlay = document.getElementById('idx-overlay');

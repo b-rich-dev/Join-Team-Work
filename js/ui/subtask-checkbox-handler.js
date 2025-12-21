@@ -1,19 +1,13 @@
 import { CWDATA } from "../data/task-to-firbase.js";
 import { refreshSummaryIfExists } from "../../main.js";
 
-/**
- * Sets up the event listener for subtask checkboxes in a container.
+/** * Sets up the event listener for subtask checkboxes in a container.
  * @param {HTMLElement} container - The container element holding the checkboxes.
  * @param {object} task - The task object.
  * @param {string|number} taskId - The ID of the task.
  * @param {object} boardData - The board data object.
  */
-export function setupSubtaskCheckboxListener(
-  container,
-  task,
-  taskId,
-  boardData
-) {
+export function setupSubtaskCheckboxListener(container, task, taskId, boardData) {
   container.addEventListener("change", function (e) {
     if (e.target && e.target.classList.contains("subtask-checkbox")) {
       handleSubtaskCheckboxChange(e, task, taskId, boardData, container);
@@ -21,21 +15,14 @@ export function setupSubtaskCheckboxListener(
   });
 }
 
-/**
- * Handles the change event for a subtask checkbox.
+/** * Handles the change event for a subtask checkbox.
  * @param {Event} e - The change event.
  * @param {object} task - The task object.
  * @param {string|number} taskId - The ID of the task.
  * @param {object} boardData - The board data object.
  * @param {HTMLElement} container - The container element holding the checkboxes.
  */
-export async function handleSubtaskCheckboxChange(
-  e,
-  task,
-  taskId,
-  boardData,
-  container
-) {
+export async function handleSubtaskCheckboxChange(e, task, taskId, boardData, container) {
   const subtaskIndex = Number(e.target.dataset.subtaskIndex);
   const checked = e.target.checked;
   if (task && Array.isArray(task.checkedSubtasks)) {
@@ -43,14 +30,12 @@ export async function handleSubtaskCheckboxChange(
     task.subtasksCompleted = task.checkedSubtasks.filter(Boolean).length;
     await CWDATA({ [taskId]: task }, boardData);
     updateSubtaskProgressBar(task, container);
-    
-    // Refresh summary statistics when subtask completion changes
+
     await refreshSummaryIfExists();
   }
 }
 
-/**
- * Updates the progress bar for subtasks.
+/** * Updates the progress bar for subtasks.
  * @param {object} task - The task object.
  * @param {HTMLElement} container - The container element holding the progress bar.
  */

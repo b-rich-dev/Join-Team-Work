@@ -1,3 +1,25 @@
+.avatar-delete-success,
+.avatar-delete-error {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    padding: 20px 40px;
+    border-radius: 8px;
+    font-size: 16px;
+    z-index: 10000;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+.avatar-delete-success {
+    background: #29ABE2;
+}
+
+.avatar-delete-error {
+    background: #FF3D00;
+}
+
 .overlay-wrapper {
     position: fixed;
     inset: 0;

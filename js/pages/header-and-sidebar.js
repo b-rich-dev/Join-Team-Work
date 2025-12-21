@@ -1,5 +1,4 @@
-/**
- * onload-function; main function for including header and sidebar.
+/** * onload-function; main function for including header and sidebar.
  */
 async function includeHeaderAndSidebar() {
   await addLayoutElements('../js/templates/header.html', 'header');
@@ -11,8 +10,7 @@ async function includeHeaderAndSidebar() {
   highlightCurrentPage();
 }
 
-/**
- * fetch templates and include them in basic page layout
+/** * fetch templates and include them in basic page layout
  * @param {string} path - path of template
  * @param {string} id - id of target-div for template
  * @returns 
@@ -26,8 +24,7 @@ async function addLayoutElements(path, id) {
   )
 }
 
-/**
- * get initials from sessionStorage and add them to the header-avatar
+/** * get initials from sessionStorage and add them to the header-avatar
  */
 function displayInitialsInHeader() {
   const name = sessionStorage.getItem('headerInitials');
@@ -36,8 +33,7 @@ function displayInitialsInHeader() {
   }
 }
 
-/**
- * attach dropdown menu to header, define click events (select menu entry / close dropdown)
+/** * attach dropdown menu to header, define click events (select menu entry / close dropdown)
  */
 function initDropdown() {
   const initials = document.getElementById("initials");
@@ -45,11 +41,8 @@ function initDropdown() {
   initials.addEventListener("click", (e) => {
     e.stopPropagation();
     const isOpen = dropdown.classList.toggle("show");
-    if (isOpen) {
-      dropdown.removeAttribute("aria-hidden");
-    } else {
-      dropdown.setAttribute("aria-hidden", "true");
-    }
+    if (isOpen) dropdown.removeAttribute("aria-hidden");
+    else dropdown.setAttribute("aria-hidden", "true");
   });
   document.addEventListener("click", (e) => {
     if (!e.target.closest(".profile-wrapper")) {
@@ -59,8 +52,7 @@ function initDropdown() {
   });
 }
 
-/**
- * security function: user who is not logged in can access to "privacy policy" and "legal notice".
+/** * security function: user who is not logged in can access to "privacy policy" and "legal notice".
  * from there, access to "summary", "board", "addTask" and "contacts" is blocked by hiding these icons.
  */
 function partiallyHideSidebar() {
@@ -74,8 +66,7 @@ function partiallyHideSidebar() {
   }
 }
 
-/**
- * change colors of the nav-element which corresponds to the page where we are.
+/** * change colors of the nav-element which corresponds to the page where we are.
  */
 function highlightCurrentPage() {
   const pageIds = ["summary", "add-task", "board-site", "contacts", "privacy-policy", "legal-notice"];
@@ -86,8 +77,7 @@ function highlightCurrentPage() {
   }
 }
 
-/**
- * depending on dark-/light-mode, another favicon is used.
+/** * depending on dark-/light-mode, another favicon is used.
  */
 function updateFaviconForTheme() {
   const favicon = document.getElementById("favicon");
@@ -98,8 +88,7 @@ function updateFaviconForTheme() {
 }
 window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', updateFaviconForTheme);
 
-/**
- * UA sniffing (https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Browser_detection_using_the_user_agent)
+/** * UA sniffing (https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Browser_detection_using_the_user_agent)
  * Firefox doesn't accept css-properties for "body"; move it to child-element "app-container"
  * Concerns customized scrollbar, esp. in mobilde version.
  */

@@ -1,5 +1,4 @@
-/**
- * Adds a click event listener to all checkboxes in the task detail overlays to toggle their checked state.
+/** * Adds a click event listener to all checkboxes in the task detail overlays to toggle their checked state.
  */
 document.addEventListener("DOMContentLoaded", () => {
   const overlays = [
