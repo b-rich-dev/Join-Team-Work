@@ -42,8 +42,10 @@ You can open `index.html` directly in your browser, or use a local server for de
 - `index.html`, `main.js` – Entry point and main logic
 - `html/` – App pages (board, summary, contacts, help, legal notice, privacy policy, etc.)
 - `js/` – JavaScript modules (events, pages, templates, ui, utils, data)
+  - `js/vendor/` – External libraries (not part of our codebase)
 - `styles/` – CSS files for layout and components
 - `assets/` – Fonts, icons, images
+- `json/` – Data files for testing and reset functionality
 
 ### 4. Usage
 
@@ -59,6 +61,23 @@ You can open `index.html` directly in your browser, or use a local server for de
 - All logic is written in modular JavaScript files under `js/`
 - Customize styles in the `styles/` folder
 - Backend integration is handled via Firebase (see `js/data/task-to-firbase.js`)
+
+### 6. External Libraries
+
+This project uses the following external libraries (located in `js/vendor/`):
+
+- **Viewer.js v1.11.7** – Image viewer for contact avatars and task attachments
+  - Source: https://fengyuanchen.github.io/viewerjs
+  - License: MIT
+  - Files: `js/vendor/viewer.js` and `styles/viewer.css`
+
+### 7. Sample Data & Reset
+
+To reset the app to default state with sample data:
+
+- **Location:** `json/total/TOTAL-RESET.json`
+- **Contains:** Sample tasks, contacts, and board configuration
+- **Usage:** Use Firebase import or local storage reset functionality
 
 ## 📄 License & Credits
 

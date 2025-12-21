@@ -1,0 +1,40 @@
+{
+  "name": "join-team-work",
+  "version": "1.0.0",
+  "description": "A modern web-based Kanban app for efficient task management and team collaboration",
+  "main": "index.html",
+  "scripts": {
+    "start": "echo 'Open index.html in your browser' && exit 0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/Join-Team-Work.git"
+  },
+  "keywords": [
+    "kanban",
+    "task-management",
+    "collaboration",
+    "project-management",
+    "vanilla-js"
+  ],
+  "authors": [
+    "Developer Akademie Team"
+  ],
+  "license": "SEE LICENSE IN legal-notice.html",
+  "dependencies": {},
+  "devDependencies": {},
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "externalLibraries": {
+    "viewer.js": {
+      "version": "1.11.7",
+      "source": "https://fengyuanchen.github.io/viewerjs",
+      "license": "MIT",
+      "files": [
+        "js/vendor/viewer.js",
+        "styles/viewer.css"
+      ]
+    }
+  }
+}
