@@ -225,6 +225,11 @@
   .container.smr-margin {
     padding: 46px 0 !important;
     justify-content: center;
+    height: 100%;
+
+    h1 {
+      font-size: 40px;
+    }
   }
 
   .smry-title {

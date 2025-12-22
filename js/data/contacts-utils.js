@@ -60,10 +60,28 @@ function sortGroupedContacts(groupedContacts) {
 }
 
 /** * Groups and sorts contacts by the first initial of their name.
+ * Extracts the current user (if logged in) into a separate "YOU" group.
  * @param {object[]} contactsArray
- * @returns {object} Sorted contact groups.
+ * @returns {object} Object with 'currentUser', 'regularGroups' keys.
  */
 export function groupContactsByInitials(contactsArray) {
-  const unstructuredGroups = groupByInitial(contactsArray);
-  return sortGroupedContacts(unstructuredGroups);
+  const currentUserName = sessionStorage.getItem('currentUser');
+  let currentUserContact = null;
+  let otherContacts = contactsArray;
+  
+  if (currentUserName) {
+    const userIndex = contactsArray.findIndex(contact => contact.name === currentUserName);
+    if (userIndex !== -1) {
+      currentUserContact = contactsArray[userIndex];
+      otherContacts = contactsArray.filter((_, index) => index !== userIndex);
+    }
+  }
+  
+  const unstructuredGroups = groupByInitial(otherContacts);
+  const sortedGroups = sortGroupedContacts(unstructuredGroups);
+  
+  return {
+    currentUser: currentUserContact,
+    regularGroups: sortedGroups
+  };
 }

@@ -225,7 +225,7 @@
       ],
       "columnID": "inProgress",
       "createdAt": "21.06.2025",
-      "deadline": "22.08.2025",
+      "deadline": "22.08.2026",
       "description": "Nach Erstellung des Kanban Projektes und der Überprüfung der Checkliste wird das Projekt eingereicht",
       "priority": "urgent",
       "subtasksCompleted": "1",
@@ -263,7 +263,7 @@
       ],
       "columnID": "review",
       "createdAt": "10.05.2025",
-      "deadline": "18.08.2025",
+      "deadline": "18.08.2026",
       "description": "Es gilt, GitHub zu überprüfen und alle Branches in den 'main'-Branch zu mergen, damit alle Änderungen dort konsolidiert sind",
       "priority": "medium",
       "subtasksCompleted": 1,
@@ -305,7 +305,7 @@
       ],
       "columnID": "done",
       "createdAt": "12.06.2025",
-      "deadline": "31.12.2025",
+      "deadline": "31.12.2026",
       "description": "Alle Bugs und Design Probleme werden in einer Checkliste zusammengefasst um sie im Anschluss abzuarbeiten.",
       "priority": "urgent",
       "subtaskCompleted": "3",
@@ -331,7 +331,7 @@
       "checkedSubtasks": "",
       "columnID": "review",
       "createdAt": "22.06.2025",
-      "deadline": "19.10.2025",
+      "deadline": "19.10.2026",
       "description": "Der Content wird über eine Funktion dynamisch erzeugt, funktioniert diese nicht wird der Content auf keiner Seite angezeigt",
       "priority": "urgent",
       "subtaskCompleted": "0",
@@ -352,7 +352,7 @@
       ],
       "columnID": "inProgress",
       "createdAt": "19.06.2025",
-      "deadline": "22.12.2025",
+      "deadline": "22.12.2026",
       "description": "In dieser Besprechung wird festgelegt in welcher Reihenfolge die Aufgaben der Punch Liste erledigt werden",
       "priority": "low",
       "subtaskCompleted": "1",
@@ -379,7 +379,7 @@
       ],
       "columnID": "done",
       "createdAt": "09.06.2025",
-      "deadline": "17.09.2025",
+      "deadline": "17.09.2026",
       "description": "In dieser Besprechung soll geklärt werden wie lange jeder für seine Aufgaben braucht damit wir einen Abgabetermin eingrenzen können",
       "priority": "medium",
       "subtaskCompleted": "3",
@@ -397,41 +397,77 @@
     }
   },
   "users": {
-    "demoUser-001": {
-      "associatedContacts": "",
-      "displayName": "User Uwe",
-      "email": "demo1@example.de",
-      "password": "uu54321"
+    "user-001": {
+      "associatedContacts": "contact-001",
+      "displayName": "Mathias Voigt",
+      "email": "Mathias@voigt-vital.de",
+      "password": "MV001000"
     },
-    "demoUser-002": {
-      "associatedContacts": "",
-      "displayName": "Jim Knopf",
-      "email": "bahnhof@lummlerland.ml",
-      "passwrd": "wilde13"
+    "user-002": {
+      "associatedContacts": "contact-002",
+      "displayName": "Claudia Wick",
+      "email": "claudia@wick.test.de",
+      "password": "CW002000"
     },
-    "demoUser-003": {
-      "associatedContacts": "",
-      "displayName": "Tyrannosaurus Rex",
-      "email": "monster@jurassic.parc",
-      "password": "dino1993"
+    "user-003": {
+      "associatedContacts": "contact-003",
+      "displayName": "Dominik Rapp",
+      "email": "dominik.rapp@join.de",
+      "password": "DR003000"
     },
-    "demoUser-004": {
-      "associatedContacts": "",
-      "displayName": "Franzi Preuss",
-      "email": "winner@biathlon.org",
-      "password": "wc2025"
+    "user-004": {
+      "associatedContacts": "contact-004",
+      "displayName": "Eugen Birich",
+      "email": "info@birich.it",
+      "password": "EB004000"
     },
-    "demoUser-005": {
-      "associatedContacts": "",
-      "displayName": "Tom Sawyer",
-      "email": "home@tante.polly",
-      "password": "Mark02"
+    "user-005": {
+      "associatedContacts": "contact-005",
+      "displayName": "Anna Schmidt",
+      "email": "anna.schmidt@example.de",
+      "password": "AS005000"
     },
-    "demoUser-006": {
-      "associatedContacts": "",
+    "user-006": {
+      "associatedContacts": "contact-006",
+      "displayName": "Peter Paulsen",
+      "email": "peter.pauli@Hamburg.de",
+      "password": "PP006000"
+    },
+    "user-007": {
+      "associatedContacts": "contact-007",
+      "displayName": "Sara Meier",
+      "email": "s.meier@demo.au",
+      "password": "SM007000"
+    },
+    "user-008": {
+      "associatedContacts": "contact-008",
+      "displayName": "Fritz Walter",
+      "email": "Fritz.W@lter.de",
+      "password": "FW008000"
+    },
+    "user-009": {
+      "associatedContacts": "contact-009",
+      "displayName": "Monika Möwenherz",
+      "email": "M.M@join.de",
+      "password": "MM009000"
+    },
+    "user-010": {
+      "associatedContacts": "contact-010",
+      "displayName": "Frederike Fuchs-Schreck",
+      "email": "Fuchs-Schreck@Hühnerstall.de",
+      "password": "FF010000"
+    },
+    "user-011": {
+      "associatedContacts": "contact-011",
+      "displayName": "Gisela Gänsehaut",
+      "email": "Gänsehaut@hotmail.de",
+      "password": "GG011000"
+    },
+    "user-012": {
+      "associatedContacts": "contact-012",
       "displayName": "Sofia Müller",
       "email": "sofiam@gmail.com",
-      "password": "mypassword123"
+      "password": "SM012000"
     }
   }
 }

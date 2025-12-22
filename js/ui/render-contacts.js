@@ -18,11 +18,23 @@ export async function renderContacts() {
     return;
   }
   const cleanedContactsArray = Object.values(cleanContacts(rawContacts));
-  const groupedContacts = groupContactsByInitials(cleanedContactsArray);
+  const { currentUser, regularGroups } = groupContactsByInitials(cleanedContactsArray);
   const listContainer = document.querySelector('.contacts-list');
   resetContactListUI(listContainer);
   setAllContacts(cleanedContactsArray);
-  renderGroupedSections(listContainer, groupedContacts);
+  
+  if (currentUser) renderYouSection(listContainer, currentUser);
+  
+  renderGroupedSections(listContainer, regularGroups);
+}
+
+/** * Renders the "YOU" section for the logged-in user.
+ * @param {HTMLElement} container - The DOM element where contacts should be rendered.
+ * @param {object} userContact - The contact object of the logged-in user.
+ */
+function renderYouSection(container, userContact) {
+  const sectionHTML = buildContactSectionHTML('You', [userContact]);
+  container.insertAdjacentHTML('beforeend', sectionHTML);
 }
 
 /** * Renders all contact groups (A–Z) into the contact list container.

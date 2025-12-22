@@ -57,6 +57,11 @@ async function objectBuilding(requestedCategory) {
   let objectFields = chooseFieldsMap(requestedCategory);
   const [pushObjectId, entryData] = createNewObject(objectFields, requestedCategory, "demoUser");
   await sendNewObject(pushObjectId, entryData, requestedCategory);
+  
+  if (requestedCategory === 'users') {
+    await createContactForNewUser(entryData, pushObjectId);
+  }
+  
   confirmSignup();
 }
 
@@ -225,6 +230,55 @@ function determineStoragePath(pushObjectId, requestedCategory) {
   return path;
 }
 
+/** * Creates a contact for a newly registered user.
+ * @param {object} userData - The user data object.
+ * @param {string} userId - The ID of the new user.
+ */
+async function createContactForNewUser(userData, userId) {
+  const contactsData = await getFirebaseData('contacts');
+  const contactsContainer = contactsData || {};
+
+  const contactId = getNextContactId(contactsContainer);
+
+  const contactData = {
+    name: userData.displayName,
+    email: userData.email,
+    phone: "",
+    initials: getInitials(userData.displayName),
+    avatarColor: getRandomColor(),
+    assignedTo: ""
+  };
+  
+
+  await saveToFirebase(`contacts/${contactId}`, contactData);
+  await linkUserToContact(userId, contactId);
+}
+
+/** * Gets the next available contact ID.
+ * @param {object} contactsContainer - Object containing all existing contacts.
+ * @returns {string} The next contact ID.
+ */
+function getNextContactId(contactsContainer) {
+  if (!contactsContainer || Object.keys(contactsContainer).length === 0) {
+    return 'contact-001';
+  }
+  
+  const contactKeys = Object.keys(contactsContainer);
+  const lastKey = contactKeys.at(-1);
+  const [prefix, numberStr] = lastKey.split("-");
+  const nextNumber = (Number(numberStr) + 1).toString().padStart(3, '0');
+  return `${prefix}-${nextNumber}`;
+}
+
+/** * Links a user to their contact by updating the associatedContacts field.
+ * @param {string} userId - The ID of the user.
+ * @param {string} contactId - The ID of the contact.
+ */
+async function linkUserToContact(userId, contactId) {
+  const path = `users/${userId}/associatedContacts`;
+  await saveToFirebase(path, contactId);
+}
+
 /** * Update the local data object.
  * @param {object} localObject - The new object to merge into the local data.
  */
@@ -233,8 +287,8 @@ function updateLocalData(localObject) {
 }
 
 /** * upload function for data traffic to Firebase.
- * @param {string} path - fragment of path (pattern: "tasks/task009").
- * @param {object} data - object containing all taks details.
+ * @param {string} path - fragment of path (pattern: "tasks/task009" or "users/user-001/associatedContacts").
+ * @param {object|string} data - object containing all details or a simple string value.
  */
 async function saveToFirebase(path, data) {
   const url = `https://join-46697-default-rtdb.europe-west1.firebasedatabase.app/${path}.json`;
