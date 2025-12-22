@@ -1,5 +1,4 @@
-/**
- * Fetches data from the Firebase database.
+/** * Fetches data from the Firebase database.
  * @returns {Promise<object|null>} The Firebase data object or null if an error occurs.
  */
 export async function getFirebaseData() {
@@ -19,8 +18,7 @@ export async function getFirebaseData() {
   }
 }
 
-/**
- * Performs a lightweight health check against Firebase RTDB.
+/** * Performs a lightweight health check against Firebase RTDB.
  * Returns status info useful for UI diagnostics.
  */
 export async function checkFirebaseHealth() {

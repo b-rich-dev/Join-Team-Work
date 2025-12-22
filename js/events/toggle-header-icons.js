@@ -1,6 +1,4 @@
-/**
- *
- * @param {string} window.location.pathname - The current page path used
+/** * @param {string} window.location.pathname - The current page path used
  * to determine whether certain header UI elements should be hidden.
  */
 document.addEventListener("DOMContentLoaded", function () {

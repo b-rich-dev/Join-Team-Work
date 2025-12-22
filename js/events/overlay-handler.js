@@ -1,16 +1,10 @@
-/**
- * Loads overlay HTML from a template file, inserts it into the overlay container, and initializes listeners.
+let currentOverlay = null;
+
+/** * Loads overlay HTML from a template file and appends it to the overlay container if not already loaded.
  * @param {string} templatePath - Path to the HTML template file.
  * @param {string} overlayId - The ID to assign to the loaded overlay element.
- * @param {function} [afterLoad] - Optional callback after loading and inserting the overlay.
- * @returns {Promise<HTMLElement|null>} - The loaded overlay element or null.
- */
-/**
- * Loads overlay HTML from a template file, inserts it into the overlay container, and initializes listeners.
- * @param {string} templatePath - Path to the HTML template file.
- * @param {string} overlayId - The ID to assign to the loaded overlay element.
- * @param {function} [afterLoad] - Optional callback after loading and inserting the overlay.
- * @returns {Promise<HTMLElement|null>} - The loaded overlay element or null.
+ * @param {function} [afterLoad] - Optional callback to execute after the overlay is loaded.
+ * @returns {Promise<HTMLElement|null>} - The loaded overlay element or null if loading failed.
  */
 export async function loadOverlayHtmlOnce(templatePath, overlayId, afterLoad) {
   const overlayContainer = document.getElementById("overlay-container");
@@ -31,8 +25,7 @@ export async function loadOverlayHtmlOnce(templatePath, overlayId, afterLoad) {
   return null;
 }
 
-/**
- * Fetches the template and creates the overlay element.
+/** * Fetches the template and creates the overlay element.
  * @param {string} templatePath - Path to the HTML template file.
  * @param {string} overlayId - The ID to assign to the loaded overlay element.
  * @returns {Promise<HTMLElement|null>} - The created overlay element or null.
@@ -47,7 +40,6 @@ async function fetchAndCreateOverlay(templatePath, overlayId) {
   if (overlayElement) overlayElement.id = overlayId;
   return overlayElement || null;
 }
-let currentOverlay = null;
 
 /** Retrieves an element by its ID and ensures it exists.
  * @param {string} id - The ID of the element to retrieve.
@@ -55,8 +47,8 @@ let currentOverlay = null;
  */
 function getValidatedElementById(id) {
   const element = document.getElementById(id);
-  if (!element) {
-  }
+  if (!element) return null;
+
   return element;
 }
 
@@ -67,9 +59,8 @@ function getValidatedElementById(id) {
  */
 function getValidatedQuerySelector(parent, selector) {
   const element = parent.querySelector(selector);
-  if (!element) {
-    return null;
-  }
+  if (!element) return null;
+
   return element;
 }
 
@@ -130,11 +121,7 @@ function attachCloseButtonListener(button, overlayId) {
   if (button) {
     button.addEventListener("click", async () => {
       closeSpecificOverlay(overlayId);
-      if (
-        overlayId === "overlay-task-detail" ||
-        overlayId === "overlay-task-detail-edit" ||
-        overlayId === "overlay"
-      ) {
+      if (overlayId === "overlay-task-detail" || overlayId === "overlay-task-detail-edit" || overlayId === "overlay") {
         await refreshBoardContentOnly();
       }
     });
@@ -150,11 +137,7 @@ function attachBackgroundClickListener(overlay, overlayId) {
   overlay.addEventListener("click", async (event) => {
     if (event.target === overlay) {
       closeSpecificOverlay(overlayId);
-      if (
-        overlayId === "overlay-task-detail" ||
-        overlayId === "overlay-task-detail-edit" ||
-        overlayId === "overlay"
-      ) {
+      if (overlayId === "overlay-task-detail" || overlayId === "overlay-task-detail-edit" || overlayId === "overlay") {
         await refreshBoardContentOnly();
       }
     }
@@ -167,43 +150,25 @@ function attachBackgroundClickListener(overlay, overlayId) {
  */
 function attachEscapeKeyListener(overlay, overlayId) {
   document.addEventListener("keydown", async (event) => {
-    if (
-      event.key === "Escape" &&
-      overlay &&
-      !overlay.classList.contains("overlay-hidden")
-    ) {
+    if (event.key === "Escape" && overlay && !overlay.classList.contains("overlay-hidden")) {
       closeSpecificOverlay(overlayId);
-      if (
-        overlayId === "overlay-task-detail" ||
-        overlayId === "overlay-task-detail-edit" ||
-        overlayId === "overlay"
-      ) {
+      if (overlayId === "overlay-task-detail" || overlayId === "overlay-task-detail-edit" || overlayId === "overlay") {
         await refreshBoardContentOnly();
       }
     }
   });
 }
 
-/** * Opens a specific overlay by its ID.
- * Closes any existing overlay first, then sets the new overlay as current.
- * @param {string} overlayId - The ID of the overlay to open.
- */
-// ...existing code...
-
-/** Ensures that the overlay CSS is included in the <head>.
+/** Ensures the overlay CSS is loaded into the document head.
  * @param {string} href - The path to the CSS file (relative to the main HTML document)
+ * @returns {Promise<void>} Resolves when the CSS is loaded.
  */
 function ensureOverlayCSS(href) {
   return new Promise((resolve) => {
-    const existing = [
-      ...document.head.querySelectorAll('link[rel="stylesheet"]'),
-    ].find((l) => l.href.includes(href));
+    const existing = [...document.head.querySelectorAll('link[rel="stylesheet"]')].find((l) => l.href.includes(href));
     if (existing) {
-      if (existing.sheet) {
-        resolve();
-      } else {
-        existing.addEventListener("load", resolve);
-      }
+      if (existing.sheet) resolve();
+      else existing.addEventListener("load", resolve);
       return;
     }
     const link = document.createElement("link");
@@ -214,92 +179,96 @@ function ensureOverlayCSS(href) {
   });
 }
 
-/** Closes a specific overlay by its ID.
- * Sets the overlay visibility to hidden and clears the current overlay reference.
- * @param {string} overlayId - The ID of the overlay to close.
- */
-/** Removes the overlay CSS from the <head>.
- * @param {string} href - The path to the CSS file (relative to the main HTML document)
+/** * Opens a specific overlay by ID.
+ * @param {string} overlayId - The ID of the overlay to open.
  */
 export async function openSpecificOverlay(overlayId) {
   closeExistingOverlay(overlayId);
   const overlay = getValidatedElementById(overlayId);
   if (!overlay) return;
-  if (overlayId === "overlay-task-detail-edit") {
-    await ensureOverlayCSS("../styles/overlay-task-detail-edit.css");
-  } else if (overlayId === "overlay-task-detail") {
-    await ensureOverlayCSS("../styles/overlay-task-details.css");
-  }
+  if (overlayId === "overlay-task-detail-edit") await ensureOverlayCSS("../styles/overlay-task-detail-edit.css");
+  else if (overlayId === "overlay-task-detail") await ensureOverlayCSS("../styles/overlay-task-details.css");
+
   setOverlayVisibility(overlay, true);
   manageBodyScroll(true);
   updateCurrentOverlay(overlay);
-  // Reset Attachments beim Öffnen des Add-Task-Overlays
+
   if (overlayId === "overlay" && typeof window.clearAttachments === "function") {
     try { window.clearAttachments(); } catch (e) { /* noop */ }
   }
 }
-export function closeSpecificOverlay(overlayId) {
-  const overlay = getValidatedElementById(overlayId);
-  if (!overlay) return;
-  
-  // Move focus away from overlay before hiding it to prevent aria-hidden accessibility violation
+
+/** * Handles focus management when closing an overlay
+ * @param {HTMLElement} overlay - The overlay element
+ */
+function handleFocusManagement(overlay) {
   if (overlay.contains(document.activeElement)) {
     document.activeElement.blur();
-    // Try to focus on body or a safe element outside the overlay
     document.body.focus();
   }
-  
-  setOverlayVisibility(overlay, false);
-  manageBodyScroll(false);
-  clearCurrentOverlay(overlayId);
-  // Viewer-Instanz im Task-Details-Overlay aufräumen
+}
+
+/** * Cleans up overlay-specific resources (viewer, CSS, attachments)
+ * @param {string} overlayId - The ID of the overlay
+ */
+function cleanupOverlayResources(overlayId) {
   if (overlayId === "overlay-task-detail" && window.taskDetailViewer) {
     try { window.taskDetailViewer.destroy(); } catch (_) { /* noop */ }
     window.taskDetailViewer = null;
   }
-  // After closing overlays, update the board content so changes are visible
-  if (
-    overlayId === "overlay-task-detail" ||
-    overlayId === "overlay-task-detail-edit" ||
-    overlayId === "overlay"
-  ) {
+
+  if (overlayId === "overlay-task-detail-edit") removeOverlayCSS("../styles/overlay-task-detail-edit.css");
+  else if (overlayId === "overlay-task-detail") removeOverlayCSS("../styles/overlay-task-details.css");
+
+  if (overlayId === "overlay" && typeof window.clearAttachments === "function") {
+    try { window.clearAttachments(); } catch (e) { /* noop */ }
+  }
+}
+
+/** * Refreshes board content if the overlay requires it
+ * @param {string} overlayId - The ID of the overlay
+ */
+function refreshBoardIfNeeded(overlayId) {
+  if (overlayId === "overlay-task-detail" || overlayId === "overlay-task-detail-edit" || overlayId === "overlay") {
     try {
-      // fire-and-forget; callers need not await
       refreshBoardContentOnly();
     } catch (e) {
       console.error("Failed to refresh board after closing overlay:", e);
     }
   }
-  if (overlayId === "overlay-task-detail-edit") {
-    removeOverlayCSS("../styles/overlay-task-detail-edit.css");
-  } else if (overlayId === "overlay-task-detail") {
-    removeOverlayCSS("../styles/overlay-task-details.css");
-  }
-  // Reset Attachments beim Schließen des Add-Task-Overlays
-  if (overlayId === "overlay" && typeof window.clearAttachments === "function") {
-    try { window.clearAttachments(); } catch (e) { /* noop */ }
-  }
 }
+
+/** * Closes a specific overlay by ID.
+ * @param {string} overlayId - The ID of the overlay to close.
+ */
+export function closeSpecificOverlay(overlayId) {
+  const overlay = getValidatedElementById(overlayId);
+  if (!overlay) return;
+
+  handleFocusManagement(overlay);
+
+  setOverlayVisibility(overlay, false);
+  manageBodyScroll(false);
+  clearCurrentOverlay(overlayId);
+
+  cleanupOverlayResources(overlayId);
+  refreshBoardIfNeeded(overlayId);
+}
+
+/** * Removes the overlay CSS from the <head>.
+ * @param {string} href - The path to the CSS file (relative to the main HTML document)
+ */
 function removeOverlayCSS(href) {
   const links = [...document.head.querySelectorAll('link[rel="stylesheet"]')];
   for (const link of links) {
-    if (
-      link.href.endsWith(href) ||
-      link.href.includes(href) ||
-      link.href.split("/").pop() === href.split("/").pop()
-    ) {
+    if (link.href.endsWith(href) || link.href.includes(href) || link.href.split("/").pop() === href.split("/").pop()) {
       link.parentNode.removeChild(link);
     }
   }
 }
 
-/** Initializes event listeners for the overlay.
- * Attaches listeners to the close button, background click, and modal content.
- * @param {string} overlayId - The ID of the overlay to initialize.
- */
-/**
- * Finds the modal content element inside the overlay.
- * @param {HTMLElement} overlay - The overlay element to search within.
+/** * Finds the modal content element within the overlay.
+ * @param {HTMLElement} overlay - The overlay element.
  * @returns {HTMLElement|null} The modal content element if found, otherwise null.
  */
 function findModalContent(overlay) {
@@ -315,8 +284,7 @@ function findModalContent(overlay) {
   );
 }
 
-/**
- * Adds event listeners to subtask checkboxes inside the overlay.
+/** * Adds event listeners to subtask checkboxes inside the overlay.
  * @param {HTMLElement} overlay - The overlay element containing the checkboxes.
  */
 function addSubtaskCheckboxListeners(overlay) {
@@ -338,16 +306,8 @@ function addSubtaskCheckboxListeners(overlay) {
   });
 }
 
-/**
- * Initializes event listeners for the overlay.
- * Attaches listeners to the close button, background click, modal content, and Escape key.
- * Adds subtask checkbox listeners for task detail overlays.
- * @param {string} overlayId - The ID of the overlay to initialize.
- */
-/**
- * Initializes event listeners for the overlay.
- * Attaches listeners to the close button, background click, modal content, and Escape key.
- * Adds subtask checkbox listeners for task detail overlays.
+/** * Initializes event listeners for the overlay.
+ * Attaches listeners to the close button, background click, and modal content.
  * @param {string} overlayId - The ID of the overlay to initialize.
  */
 export function initOverlayListeners(overlayId) {
@@ -363,17 +323,13 @@ export function initOverlayListeners(overlayId) {
   }
 }
 
-/**
- * Sets up listeners for close button, background, modal content, and Escape key.
+/** * Sets up listeners for close button, background, modal content, and Escape key.
  * @param {HTMLElement} overlay - The overlay element.
  * @param {string} overlayId - The ID of the overlay.
  */
 function setupOverlayListeners(overlay, overlayId) {
   const modalContent = findModalContent(overlay);
-  const closeModalButton = getValidatedQuerySelector(
-    overlay,
-    ".close-modal-btn"
-  );
+  const closeModalButton = getValidatedQuerySelector(overlay, ".close-modal-btn");
   attachCloseButtonListener(closeModalButton, overlayId);
   attachBackgroundClickListener(overlay, overlayId);
   attachEscapeKeyListener(overlay, overlayId);
@@ -387,8 +343,7 @@ export function redirectOnSmallScreen() {
   }
 }
 
-/**
- * Re-renders only the board content without reloading the entire page.
+/** * Re-renders only the board content without reloading the entire page.
  * @param {void} - No parameters required.
  * @returns {Promise<void>} Resolves when the board content is refreshed.
  */

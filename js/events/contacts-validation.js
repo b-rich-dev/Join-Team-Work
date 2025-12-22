@@ -1,55 +1,37 @@
-/**
- * Tracks whether live validation for the "New Contact" form
- * has been enabled to avoid adding duplicate event listeners.
- * @type {boolean}
- */
 let newFormLiveEnabled = false;
-
-/**
- * Tracks whether live validation for the "Edit Contact" form
- * has been enabled to avoid adding duplicate event listeners.
- * @type {boolean}
- */
 let editFormLiveEnabled = false;
 
-/**
- * Retrieves the trimmed value of the "New Contact Name" input.
+/** * Retrieves the trimmed value of the "New Contact Name" input.
  * @returns {string}
  */
 export function getNewContactName() { return document.getElementById('newContactName')?.value.trim() || ''; }
 
-/**
- * Retrieves the trimmed value of the "New Contact Email" input.
+/** * Retrieves the trimmed value of the "New Contact Email" input.
  * @returns {string}
  */
 export function getNewContactEmail() { return document.getElementById('newContactEmail')?.value.trim() || ''; }
 
-/**
- * Retrieves the trimmed value of the "New Contact Phone" input.
+/** * Retrieves the trimmed value of the "New Contact Phone" input.
  * @returns {string}
  */
 export function getNewContactPhone() { return document.getElementById('newContactPhone')?.value.trim() || ''; }
 
-/**
- * Retrieves the trimmed value of the "Edit Contact Name" input.
+/** * Retrieves the trimmed value of the "Edit Contact Name" input.
  * @returns {string}
  */
 export function getEditName()  { return document.getElementById('editNameInput')?.value.trim() || ''; }
 
-/**
- * Retrieves the trimmed value of the "Edit Contact Email" input.
+/** * Retrieves the trimmed value of the "Edit Contact Email" input.
  * @returns {string}
  */
 export function getEditEmail() { return document.getElementById('editEmailInput')?.value.trim() || ''; }
 
-/**
- * Retrieves the trimmed value of the "Edit Contact Phone" input.
+/** * Retrieves the trimmed value of the "Edit Contact Phone" input.
  * @returns {string}
  */
 export function getEditPhone() { return document.getElementById('editPhoneInput')?.value.trim() || ''; }
 
-/**
- * Validates the contact form fields and returns error messages per field.
+/** * Validates the contact form fields and returns error messages per field.
  * @param {string} name - Full name (expects first + last separated by space).
  * @param {string} email - Email address.
  * @param {string} phone - Phone number.
@@ -69,8 +51,7 @@ export function validateCustomContactForm(name, email, phone) {
   return errors;
 }
 
-/**
- * Thin wrapper over validateCustomContactForm for edit flows.
+/** * Thin wrapper over validateCustomContactForm for edit flows.
  * @param {string} name
  * @param {string} email
  * @param {string} phone
@@ -80,8 +61,7 @@ export function validateEditContact(name, email, phone) {
   return validateCustomContactForm(name, email, phone);
 }
 
-/**
- * Toggles the "input-error" CSS class on an input element.
+/** * Toggles the "input-error" CSS class on an input element.
  * @param {HTMLElement} inputEl - Target input element.
  * @param {boolean} hasError - Whether the field is invalid.
  * @returns {void}
@@ -91,8 +71,7 @@ export function toggleErrorClass(inputEl, hasError) {
   inputEl.classList.toggle('input-error', !!hasError);
 }
 
-/**
- * Displays validation error messages for the "Add New Contact" form.
+/** * Displays validation error messages for the "Add New Contact" form.
  * @param {{ name: string, email: string, phone: string }} errors
  * @returns {void}
  */
@@ -108,8 +87,7 @@ export function showNewContactErrors(errors) {
   toggleErrorClass(phoneInput, !!errors.phone);
 }
 
-/**
- * Displays validation error messages for the "Edit Contact" form.
+/** * Displays validation error messages for the "Edit Contact" form.
  * @param {{ name: string, email: string, phone: string }} errors
  * @returns {void}
  */
@@ -125,8 +103,7 @@ export function showEditContactErrors(errors) {
   toggleErrorClass(phoneInput, !!errors.phone);
 }
 
-/**
- * Clears all validation messages and error classes for the edit form inputs.
+/** * Clears all validation messages and error classes for the edit form inputs.
  * @returns {void}
  */
 export function clearEditContactErrors() {
@@ -139,8 +116,7 @@ export function clearEditContactErrors() {
     });
 }
 
-/**
- * Adds live validation to a single input field.
+/** * Adds live validation to a single input field.
  * Uses a dataset flag to avoid duplicate listeners.
  * @param {string} inputId - The input element's id.
  * @param {() => string} getValue - Getter returning the current value.
@@ -163,8 +139,7 @@ export function setupLiveFieldValidation(inputId, getValue, errorId, validateFn)
   input.dataset.liveValidation = 'true';
 }
 
-/**
- * Enables live validation for the new contact form fields (name, email, phone).
+/** * Enables live validation for the new contact form fields (name, email, phone).
  * @returns {void}
  */
 export function setupLiveValidationForNewContactForm() {
@@ -173,8 +148,7 @@ export function setupLiveValidationForNewContactForm() {
   setupLiveFieldValidation('newContactPhone', getNewContactPhone, 'phoneError', v => validateCustomContactForm('','',v).phone);
 }
 
-/**
- * Enables live validation for the edit contact form fields (name, email, phone).
+/** * Enables live validation for the edit contact form fields (name, email, phone).
  * @returns {void}
  */
 export function setupLiveValidationForEditContactForm() {
@@ -183,8 +157,7 @@ export function setupLiveValidationForEditContactForm() {
   setupLiveFieldValidation('editPhoneInput', getEditPhone, 'editPhoneError', v => validateCustomContactForm('','',v).phone);
 }
 
-/**
- * Validates the "New Contact" payload and, on first error, enables live validation.
+/** * Validates the "New Contact" payload and, on first error, enables live validation.
  * @param {{ name: string, email: string, phone: string }} param0
  * @returns {boolean} True if valid; otherwise false.
  */
@@ -201,8 +174,7 @@ export function validateNewContactOrEnableLive({ name, email, phone }) {
   return true;
 }
 
-/**
- * Validates the "Edit Contact" payload and, on first error, enables live validation.
+/** * Validates the "Edit Contact" payload and, on first error, enables live validation.
  * @param {{ name: string, email: string, phone: string }} param0
  * @returns {boolean} True if valid; otherwise false.
  */
@@ -219,15 +191,13 @@ export function validateEditedContactOrEnableLive({ name, email, phone }) {
   return true;
 }
 
-/**
- * Resets the live-validation "enabled" flag for the new contact form.
+/** * Resets the live-validation "enabled" flag for the new contact form.
  * Call this when (re)opening the new contact overlay.
  * @returns {void}
  */
 export function resetNewLiveValidationFlag()  { newFormLiveEnabled  = false; }
 
-/**
- * Resets the live-validation "enabled" flag for the edit contact form.
+/** * Resets the live-validation "enabled" flag for the edit contact form.
  * Call this when (re)opening the edit contact overlay.
  * @returns {void}
  */

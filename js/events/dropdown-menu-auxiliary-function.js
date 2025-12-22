@@ -1,6 +1,24 @@
 import { firebaseData } from "../../main.js";
 import { currentContacts, getAssignedToOptions, setCategory, toggleCategoryDropdown, toggleSelectContacts, toggleAssignedToDropdown, setSortedContacts, selectedCategory, selectedContacts, resetDropdownState, setBorderColorGrey, contactsMap } from "./dropdown-menu.js";
 
+/** Clears the selected assigned contacts in the dropdown.
+ */
+const INVALID_FIELDS_IDS = [
+  "title",
+  "datepicker",
+  "dropdown-category",
+  "dropdown-assigned-to",
+];
+
+/** Clears the invalid fields by removing the "invalid" class and hiding error messages.
+ */
+const ERROR_FIELDS_IDS = [
+  "title-error",
+  "due-date-error",
+  "assigned-to-error",
+  "category-error",
+];
+
 /** Initializes the dropdown menus for category and assigned contacts.
  * Sets up event listeners and populates the dropdowns with contacts.
  */
@@ -29,61 +47,97 @@ function setupCategoryDropdown() {
   });
 }
 
-/** Clears the selected assigned contacts in the dropdown.
+/** Sets up assigned users dropdown event listeners.
  */
 function setupAssignedUsersDropdown() {
   document.getElementById("dropdown-assigned-to")?.addEventListener("click", toggleAssignedToDropdown);
-  document.getElementById("assigned-to-options-container")?.addEventListener("click", (event) => {
-    // Verhindere, dass der Outside-Click-Handler das Dropdown schließt
+  document.getElementById("assigned-to-options-container")?.addEventListener("click", handleContactOptionClick);
+  setupEscapeKeyListener();
+}
+
+/** Handles click on contact option.
+ * @param {Event} event - Click event.
+ */
+function handleContactOptionClick(event) {
+  event.stopPropagation();
+  const contactOption = event.target.closest(".contact-option");
+  if (!contactOption) return;
+
+  processContactSelection(contactOption);
+  clearAssignedToValidationError();
+  ensureDropdownOpen();
+}
+
+/** Processes contact selection from option.
+ * @param {HTMLElement} contactOption - Contact option element.
+ */
+function processContactSelection(contactOption) {
+  const id = contactOption.dataset.id;
+  const contact = findContactForOption(id, contactOption.dataset.name, contactOption.dataset.initials);
+  
+  if (contact) {
+    toggleSelectContacts(contactOption, contact.name, contact.initials, contact.avatarColor, contact.avatarImage, id);
+  }
+}
+
+/** Finds contact by ID or by name and initials.
+ * @param {string} id - Contact ID.
+ * @param {string} name - Contact name.
+ * @param {string} initials - Contact initials.
+ * @returns {Object|undefined} Contact object.
+ */
+function findContactForOption(id, name, initials) {
+  let contact = contactsMap.get(id);
+  
+  if (!contact) {
+    contact = currentContacts.find(c => c.name === name && c.initials === initials);
+  }
+  
+  return contact;
+}
+
+/** Clears validation error for assigned-to field.
+ */
+function clearAssignedToValidationError() {
+  const invalidArea = document.getElementById("dropdown-assigned-to");
+  const assignedUsersError = document.getElementById("assigned-to-error");
+  
+  if (invalidArea?.classList.contains("invalid")) {
+    invalidArea.classList.remove("invalid");
+    assignedUsersError?.classList.remove("d-flex");
+  }
+}
+
+/** Ensures assigned-to dropdown remains open.
+ */
+function ensureDropdownOpen() {
+  const wrapper = document.getElementById("assigned-to-options-wrapper");
+  if (wrapper && !wrapper.classList.contains("open-assigned-to")) {
+    wrapper.classList.add("open-assigned-to");
+  }
+}
+
+/** Sets up ESC key listener for closing dropdown.
+ */
+function setupEscapeKeyListener() {
+  if (window._assignedToEscListener) return;
+  
+  window._assignedToEscListener = true;
+  document.addEventListener("keydown", handleEscapeKey);
+}
+
+/** Handles ESC key press to close dropdown.
+ * @param {KeyboardEvent} event - Keyboard event.
+ */
+function handleEscapeKey(event) {
+  if (event.key !== "Escape") return;
+  
+  const wrapper = document.getElementById("assigned-to-options-wrapper");
+  if (wrapper?.classList.contains("open-assigned-to")) {
     event.stopPropagation();
-    const contactOption = event.target.closest(".contact-option");
-    if (contactOption) {
-      const id = contactOption.dataset.id;
-      let contact = contactsMap.get(id);
-      
-      // Fallback: search in currentContacts if not found in map
-      if (!contact) {
-        const name = contactOption.dataset.name;
-        const initials = contactOption.dataset.initials;
-        contact = currentContacts.find(c => 
-          c.name === name && c.initials === initials
-        );
-      }
-      
-      if (contact) {
-        toggleSelectContacts(contactOption, contact.name, contact.initials, contact.avatarColor, contact.avatarImage, id);
-      }
-
-      const invalidArea = document.getElementById("dropdown-assigned-to");
-      const assignedUsersError = document.getElementById("assigned-to-error");
-      if (invalidArea.classList.contains("invalid")) {
-        invalidArea.classList.remove("invalid");
-        assignedUsersError?.classList.remove("d-flex");
-      }
-
-      // Stelle sicher, dass die Optionsliste nach der Auswahl geöffnet bleibt (Multi-Select UX)
-      const wrapper = document.getElementById("assigned-to-options-wrapper");
-      if (wrapper && !wrapper.classList.contains("open-assigned-to")) {
-        wrapper.classList.add("open-assigned-to");
-      }
-    }
-  });
-
-  // ESC schließt das Assigned-To Dropdown (einmalig registrieren)
-  if (!window._assignedToEscListener) {
-    window._assignedToEscListener = true;
-    document.addEventListener("keydown", (event) => {
-      if (event.key === "Escape") {
-        const wrapper = document.getElementById("assigned-to-options-wrapper");
-        if (wrapper && wrapper.classList.contains("open-assigned-to")) {
-          event.stopPropagation();
-          event.preventDefault();
-          closeAssignedToDropdown();
-          // Fokus zurück auf Eingabebereich für bessere UX
-          document.getElementById("dropdown-assigned-to")?.focus();
-        }
-      }
-    });
+    event.preventDefault();
+    closeAssignedToDropdown();
+    document.getElementById("dropdown-assigned-to")?.focus();
   }
 }
 
@@ -94,8 +148,7 @@ function setupAssignedUsersDropdown() {
  */
 function handleOutsideClick(dropdown, options, closeFunction) {
   return (event) => {
-    const clickedOutside =
-      !dropdown.contains(event.target) && !options.contains(event.target);
+    const clickedOutside = !dropdown.contains(event.target) && !options.contains(event.target);
     if (clickedOutside) {
       closeFunction();
     }
@@ -137,9 +190,7 @@ export function closeCategoryDropdown() {
     dropdownIconTwo?.classList.remove("open");
     dropdownIconContainerTwo?.classList.remove("active");
 
-    setTimeout(() => {
-      container.innerHTML = "";
-    }, 300);
+    setTimeout(() => { container.innerHTML = ""; }, 300);
   }
 }
 
@@ -159,30 +210,12 @@ export function closeAssignedToDropdown() {
     dropdownIconOne?.classList.remove("open");
     dropdownIconContainerOne?.classList.remove("active");
 
-    setTimeout(() => {
-      container.innerHTML = "";
-    }, 300);
+    setTimeout(() => { container.innerHTML = ""; }, 300);
   }
 }
 
-/** Clears the selected assigned contacts in the dropdown.
- */
-const INVALID_FIELDS_IDS = [
-  "title",
-  "datepicker",
-  "dropdown-category",
-  "dropdown-assigned-to",
-];
-
 /** Clears the invalid fields by removing the "invalid" class and hiding error messages.
  */
-const ERROR_FIELDS_IDS = [
-  "title-error",
-  "due-date-error",
-  "assigned-to-error",
-  "category-error",
-];
-
 export function clearInvalidFields() {
   const invalidFields = INVALID_FIELDS_IDS.map((id) =>
     document.getElementById(id)
@@ -190,15 +223,11 @@ export function clearInvalidFields() {
   const errorFields = ERROR_FIELDS_IDS.map((id) => document.getElementById(id));
 
   invalidFields.forEach((field) => {
-    if (field) {
-      field.classList.remove("invalid");
-    }
+    if (field) field.classList.remove("invalid");
   });
 
   errorFields.forEach((error) => {
-    if (error) {
-      error.classList.remove("d-flex");
-    }
+    if (error) error.classList.remove("d-flex");
   });
 }
 
@@ -207,7 +236,7 @@ export function clearInvalidFields() {
  */
 export function setCategoryFromTaskForCard(categoryName) {
   if (!categoryName) {
-    console.warn("[Dropdown-Card] Keine Kategorie übergeben!");
+    console.warn("[Dropdown-Card] No category passed!");
     return;
   }
   const fakeOptionElement = document.createElement("div");
@@ -239,11 +268,8 @@ export function setAssignedContactsFromTaskForCard(assignedUsers) {
   selectedContacts.length = 0;
 
   assignedUsers.forEach((sel) => {
-    if (typeof sel === "string") {
-      processStringContact(sel);
-    } else {
-      processObjectContact(sel);
-    }
+    if (typeof sel === "string") processStringContact(sel);
+    else processObjectContact(sel);
   });
 
   getAssignedToOptions();
@@ -253,11 +279,9 @@ export function setAssignedContactsFromTaskForCard(assignedUsers) {
  * @param {string} idVal - The ID of the contact to find.
  */
 function findContactById(idVal) {
-  // First try contactsMap (fastest)
   const mapContact = contactsMap.get(idVal);
   if (mapContact) return mapContact;
 
-  // Fallback to currentContacts array
   return currentContacts.find(
     (c) =>
       c.id === idVal ||
@@ -272,11 +296,7 @@ function findContactById(idVal) {
  * @param {string} idVal - The ID of the contact to retrieve.
  */
 function getFirebaseContact(idVal) {
-  if (
-    typeof firebaseData === "object" &&
-    firebaseData.contacts &&
-    firebaseData.contacts[idVal]
-  ) {
+  if (typeof firebaseData === "object" && firebaseData.contacts && firebaseData.contacts[idVal]) {
     return { ...firebaseData.contacts[idVal], id: idVal };
   }
   return null;
@@ -291,9 +311,7 @@ function findContactByName(name) {
     const foundEntry = Object.entries(firebaseData.contacts).find(
       ([key, c]) => c.name === name
     );
-    if (foundEntry) {
-      return { ...foundEntry[1], id: foundEntry[0] };
-    }
+    if (foundEntry) return { ...foundEntry[1], id: foundEntry[0] };
   }
   return found || null;
 }
@@ -308,12 +326,11 @@ function processStringContact(sel) {
   if (found) {
     selectedContacts.push(found);
   } else {
-    // Fallback: versuche String als Name aufzulösen
     const byName = findContactByName(idVal);
     if (byName) {
       selectedContacts.push(byName);
     } else {
-      console.warn("[Dropdown-Card] Kontakt nicht gefunden (ID/Name):", sel);
+      console.warn("[Dropdown-Card] Contact not found (ID/Name):", sel);
     }
   }
 }
@@ -322,8 +339,7 @@ function processStringContact(sel) {
  * @param {Object} sel - The contact object to process.
  */
 function processObjectContact(sel) {
-  const idVal =
-    sel.id || sel.contactId || sel.contactID || sel.uid || sel.firebaseId;
+  const idVal = sel.id || sel.contactId || sel.contactID || sel.uid || sel.firebaseId;
 
   if (idVal) {
     let found = findContactById(idVal) || getFirebaseContact(idVal);
@@ -331,10 +347,7 @@ function processObjectContact(sel) {
       selectedContacts.push(found);
     } else {
       selectedContacts.push(sel);
-      console.warn(
-        "[Dropdown-Card] Kontakt nicht gefunden (Objekt mit ID, nehme sel):",
-        sel
-      );
+      console.warn("[Dropdown-Card] Contact not found (object with ID, take sel):", sel);
     }
   } else if (sel.name) {
     const found = findContactByName(sel.name);
@@ -342,12 +355,9 @@ function processObjectContact(sel) {
       selectedContacts.push(found);
     } else {
       selectedContacts.push(sel);
-      console.warn(
-        "[Dropdown-Card] Kontakt nicht gefunden (Objekt mit Name, nehme sel):",
-        sel
-      );
+      console.warn("[Dropdown-Card] Contact not found (object with Name, take sel):", sel);
     }
   } else {
-    console.warn("[Dropdown-Card] Unbekanntes Kontaktformat:", sel);
+    console.warn("[Dropdown-Card] Unknown contact format:", sel);
   }
 }

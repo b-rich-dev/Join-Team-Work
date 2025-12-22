@@ -80,7 +80,10 @@ function setupSubtaskModule(container, taskToEdit) {
  * @param {object} taskToEdit - The task object to edit.
  */
 function setupAttachmentsModule(container, taskToEdit) {
-  import("../pages/add-task-attachment-functions.js").then((module) => {
+  Promise.all([
+    import("../pages/add-task-attachment-core.js"),
+    import("../pages/add-task-attachment-ui.js")
+  ]).then(([coreModule, uiModule]) => {
     try {
       const existing = getExistingAttachments(taskToEdit);
       const normalized = existing.map(normalizeAttachment);

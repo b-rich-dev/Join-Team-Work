@@ -1,19 +1,12 @@
-// CRUD & helpers for contacts
 import { createContact, updateContact, getInitials } from './contact-actions.js';
-// Overlay controls & messages
 import { closeOverlay, showContactCreatedMessage } from '../ui/contacts-overlays.js';
-// Shared state for contacts
 import { setActiveContactId, getContactById, currentlyEditingContact, setCurrentlyEditingContact } from '../data/contacts-state.js';
-// Rendering & templates
 import { renderContacts } from '../ui/render-contacts.js';
 import { createContactDetailsHTML } from '../templates/contacts-templates.js';
-// Validation orchestrators (enable-live-on-first-failure)
 import { validateNewContactOrEnableLive, validateEditedContactOrEnableLive } from './contacts-validation.js';
-// Avatar upload handler
 import { getCurrentAvatarImage, clearCurrentAvatarImage } from './avatar-upload-handler.js';
 
-/**
- * Reads and trims input values from the "New Contact" form.
+/** * Reads and trims input values from the "New Contact" form.
  * @returns {{ name: string, email: string, phone: string }}
  */
 export function getNewContactInputValues() {
@@ -24,8 +17,7 @@ export function getNewContactInputValues() {
   };
 }
 
-/**
- * Reads and trims input values from the "Edit Contact" form.
+/** * Reads and trims input values from the "Edit Contact" form.
  * @returns {{ name: string, email: string, phone: string }}
  */
 export function getEditContactInputValues() {
@@ -36,8 +28,7 @@ export function getEditContactInputValues() {
   };
 }
 
-/**
- * Updates the details card with a given contact and ensures it's visible.
+/** * Updates the details card with a given contact and ensures it's visible.
  * @param {Object} contact - The contact to render.
  * @returns {void}
  */
@@ -48,8 +39,7 @@ export function updateDetailsCardFor(contact) {
   card.classList.add('no-animation', 'visible');
 }
 
-/**
- * Marks the given contact as active and switches to details on small screens.
+/** * Marks the given contact as active and switches to details on small screens.
  * @param {Object} contact - The contact to focus.
  * @returns {void}
  */
@@ -60,8 +50,7 @@ export function focusContactInUI(contact) {
   }
 }
 
-/**
- * Looks up a contact by ID or returns the provided fallback object.
+/** * Looks up a contact by ID or returns the provided fallback object.
  * @param {string} id - Contact ID.
  * @param {Object} fallback - Fallback contact object.
  * @returns {Object}
@@ -70,13 +59,11 @@ export function findContactByIdOrFallback(id, fallback) {
   return getContactById(id) || fallback;
 }
 
-/**
- * Creates a new contact, closes the "Add" overlay, re-renders the list, and shows a toast.
+/** * Creates a new contact, closes the "Add" overlay, re-renders the list, and shows a toast.
  * @param {{ name: string, email: string, phone: string }} payload - Contact data to create.
  * @returns {Promise<Object>} The created contact.
  */
 export async function createAndRenderNewContact(payload) {
-  // Add avatar image if present
   const avatarImage = getCurrentAvatarImage();
   if (avatarImage) {
     payload.avatarImage = avatarImage;
@@ -84,7 +71,6 @@ export async function createAndRenderNewContact(payload) {
   
   const newContact = await createContact(payload);
   
-  // Clear avatar after saving
   clearCurrentAvatarImage();
   
   closeOverlay('contactOverlay', true);
@@ -93,8 +79,7 @@ export async function createAndRenderNewContact(payload) {
   return newContact;
 }
 
-/**
- * Builds an updated contact object from edit form values and current editing state.
+/** * Builds an updated contact object from edit form values and current editing state.
  * @param {string} name
  * @param {string} email
  * @param {string} phone
@@ -107,17 +92,13 @@ export function buildUpdatedContactFromInputs(name, email, phone) {
     initials: getInitials(name)
   };
   
-  // Add or update avatar image if present
   const avatarImage = getCurrentAvatarImage();
-  if (avatarImage !== null) {
-    updated.avatarImage = avatarImage;
-  }
+  if (avatarImage !== null) updated.avatarImage = avatarImage;
   
   return updated;
 }
 
-/**
- * Persists an edited contact via the API.
+/** * Persists an edited contact via the API.
  * @param {Object} updatedContact
  * @returns {Promise<void>}
  */
@@ -125,8 +106,7 @@ export async function persistEditedContact(updatedContact) {
   await updateContact(updatedContact);
 }
 
-/**
- * Closes the edit overlay and re-renders the contacts list.
+/** * Closes the edit overlay and re-renders the contacts list.
  * @returns {Promise<void>}
  */
 export async function closeEditOverlayAndRerender() {
@@ -134,8 +114,7 @@ export async function closeEditOverlayAndRerender() {
   await renderContacts();
 }
 
-/**
- * Retrieves the latest contact by ID from state or returns the provided fallback.
+/** * Retrieves the latest contact by ID from state or returns the provided fallback.
  * @param {string} id
  * @param {Object} fallback
  * @returns {Object}
@@ -144,8 +123,7 @@ export function getLatestContactByIdOrFallback(id, fallback) {
   return getContactById(id) || fallback;
 }
 
-/**
- * Finalizes UI after a successful edit: updates details card (if visible) and clears editing state.
+/** * Finalizes UI after a successful edit: updates details card (if visible) and clears editing state.
  * @param {Object} latestContact
  * @returns {void}
  */
@@ -157,8 +135,7 @@ export function finalizeEditUI(latestContact) {
   setCurrentlyEditingContact(null);
 }
 
-/**
- * Handles submission of the "New Contact" form:
+/** * Handles submission of the "New Contact" form:
  * validates, creates contact, updates UI, and focuses the new contact.
  * @returns {Promise<void>}
  */
@@ -174,8 +151,7 @@ export async function handleNewContactSubmit() {
   }
 }
 
-/**
- * Handles saving the "Edit Contact" form:
+/** * Handles saving the "Edit Contact" form:
  * validates, persists, re-renders, and finalizes the UI.
  * @returns {Promise<void>}
  */

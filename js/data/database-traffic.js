@@ -1,5 +1,21 @@
-/**
- * fetch function for data traffic from Firebase.
+let fetchedData = null;
+let currentDataContainer;
+let currentCategory = null;
+
+const objectFields = [
+  [
+    { id: "new-name", key: "displayName" },
+    { id: "new-email", key: "email" },
+    { id: "password-first", key: "password" }
+  ],
+  [
+    { id: "newContactName", key: "name" },
+    { id: "newContactEmail", key: "email" },
+    { id: "newContactPhone", key: "phone" }
+  ]
+];
+
+/** * fetch function for data traffic from Firebase.
  * @param {string} category - Database category to fetch from.
  * @param {string} [queryString] - Optional query string for filtering data.
  * @returns {object|null|boolean} - Fetched data object, null if not found, or false on error.
@@ -21,8 +37,7 @@ async function getFirebaseData(category, queryString = '') {
   }
 }
 
-/**
- * check in database whether a user-dataset contains the email corresponding to the login-input.
+/** * check in database whether a user-dataset contains the email corresponding to the login-input.
  * @param {string} key - Database key to check against
  * @param {string} emailInput - string from input-field
  * @param {string} passwordInput - string from input-field
@@ -33,25 +48,7 @@ async function checkUserInFirebase(category, databaseKey, inputString) {
   fetchedUser = data;
 }
 
-let fetchedData = null;
-let currentDataContainer;
-let currentCategory = null;
-
-const objectFields = [
-  [
-    { id: "new-name", key: "displayName" },
-    { id: "new-email", key: "email" },
-    { id: "password-first", key: "password" }
-  ],
-  [
-    { id: "newContactName", key: "name" },
-    { id: "newContactEmail", key: "email" },
-    { id: "newContactPhone", key: "phone" }
-  ]
-]
-
-/**
- * main function for creating new object ("user" or "contact").
+/** * main function for creating new object ("user" or "contact").
  * @param {string} requestedCategory - "users", "tasks" or "contacts".
  */
 async function objectBuilding(requestedCategory) {
@@ -63,8 +60,7 @@ async function objectBuilding(requestedCategory) {
   confirmSignup();
 }
 
-/**
- * helper function for "objectBuilding"; fetch category-data, if no fetch (e.g. for initial rendering) is done.
+/** * helper function for "objectBuilding"; fetch category-data, if no fetch (e.g. for initial rendering) is done.
  * @param {string} category 
  */
 async function getData(category) {
@@ -72,8 +68,7 @@ async function getData(category) {
   fetchedData = data;
 }
 
-/**
- * check structure of fetched data: nested (if all data are fetched) or flat (if only category is fetched).
+/** * check structure of fetched data: nested (if all data are fetched) or flat (if only category is fetched).
  * put all "user" / "content"-objects in "currentContainer".
  * @param {string} requestedCategory - "users", "tasks" or "contacts".
  */
@@ -93,8 +88,7 @@ function setDataContainer(requestedCategory) {
   }
 }
 
-/**
- * helper function for "objectBuilding": choose FieldsMap which matches requestedCategory.
+/** * helper function for "objectBuilding": choose FieldsMap which matches requestedCategory.
  * @param {string} requestedCategory - "users", "tasks" or "contacts".
  * @returns selected objectFields.
  */
@@ -105,8 +99,7 @@ function chooseFieldsMap(requestedCategory) {
     return objectFields[1];
 }
 
-/**
- * helper function for "objectBuilding", main processing function; call all helper functions.
+/** * helper function for "objectBuilding", main processing function; call all helper functions.
  * @param {array} fieldMap - use for "fillObjectFromInputFields".
  * @param {string} requestedCategory - "users", "tasks" or "contacts".
  * @param {string} fallbackCategoryString - "user", "task" or "contact".
@@ -119,8 +112,7 @@ function createNewObject(fieldMap, requestedCategory, fallbackCategoryString) {
   return [pushObjectId, entryData];
 }
 
-/**
- * helper function for "createNewObject"; initialize new object, call fill-function.
+/** * helper function for "createNewObject"; initialize new object, call fill-function.
  * @param {array} fieldMap - IDs from inputs, keys used in Firebase.
  * @returns object containing key-value pairs.
  */
@@ -130,8 +122,7 @@ function fillObjectFromInputfields(fieldMap) {
   return obj;
 }
 
-/**
- * helper function for "fillObjectFromInputFields"; iterate over input fields, fill object.
+/** * helper function for "fillObjectFromInputFields"; iterate over input fields, fill object.
  * @param {array} fieldMap - IDs from inputs, keys used in Firebase.
  * @param {object} obj - initialized new object.
  * @returns object containing values from input fields.
@@ -145,8 +136,7 @@ function loopOverInputs(fieldMap, obj) {
   return obj;
 }
 
-/**
- * fork function; call helper function for category-specific object entries.
+/** * fork function; call helper function for category-specific object entries.
  * @param {string} requestedCategory - "users", "tasks" or "contacts".
  * @param {object} obj - raw, incomplete new object.
  * @returns complete new object.
@@ -164,8 +154,7 @@ function specificEntries(requestedCategory, obj) {
   }
 }
 
-/**
- * specific helper function 1 for "contacts"; extract initials from first and last name part.
+/** * specific helper function 1 for "contacts"; extract initials from first and last name part.
  * @param {string} fullName - user name.
  * @returns initials-string.
  */
@@ -183,8 +172,7 @@ function getRandomColor() {
   return color = "--dark";
 }
 
-/**
- * helper function for "createNewObject"; extract number of last key (e.g. "user-006"), compose next key.
+/** * helper function for "createNewObject"; extract number of last key (e.g. "user-006"), compose next key.
  * @param {string} category - "users", "tasks" or "contacts".
  * @returns new key (string).
  */
@@ -195,8 +183,7 @@ function setNextId(category) {
   return `${prefix}-${nextNumber}`;
 }
 
-/**
- * get last existing category-key or initialize category-key.
+/** * get last existing category-key or initialize category-key.
  * @param {string} category - "users", "tasks" or "contacts".
  * @returns last existing (or initialized) key (string).
  */
@@ -209,8 +196,7 @@ function getLastKey(category) {
   }
 }
 
-/**
- * main function for updating local data copy and database on server
+/** * main function for updating local data copy and database on server
  * @param {string} pushObjectId 
  * @param {object} entryData 
  * @param {string} requestedCategory - "users", "tasks" or "contacts"
@@ -222,11 +208,10 @@ async function sendNewObject(pushObjectId, entryData, requestedCategory) {
   await saveToFirebase(path, entryData);
 }
 
-/**
- * Determine, depending on the local data#'s structure, where the new entry should go.
- * if-clause is true, if fetchedData has nested structure
- * else-clause is true, if fetchedData has flat structure.
- * @returns {string} - path.
+/** * Determines the correct storage path for the new object.
+ * @param {string} pushObjectId - The ID of the new object.
+ * @param {string} requestedCategory - "users", "tasks" or "contacts".
+ * @returns {string} The determined storage path.
  */
 function determineStoragePath(pushObjectId, requestedCategory) {
   let path, container;
@@ -240,15 +225,14 @@ function determineStoragePath(pushObjectId, requestedCategory) {
   return path;
 }
 
-/**
- * Update the local data object.
+/** * Update the local data object.
+ * @param {object} localObject - The new object to merge into the local data.
  */
 function updateLocalData(localObject) {
   Object.assign(fetchedData, localObject);
 }
 
-/**
- * upload function for data traffic to Firebase.
+/** * upload function for data traffic to Firebase.
  * @param {string} path - fragment of path (pattern: "tasks/task009").
  * @param {object} data - object containing all taks details.
  */

@@ -38,12 +38,7 @@ function dragStart(event) {
 }
 
 /** * Handles the drag end event.
- * Removes the dragging class and resets the current dragged element.
- * @param {DragEvent} event
- */
-/**
- * Handles the drag end event.
- * Removes the dragging class and resets the current dragged element.
+ * Removes the dragging class and updates the task data.
  * @param {DragEvent} event
  */
 function dragEnd(event) {
@@ -53,8 +48,7 @@ function dragEnd(event) {
   updateTaskAfterDragEnd(event);
 }
 
-/**
- * Removes the dragging class from the target element.
+/** * Removes the dragging class from the target element.
  * @param {HTMLElement} target - The dragged element.
  */
 function removeDraggingClass(target) {
@@ -63,8 +57,7 @@ function removeDraggingClass(target) {
   }
 }
 
-/**
- * Removes the drag-over class from all columns.
+/** * Removes the drag-over class from all columns.
  */
 function removeDragOverFromColumns() {
   document.querySelectorAll(".task-column").forEach((column) => {
@@ -74,8 +67,7 @@ function removeDragOverFromColumns() {
   });
 }
 
-/**
- * Updates the task data after drag end.
+/** * Updates the task data after drag end.
  * @param {DragEvent} event - The drag end event.
  */
 function updateTaskAfterDragEnd(event) {
@@ -128,12 +120,7 @@ function dragLeave(event) {
 }
 
 /** * Handles the drop event.
- * Moves the dragged element to the new column and updates the task data.
- * @param {DragEvent} event
- */
-/**
- * Handles the drop event.
- * Moves the dragged element to the new column and updates the task data.
+ * Moves the dragged element to the target column and updates the task data.
  * @param {DragEvent} event
  */
 async function drop(event) {
@@ -145,8 +132,7 @@ async function drop(event) {
   removeDragOverClass(targetColumn);
 }
 
-/**
- * Handles moving the dragged element and updating the task data on drop.
+/** * Handles moving the dragged element and updating the task data on drop.
  * @param {HTMLElement} draggedElement - The dragged task card element.
  * @param {HTMLElement} targetColumn - The target column element.
  * @param {string} taskId - The ID of the dragged task.
@@ -163,15 +149,13 @@ async function handleDropMove(draggedElement, targetColumn, taskId) {
         await updateTaskColumnData(taskId, newColumnId);
         CWDATA({ [taskId]: task }, allData);
         
-        // Refresh summary statistics when task column changes
         await refreshSummaryIfExists();
       }
     }
   }
 }
 
-/**
- * Removes the drag-over class from the target column.
+/** * Removes the drag-over class from the target column.
  * @param {HTMLElement} targetColumn - The target column element.
  */
 function removeDragOverClass(targetColumn) {

@@ -1,7 +1,5 @@
-/**
- * Cleans raw contact data retrieved from Firebase.
+/** * Cleans raw contact data retrieved from Firebase.
  * Handles cases where keys might have leading spaces (e.g., " name" instead of "name").
- *
  * @param {object} rawContacts - An object containing raw contact data from Firebase.
  * @returns {object} An object with cleaned contact data.
  */
@@ -21,8 +19,7 @@ export function cleanContacts(rawContacts) {
   return cleanedContacts;
 }
 
-/**
- * Groups contacts into an object based on the first letter of their name.
+/** * Groups contacts into an object based on the first letter of their name.
  * @param {object[]} contactsArray - Array of contact objects.
  * @returns {object} Ungrouped object of initials → contacts array.
  */
@@ -38,9 +35,7 @@ function groupByInitial(contactsArray) {
   return groups;
 }
 
-/**
- * Sorts an array of contacts by their name (A–Z).
- * 
+/** * Sorts an array of contacts by their name (A–Z).
  * @param {object[]} contacts - Array of contact objects.
  * @returns {object[]} Sorted array of contacts.
  */
@@ -50,9 +45,7 @@ function sortContactsByName(contacts) {
   );
 }
 
-/**
- * Sorts all contact groups by initial and then by name within each group.
- * 
+/** * Sorts all contact groups by initial and then by name within each group.
  * @param {object} groupedContacts - Object with initials as keys and arrays of contacts as values.
  * @returns {object} Sorted contact groups.
  */
@@ -66,8 +59,7 @@ function sortGroupedContacts(groupedContacts) {
   return sortedGroups;
 }
 
-/**
- * Groups and sorts contacts by the first initial of their name.
+/** * Groups and sorts contacts by the first initial of their name.
  * @param {object[]} contactsArray
  * @returns {object} Sorted contact groups.
  */

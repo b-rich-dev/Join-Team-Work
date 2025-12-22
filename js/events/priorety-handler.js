@@ -51,15 +51,10 @@ export function setButtonIconsMobile() {
     allButtons.forEach(button => {
         const priority = button.dataset.priority;
 
-        if (!button.dataset.originalContent) {
-            button.dataset.originalContent = button.innerHTML;
-        }
+        if (!button.dataset.originalContent) button.dataset.originalContent = button.innerHTML;
 
-        if (isMobile && button.dataset.hasIcon !== "true") {
-            setButtonIcon(button, priority);
-        } else if (!isMobile && button.dataset.hasIcon === "true") {
-            restoreButtonContent(button);
-        }
+        if (isMobile && button.dataset.hasIcon !== "true") setButtonIcon(button, priority);
+        else if (!isMobile && button.dataset.hasIcon === "true") restoreButtonContent(button);
     });
 }
 

@@ -1,8 +1,9 @@
-import { initTask, handleCreateTask, clearForm, startResize, openPicker, formatDate, handleInput } from "./add-task.js";
+import { initTask, handleCreateTask, clearForm, startResize, openPicker, formatDate } from "./add-task.js";
 import { initPriorityButtons, setButtonIconsMobile } from "../events/priorety-handler.js";
 import { filterContacts, toggleCategoryDropdown, toggleAssignedToDropdown, selectedContacts } from "../events/dropdown-menu.js";
 import { addSubtask, clearSubtask, toggleSubtaskEdit, deleteSubtask, toggleSubtaskInputIcons } from "../events/subtask-handler.js";
 import { autofillForms } from "../events/autofill-add-task.js";
+import { handleInput, showWrongFormatErrorMsg } from "./add-task-validation.js";
 
 export let picker = null;
 
@@ -17,11 +18,9 @@ export async function initAddTaskForm() {
     initAssignedToListeners();
     initSubtaskListeners();
     initWindowResizeListeners();
-    // Initialisiert Drag&Drop, Input-Change-Listener und initiales Rendering der Attachments
     if (window.initAttachmentUI) {
         window.initAttachmentUI();
     } else if (window.initAttachmentDragAndDrop) {
-        // Fallback für ältere Versionen
         window.initAttachmentDragAndDrop();
     }
 }
@@ -281,47 +280,6 @@ export async function showTaskSuccessMsg() {
 
     msg.classList.add("hidden");
 }
-
-export async function showWrongFormatErrorMsg() {
-    const msg = document.getElementById("wrongFormatErrorMsg");
-    if (!msg) return;
-
-    msg.classList.remove("hidden", "slide-out");
-    msg.classList.add("slide-in");
-}
-// Für nicht-modulare Aufrufe (z.B. aus nicht-module Scripts)
-window.showWrongFormatErrorMsg = showWrongFormatErrorMsg;
-
-export async function hideWrongFormatErrorMsg(closeDuration) {
-    const msg = document.getElementById("wrongFormatErrorMsg");
-    if (!msg) return;
-    msg.classList.remove("slide-in");
-    msg.classList.add("slide-out");
-
-    // Ignoriere übergebenes Timeout und verwende die CSS-Transition-Dauer (400ms)
-    await new Promise((resolve) => setTimeout(resolve, 400));
-
-    msg.classList.add("hidden");
-}
-window.hideWrongFormatErrorMsg = hideWrongFormatErrorMsg;
-// Globaler, delegierter Close-Listener (einmalig), robust für SVG-Klicks
-if (!window.__wrongFormatCloseBound) {
-    const isInsideCloseBtn = (node) => {
-        let el = node;
-        while (el && el !== document) {
-            if (el.getAttribute && el.getAttribute('id') === 'error-msg-close') return true;
-            el = el.parentNode;
-        }
-        return false;
-    };
-    document.addEventListener("click", (e) => {
-        if (isInsideCloseBtn(e.target) && typeof window.hideWrongFormatErrorMsg === 'function') {
-            window.hideWrongFormatErrorMsg(400);
-        }
-    });
-    window.__wrongFormatCloseBound = true;
-}
-
 
 /** * Handles the visibility of the sign info message based on the screen size.
  * If the screen width is less than or equal to 768px, it shows the mobile version of the sign info.

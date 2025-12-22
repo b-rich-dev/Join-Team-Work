@@ -101,7 +101,7 @@ async function preloadFirebaseData() {
     const data = await loadFirebaseData();
     if (data) window.firebaseData = data;
   } catch (e) {
-    console.warn("Firebase Daten-Vorladen fehlgeschlagen:", e);
+    console.warn("Firebase data preload failed:", e);
   }
 }
 

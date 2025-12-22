@@ -1,14 +1,6 @@
-/**
- * Provides all functions related to creating, updating, and deleting contacts.
- * These are used in render-contacts.js and other contact-related modules.
- */
-
-// Fetches data from Firebase Realtime Database (wrapper for GET requests)
 import { getFirebaseData } from '../data/API.js';
 
-/**
- * Saves contact data to Firebase (via PUT or DELETE).
- * 
+/** * Saves contact data to Firebase (via PUT or DELETE).
  * @param {object} params 
  * @param {string} params.path - The Firebase path where data will be saved (e.g., 'contacts/contact-001').
  * @param {object|null} params.data - The data to save; null deletes the entry.
@@ -27,9 +19,7 @@ async function saveFirebaseData({ path, data }) {
     }
 }
 
-/**
- * Builds the Firebase URL for a given path.
- * 
+/** * Builds the Firebase URL for a given path.
  * @param {string} path - Firebase path segment.
  * @returns {string} Fully qualified Firebase URL.
  */
@@ -37,9 +27,7 @@ function buildFirebaseUrl(path) {
     return `https://join-46697-default-rtdb.europe-west1.firebasedatabase.app/${path}.json`;
 }
 
-/**
- * Sends the request to Firebase (PUT or DELETE).
- * 
+/** * Sends the request to Firebase (PUT or DELETE).
  * @param {string} url - The Firebase URL.
  * @param {object|null} data - Data to send; null means DELETE.
  * @returns {Promise<Response>} The fetch response object.
@@ -52,9 +40,7 @@ async function sendFirebaseRequest(url, data) {
     });
 }
 
-/**
- * Processes the Firebase response.
- * 
+/** * Processes the Firebase response.
  * @param {Response} response - The fetch response.
  * @throws Will throw if the response is not OK.
  */
@@ -65,12 +51,7 @@ async function handleFirebaseResponse(response) {
     }
 }
 
-// ---------------------------
-// Avatar and Initials Utils
-// ---------------------------
-
-/** 
- * 15 predefined avatar colors – used for random assignment.
+/**  * 15 predefined avatar colors – used for random assignment.
  */
 const avatarColors = [
     '--orange', '--hotPink', '--violet', '--lila', '--petrol',
@@ -78,18 +59,14 @@ const avatarColors = [
     '--vividBlue', '--neonGreen', '--lightYellow', '--red', '--yellow'
 ];
 
-/**
- * Picks a random avatar color from the predefined list.
- * 
+/** * Picks a random avatar color from the predefined list.
  * @returns {string} A hex color string.
  */
 export function getRandomAvatarColor() {
     return avatarColors[Math.floor(Math.random() * avatarColors.length)];
 }
 
-/**
- * Converts a name string into initials.
- * 
+/** * Converts a name string into initials.
  * @param {string} name - Full name of the contact.
  * @returns {string} Initials in uppercase (e.g., "Anna Müller" → "AM").
  */
@@ -98,13 +75,7 @@ export function getInitials(name) {
     return (parts[0][0] + (parts.pop()[0] || '')).toUpperCase();
 }
 
-// ---------------------------
-// CRUD Operations
-// ---------------------------
-
-/**
- * Creates a new contact and stores it in Firebase.
- * 
+/** * Creates a new contact and stores it in Firebase.
  * @param {object} contactData
  * @param {string} contactData.name - Contact name.
  * @param {string} contactData.email - Contact email.
@@ -125,9 +96,7 @@ export async function createContact({ name, email, phone }) {
     return contact;
 }
 
-/**
- * Updates an existing contact in Firebase.
- * 
+/** * Updates an existing contact in Firebase.
  * @param {object} contact - The full contact object with updated data.
  * @returns {Promise<void>}
  */
@@ -135,63 +104,44 @@ export async function updateContact(contact) {
     await saveFirebaseData({ path: `contacts/${contact.id}`, data: contact });
 }
 
-/**
- * Deletes a contact from Firebase by ID and removes it from all tasks.
- * 
+/** * Deletes a contact from Firebase by ID and removes it from all tasks.
  * @param {string} id - Contact ID to delete (e.g., "contact-003").
  * @returns {Promise<void>}
  */
 export async function deleteContact(id) {
-    // Delete the contact
     await saveFirebaseData({ path: `contacts/${id}`, data: null });
-    
-    // Remove contact from all tasks
     await removeContactFromTasks(id);
 }
 
-/**
- * Removes a contact ID from all tasks' assignedUsers arrays.
- * 
+/** * Removes a contact ID from all tasks' assignedUsers arrays.
  * @param {string} contactId - Contact ID to remove from tasks.
  * @returns {Promise<void>}
  */
 async function removeContactFromTasks(contactId) {
     try {
-        // Fetch all tasks
         const tasksData = await getFirebaseData('tasks');
         if (!tasksData) return;
         
-        // Update each task that has this contact assigned
         const updatePromises = [];
         
         Object.entries(tasksData).forEach(([taskId, task]) => {
             if (task.assignedUsers && Array.isArray(task.assignedUsers)) {
                 const filteredUsers = task.assignedUsers.filter(userId => userId !== contactId);
                 
-                // Only update if the array changed
                 if (filteredUsers.length !== task.assignedUsers.length) {
                     const updatedTask = { ...task, assignedUsers: filteredUsers };
-                    updatePromises.push(
-                        saveFirebaseData({ path: `tasks/${taskId}`, data: updatedTask })
-                    );
+                    updatePromises.push(saveFirebaseData({ path: `tasks/${taskId}`, data: updatedTask }));
                 }
             }
         });
         
-        // Wait for all updates to complete
         await Promise.all(updatePromises);
     } catch (error) {
         console.error('Error removing contact from tasks:', error);
     }
 }
 
-// ---------------------------
-// ID Generation
-// ---------------------------
-
-/**
- * Generates the next available contact ID (e.g., "contact-004").
- * 
+/** * Generates the next available contact ID (e.g., "contact-004").
  * @returns {Promise<string>} The next available contact ID.
  */
 async function getNextContactId() {
@@ -201,9 +151,7 @@ async function getNextContactId() {
     return formatContactId(nextAvailableNumber);
 }
 
-/**
- * Retrieves all existing contacts from Firebase.
- * 
+/** * Retrieves all existing contacts from Firebase.
  * @returns {Promise<object>} An object containing all contacts keyed by ID.
  */
 async function fetchContactsFromFirebase() {
@@ -211,9 +159,7 @@ async function fetchContactsFromFirebase() {
     return data?.contacts || {};
 }
 
-/**
- * Extracts and returns sorted numeric IDs from contact keys.
- * 
+/** * Extracts and returns sorted numeric IDs from contact keys.
  * @param {object} contacts - All contacts retrieved from Firebase.
  * @returns {number[]} Sorted array of numeric contact IDs.
  */
@@ -224,9 +170,7 @@ function extractUsedContactNumbers(contacts) {
         .sort((firstNumber, secondNumber) => firstNumber - secondNumber);
 }
 
-/**
- * Finds the next unused number in a sorted array of contact numbers.
- * 
+/** * Finds the next unused number in a sorted array of contact numbers.
  * @param {number[]} sortedNumbers - List of used numbers.
  * @returns {number} The next available number.
  */
@@ -242,9 +186,7 @@ function findNextAvailableNumber(sortedNumbers) {
     return nextAvailable;
 }
 
-/**
- * Converts a number into a formatted contact ID (e.g., 4 → "contact-004").
- * 
+/** * Converts a number into a formatted contact ID (e.g., 4 → "contact-004").
  * @param {number} number - Contact number.
  * @returns {string} Formatted contact ID.
  */

@@ -1,22 +1,13 @@
-// Contact deletion (other CRUD live in helpers)
 import { deleteContact } from './contact-actions.js';
-// Delete warning confirmation
 import { showDeleteContactWarning } from '../ui/delete-contact-warning.js';
-// Overlay controls
 import { openOverlay, closeOverlay } from '../ui/contacts-overlays.js';
-// App state for selected/active contact
 import { currentlyEditingContact, setCurrentlyEditingContact, setActiveContactId } from '../data/contacts-state.js';
-// Rerender contact list
 import { renderContacts } from '../ui/render-contacts.js';
-// Submit handlers (create & edit flows)
 import { handleNewContactSubmit, handleEditContactSave } from './contacts-submit-helpers.js';
-// Validation utilities (clear errors, reset live-validation flags)
 import { clearEditContactErrors, resetNewLiveValidationFlag, resetEditLiveValidationFlag } from './contacts-validation.js';
-// Avatar upload handler
 import { setupAvatarUploadForNewContact } from './avatar-upload-handler.js';
 
-/**
- * Bootstraps all event listeners used on the contacts page.
+/** * Bootstraps all event listeners used on the contacts page.
  * Wires overlay open/close, global buttons, edit form, list navigation, and mobile dropdown.
  */
 export function initContactEventListeners() {
@@ -28,8 +19,7 @@ export function initContactEventListeners() {
     setupMobileDropdownToggle();
 }
 
-/**
- * Sets up handlers around the "Add New Contact" overlay lifecycle.
+/** * Sets up handlers around the "Add New Contact" overlay lifecycle.
  */
 function setupNewContactOverlay() {
     setupOpenNewContactOverlayButton();
@@ -38,8 +28,7 @@ function setupNewContactOverlay() {
     setupDemoContactAutofill();
 }
 
-/**
- * Binds the floating/primary "Add New Contact" button to open the overlay.
+/** * Binds the floating/primary "Add New Contact" button to open the overlay.
  * Clears inputs and resets live-validation flags before opening.
  */
 function setupOpenNewContactOverlayButton() {
@@ -49,10 +38,7 @@ function setupOpenNewContactOverlayButton() {
         return;
     }
     
-    // Remove any existing listener to avoid duplicates
-    if (btn._clickHandlerAttached) {
-        return;
-    }
+    if (btn._clickHandlerAttached) return;
     
     btn.addEventListener('click', () => {
         clearNewContactFormInputs();
@@ -64,8 +50,7 @@ function setupOpenNewContactOverlayButton() {
     btn._clickHandlerAttached = true;
 }
 
-/**
- * Attaches click handlers to all close/cancel buttons within the "Add New Contact" overlay.
+/** * Attaches click handlers to all close/cancel buttons within the "Add New Contact" overlay.
  */
 function setupCloseNewContactOverlayButtons() {
     const ids = ['closeOverlayBtn', 'cancelOverlayBtn', 'closeOverlayBtnMobile'];
@@ -75,8 +60,7 @@ function setupCloseNewContactOverlayButtons() {
     });
 }
 
-/**
- * Closes the "Add New Contact" overlay when clicking on its backdrop.
+/** * Closes the "Add New Contact" overlay when clicking on its backdrop.
  */
 function setupOverlayClickToClose() {
     const overlay = document.getElementById('contactOverlay');
@@ -91,8 +75,7 @@ function setupOverlayClickToClose() {
     });
 }
 
-/**
- * Populates demo values into the "Add New Contact" form on first focus of any input.
+/** * Populates demo values into the "Add New Contact" form on first focus of any input.
  * Useful for quick testing and demos; runs only once.
  */
 function setupDemoContactAutofill() {
@@ -109,8 +92,7 @@ function setupDemoContactAutofill() {
     });
 }
 
-/**
- * Binds the "Create contact" button click to the submit handler.
+/** * Binds the "Create contact" button click to the submit handler.
  * Removes stale listeners first to avoid duplicates.
  */
 function setupCreateContactButton() {
@@ -120,8 +102,7 @@ function setupCreateContactButton() {
     createBtn.addEventListener('click', handleNewContactSubmit);
 }
 
-/**
- * Listens globally for clicks that map to back/delete/edit actions within contact cards.
+/** * Listens globally for clicks that map to back/delete/edit actions within contact cards.
  * Back and delete actions short-circuit to prevent further processing.
  */
 function setupGlobalContactButtons() {
@@ -132,8 +113,7 @@ function setupGlobalContactButtons() {
     });
 }
 
-/**
- * Handles the mobile "back" action in details view.
+/** * Handles the mobile "back" action in details view.
  * @param {MouseEvent} event - The click event.
  * @returns {boolean} True when handled.
  */
@@ -145,8 +125,7 @@ function handleBackButton(event) {
     return true;
 }
 
-/**
- * Handles deletion of a contact when clicking a delete button within a contact item.
+/** * Handles deletion of a contact when clicking a delete button within a contact item.
  * @param {MouseEvent} event - The click event.
  * @returns {Promise<boolean>} True when handled.
  */
@@ -167,8 +146,7 @@ async function handleDeleteButton(event) {
     return true;
 }
 
-/**
- * Opens the edit overlay for the clicked contact.
+/** * Opens the edit overlay for the clicked contact.
  * Expects a global or imported `onEditContact(id)` to exist.
  * @param {MouseEvent} event - The click event.
  */
@@ -180,8 +158,7 @@ function handleEditButton(event) {
     onEditContact(id);
 }
 
-/**
- * Wires up the Save & Delete actions within the edit overlay.
+/** * Wires up the Save & Delete actions within the edit overlay.
  * Save uses imported submit helper; Delete is handled below in this file.
  */
 function setupEditContactForm() {
@@ -191,8 +168,7 @@ function setupEditContactForm() {
     if (deleteButton) deleteButton.addEventListener('click', handleEditContactDelete);
 }
 
-/**
- * Deletes the currently edited contact (relies on global edit state).
+/** * Deletes the currently edited contact (relies on global edit state).
  * Closes overlay, rerenders list, and resets mobile view.
  * Safe-guards if state is not present.
  * @returns {Promise<void>}
@@ -213,8 +189,7 @@ async function handleEditContactDelete() {
     });
 }
 
-/**
- * Sets up edit overlay close behavior (backdrop click and explicit close buttons).
+/** * Sets up edit overlay close behavior (backdrop click and explicit close buttons).
  * Also resets the edit live-validation flag on open.
  */
 function setupEditOverlayEvents() {
@@ -227,8 +202,7 @@ function setupEditOverlayEvents() {
     if (mobileCloseButton) mobileCloseButton.addEventListener('click', handleOverlayCloseClick);
 }
 
-/**
- * Closes the edit overlay when clicking the backdrop.
+/** * Closes the edit overlay when clicking the backdrop.
  * @param {MouseEvent} event - The click event.
  */
 function handleOverlayClickOutside(event) {
@@ -238,16 +212,14 @@ function handleOverlayClickOutside(event) {
     }
 }
 
-/**
- * Closes the edit overlay when clicking the close button.
+/** * Closes the edit overlay when clicking the close button.
  */
 function handleOverlayCloseClick() {
     clearEditContactErrors();
     closeOverlay('editContactOverlay');
 }
 
-/**
- * Enables clicking on a contact row to open its details,
+/** * Enables clicking on a contact row to open its details,
  * while ignoring clicks on nested edit/delete buttons within the row.
  */
 function setupContactListClickNavigation() {
@@ -262,8 +234,7 @@ function setupContactListClickNavigation() {
     });
 }
 
-/**
- * Toggles the floating mobile dropdown menu and closes it when clicking outside.
+/** * Toggles the floating mobile dropdown menu and closes it when clicking outside.
  */
 function setupMobileDropdownToggle() {
     document.addEventListener('click', (element) => {
@@ -280,8 +251,7 @@ function setupMobileDropdownToggle() {
     });
 }
 
-/**
- * Clears the "Add New Contact" form inputs and related error UI.
+/** * Clears the "Add New Contact" form inputs and related error UI.
  */
 function clearNewContactFormInputs() {
     ['newContactName', 'newContactEmail', 'newContactPhone'].forEach(inputId => {
