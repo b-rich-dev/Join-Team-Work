@@ -11,6 +11,9 @@ const COLUMN_MAPPING = {
   inProgress: "in-progress",
   review: "await-feedback",
   done: "done",
+  "to-do": "to-do",
+  "in-progress": "in-progress",
+  "await-feedback": "await-feedback",
 };
 let tasksData = {};
 
@@ -209,7 +212,7 @@ function updateLocalTaskColumn(taskId, firebaseColumnId) {
  * @param {string} firebaseColumnId - The new Firebase column ID.
  * @returns {Promise<void>} Resolves when the update is complete.
  */
-async function triggerFirebaseUpdate(taskId, firebaseColumnId) {}
+async function triggerFirebaseUpdate(taskId, firebaseColumnId) { }
 
 /** * Updates the task's column data and triggers updates.
  * @param {string} taskId - The ID of the task to update.

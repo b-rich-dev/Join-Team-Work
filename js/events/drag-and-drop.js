@@ -3,6 +3,10 @@ import { updateTaskColumnData } from "../ui/render-board.js";
 import { refreshSummaryIfExists } from "../../main.js";
 
 let currentDraggedElement = null;
+let touchStartX = 0;
+let touchStartY = 0;
+let touchClone = null;
+let lastTouchedColumn = null;
 
 /** * Initializes the drag-and-drop functionality for task cards.
  * Adds event listeners for drag start, drag end, drag over, drag leave, and drop events.
@@ -13,13 +17,17 @@ export function initDragAndDrop() {
     taskCard.setAttribute("draggable", "true");
     taskCard.addEventListener("dragstart", dragStart);
     taskCard.addEventListener("dragend", dragEnd);
+
+    taskCard.addEventListener("touchstart", touchStart, { passive: false });
+    taskCard.addEventListener("touchmove", touchMove, { passive: false });
+    taskCard.addEventListener("touchend", touchEnd, { passive: false });
   });
 
-  const taskColumns = document.querySelectorAll(".task-column");
-  taskColumns.forEach((column) => {
-    column.addEventListener("dragover", allowDrop);
-    column.addEventListener("dragleave", dragLeave);
-    column.addEventListener("drop", drop);
+  const columnWrappers = document.querySelectorAll(".column-wrapper");
+  columnWrappers.forEach((wrapper) => {
+    wrapper.addEventListener("dragover", allowDrop);
+    wrapper.addEventListener("dragleave", dragLeave);
+    wrapper.addEventListener("drop", drop);
   });
 }
 
@@ -57,10 +65,72 @@ function removeDraggingClass(target) {
   }
 }
 
+/** * Maps a client column ID to a Firebase column ID.
+ * @param {string} clientColumnId - The client column ID.
+ * @returns {string} The corresponding Firebase column ID.
+ */
+function mapClientToFirebaseColumnId(clientColumnId) {
+  const firebaseColumnMapping = {
+    "to-do": "toDo",
+    "in-progress": "inProgress",
+    "await-feedback": "review",
+    done: "done",
+  };
+  return firebaseColumnMapping[clientColumnId] || clientColumnId;
+}
+
+/** * Cleans a task object by removing undefined values and fixing nested arrays.
+ * @param {object} taskObj - The task object to clean.
+ * @returns {object} The cleaned task object.
+ */
+function cleanTaskObject(taskObj) {
+  const cleaned = {};
+  for (const key in taskObj) {
+    if (taskObj[key] !== undefined) {
+      let value = taskObj[key];
+      
+      // Fix deeply nested arrays (especially updatedAt)
+      if (Array.isArray(value)) {
+        value = flattenDeepArray(value);
+      }
+      
+      cleaned[key] = value;
+    }
+  }
+  return cleaned;
+}
+
+/** * Flattens deeply nested arrays to extract the actual value.
+ * @param {*} arr - The potentially nested array.
+ * @returns {*} The flattened value.
+ */
+function flattenDeepArray(arr) {
+  if (!Array.isArray(arr)) return arr;
+  
+  // Keep digging until we find a non-array value
+  let current = arr;
+  while (Array.isArray(current) && current.length > 0) {
+    // If it's an array with one element, go deeper
+    if (current.length === 1) {
+      current = current[0];
+    } 
+    // If it's an array with 2 elements where first is 0, take the second
+    else if (current.length === 2 && current[0] === 0) {
+      current = current[1];
+    }
+    // Otherwise return the array as is (it's a valid array like checkedSubtasks)
+    else {
+      return current;
+    }
+  }
+  
+  return current;
+}
+
 /** * Removes the drag-over class from all columns.
  */
 function removeDragOverFromColumns() {
-  document.querySelectorAll(".task-column").forEach((column) => {
+  document.querySelectorAll(".column-wrapper").forEach((column) => {
     if (column && column.classList) {
       column.classList.remove("drag-over");
     }
@@ -76,11 +146,14 @@ function updateTaskAfterDragEnd(event) {
   if (allData && allData.tasks && allData.tasks[taskId]) {
     const task = allData.tasks[taskId];
     const newColumn = event.target.closest(".task-column");
-    const updatedTaskObj = {
+    const clientColumnId = newColumn ? newColumn.id : task.columnID;
+    const firebaseColumnId = mapClientToFirebaseColumnId(clientColumnId);
+    
+    const updatedTaskObj = cleanTaskObject({
       assignedUsers: task.assignedUsers,
       boardID: task.boardID || "board-1",
       checkedSubtasks: task.checkedSubtasks,
-      columnID: newColumn ? newColumn.id : task.columnID,
+      columnID: firebaseColumnId,
       createdAt: task.createdAt,
       deadline: task.deadline,
       description: task.description,
@@ -90,7 +163,7 @@ function updateTaskAfterDragEnd(event) {
       totalSubtasks: task.totalSubtasks,
       type: task.type,
       updatedAt: task.updatedAt,
-    };
+    });
     CWDATA({ [taskId]: updatedTaskObj }, allData);
   }
 }
@@ -101,7 +174,7 @@ function updateTaskAfterDragEnd(event) {
  */
 function allowDrop(event) {
   event.preventDefault();
-  const column = event.target.closest('.task-column');
+  const column = event.target.closest('.column-wrapper');
   if (column && !column.classList.contains("drag-over")) {
     column.classList.add("drag-over");
   }
@@ -112,8 +185,8 @@ function allowDrop(event) {
  * @param {DragEvent} event
  */
 function dragLeave(event) {
-  
-  const column = event.target.closest('.task-column');
+
+  const column = event.target.closest('.column-wrapper');
   if (column && !column.contains(event.relatedTarget)) {
     column.classList.remove("drag-over");
   }
@@ -127,9 +200,10 @@ async function drop(event) {
   event.preventDefault();
   const taskId = event.dataTransfer.getData("text/plain");
   const draggedElement = document.getElementById(taskId);
-  const targetColumn = event.target.closest(".task-column");
+  const targetWrapper = event.target.closest(".column-wrapper");
+  const targetColumn = targetWrapper?.querySelector(".task-column");
   await handleDropMove(draggedElement, targetColumn, taskId);
-  removeDragOverClass(targetColumn);
+  removeDragOverClass(targetWrapper);
 }
 
 /** * Handles moving the dragged element and updating the task data on drop.
@@ -145,10 +219,24 @@ async function handleDropMove(draggedElement, targetColumn, taskId) {
       targetColumn.appendChild(draggedElement);
       if (allData && allData.tasks && allData.tasks[taskId]) {
         const task = allData.tasks[taskId];
-        task.columnID = newColumnId;
-        await updateTaskColumnData(taskId, newColumnId);
-        CWDATA({ [taskId]: task }, allData);
+        // Map client column ID to Firebase format before updating
+        const firebaseColumnId = mapClientToFirebaseColumnId(newColumnId);
         
+        // Create a clean copy with only the changed columnID
+        const updatedTask = {
+          ...task,
+          columnID: firebaseColumnId
+        };
+        
+        // Clean the task object
+        const cleanedTask = cleanTaskObject(updatedTask);
+        
+        // Update local data
+        allData.tasks[taskId] = cleanedTask;
+        
+        await updateTaskColumnData(taskId, newColumnId);
+        CWDATA({ [taskId]: cleanedTask }, allData);
+
         await refreshSummaryIfExists();
       }
     }
@@ -162,4 +250,111 @@ function removeDragOverClass(targetColumn) {
   if (targetColumn) {
     targetColumn.classList.remove("drag-over");
   }
+}
+
+/** * Resets visual styling after touch drag.
+ * @param {HTMLElement} element - The dragged element.
+ */
+function resetTouchDragVisuals(element) {
+  element.style.transform = '';
+  element.style.opacity = '';
+  element.style.zIndex = '';
+  element.style.pointerEvents = '';
+  element.style.position = '';
+  element.style.willChange = '';
+  element.classList.remove("is-dragging");
+}
+
+/** * Applies visual styling during touch drag.
+ * @param {HTMLElement} element - The element being dragged.
+ * @param {number} deltaX - Horizontal movement delta.
+ * @param {number} deltaY - Vertical movement delta.
+ */
+function applyTouchDragVisuals(element, deltaX, deltaY) {
+  element.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
+  element.style.opacity = '0.7';
+  element.style.zIndex = '1000';
+  element.style.pointerEvents = 'none';
+  element.style.position = 'relative';
+  element.style.willChange = 'transform';
+}
+
+/** * Updates drag-over styling for column under touch point.
+ * @param {Touch} touch - The touch object.
+ */
+function updateDragOverColumn(touch) {
+  const elementAtPoint = document.elementFromPoint(touch.clientX, touch.clientY);
+  const targetColumn = elementAtPoint?.closest('.column-wrapper');
+  
+  if (targetColumn && targetColumn !== lastTouchedColumn) {
+    removeDragOverFromColumns();
+    targetColumn.classList.add("drag-over");
+    lastTouchedColumn = targetColumn;
+  } else if (!targetColumn && lastTouchedColumn) {
+    removeDragOverFromColumns();
+    lastTouchedColumn = null;
+  }
+}
+
+/** * Cleans up touch drag state variables.
+ */
+function cleanupTouchDrag() {
+  removeDragOverFromColumns();
+  currentDraggedElement = null;
+  lastTouchedColumn = null;
+  touchStartX = 0;
+  touchStartY = 0;
+}
+
+/** * Handles touch start event for mobile drag and drop.
+ * @param {TouchEvent} event - The touch start event.
+ */
+function touchStart(event) {
+  const touch = event.touches[0];
+  currentDraggedElement = event.target.closest('.task-card');
+
+  if (!currentDraggedElement) return;
+
+  event.preventDefault();
+
+  touchStartX = touch.clientX;
+  touchStartY = touch.clientY;
+
+  setTimeout(() => {
+    if (currentDraggedElement) { currentDraggedElement.classList.add("is-dragging"); }
+  }, 0);
+}
+
+/** * Handles touch move event for mobile drag and drop.
+ * @param {TouchEvent} event - The touch move event.
+ */
+function touchMove(event) {
+  if (!currentDraggedElement) return;
+  event.preventDefault();
+  const touch = event.touches[0];
+  
+  const deltaX = touch.clientX - touchStartX;
+  const deltaY = touch.clientY - touchStartY;
+  applyTouchDragVisuals(currentDraggedElement, deltaX, deltaY);
+  
+  updateDragOverColumn(touch);
+}
+
+/** * Handles touch end event for mobile drag and drop.
+ * @param {TouchEvent} event - The touch end event.
+ */
+async function touchEnd(event) {
+  if (!currentDraggedElement) return;
+  event.preventDefault();
+  const touch = event.changedTouches[0];
+  
+  resetTouchDragVisuals(currentDraggedElement);
+  
+  const elementAtPoint = document.elementFromPoint(touch.clientX, touch.clientY);
+  const targetWrapper = elementAtPoint?.closest('.column-wrapper');
+  const targetColumn = targetWrapper?.querySelector('.task-column');
+  
+  if (targetColumn) await handleDropMove(currentDraggedElement, targetColumn, currentDraggedElement.id);
+  
+  cleanupTouchDrag();
 }

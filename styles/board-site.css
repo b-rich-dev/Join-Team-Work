@@ -278,6 +278,7 @@ body {
   flex-shrink: 0;
   width: min(18vw, 320px);
   min-width: 180px;
+  min-height: 100%;
 }
 
 .no-tasks-placeholder {
