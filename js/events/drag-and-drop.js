@@ -1,12 +1,15 @@
 import { CWDATA } from "../data/task-to-firbase.js";
 import { updateTaskColumnData } from "../ui/render-board.js";
 import { refreshSummaryIfExists } from "../../main.js";
+import { showTaskMovedMessage } from "../ui/board-feedback.js";
 
 let currentDraggedElement = null;
 let touchStartX = 0;
 let touchStartY = 0;
 let touchClone = null;
 let lastTouchedColumn = null;
+let isDragging = false;
+let touchMoveThreshold = 10;
 
 /** * Initializes the drag-and-drop functionality for task cards.
  * Adds event listeners for drag start, drag end, drag over, drag leave, and drop events.
@@ -17,7 +20,6 @@ export function initDragAndDrop() {
     taskCard.setAttribute("draggable", "true");
     taskCard.addEventListener("dragstart", dragStart);
     taskCard.addEventListener("dragend", dragEnd);
-
     taskCard.addEventListener("touchstart", touchStart, { passive: false });
     taskCard.addEventListener("touchmove", touchMove, { passive: false });
     taskCard.addEventListener("touchend", touchEnd, { passive: false });
@@ -88,12 +90,14 @@ function cleanTaskObject(taskObj) {
   for (const key in taskObj) {
     if (taskObj[key] !== undefined) {
       let value = taskObj[key];
-      
-      // Fix deeply nested arrays (especially updatedAt)
+
       if (Array.isArray(value)) {
-        value = flattenDeepArray(value);
+        const keepAsArray = ['assignedUsers', 'checkedSubtasks', 'totalSubtasks', 'attachments'];
+        if (!keepAsArray.includes(key)) {
+          value = flattenDeepArray(value);
+        }
       }
-      
+
       cleaned[key] = value;
     }
   }
@@ -106,24 +110,14 @@ function cleanTaskObject(taskObj) {
  */
 function flattenDeepArray(arr) {
   if (!Array.isArray(arr)) return arr;
-  
-  // Keep digging until we find a non-array value
+
   let current = arr;
   while (Array.isArray(current) && current.length > 0) {
-    // If it's an array with one element, go deeper
-    if (current.length === 1) {
-      current = current[0];
-    } 
-    // If it's an array with 2 elements where first is 0, take the second
-    else if (current.length === 2 && current[0] === 0) {
-      current = current[1];
-    }
-    // Otherwise return the array as is (it's a valid array like checkedSubtasks)
-    else {
-      return current;
-    }
+    if (current.length === 1) current = current[0];
+    else if (current.length === 2 && current[0] === 0) current = current[1];
+    else return current;
   }
-  
+
   return current;
 }
 
@@ -148,7 +142,7 @@ function updateTaskAfterDragEnd(event) {
     const newColumn = event.target.closest(".task-column");
     const clientColumnId = newColumn ? newColumn.id : task.columnID;
     const firebaseColumnId = mapClientToFirebaseColumnId(clientColumnId);
-    
+
     const updatedTaskObj = cleanTaskObject({
       assignedUsers: task.assignedUsers,
       boardID: task.boardID || "board-1",
@@ -185,8 +179,8 @@ function allowDrop(event) {
  * @param {DragEvent} event
  */
 function dragLeave(event) {
-
   const column = event.target.closest('.column-wrapper');
+
   if (column && !column.contains(event.relatedTarget)) {
     column.classList.remove("drag-over");
   }
@@ -219,25 +213,17 @@ async function handleDropMove(draggedElement, targetColumn, taskId) {
       targetColumn.appendChild(draggedElement);
       if (allData && allData.tasks && allData.tasks[taskId]) {
         const task = allData.tasks[taskId];
-        // Map client column ID to Firebase format before updating
         const firebaseColumnId = mapClientToFirebaseColumnId(newColumnId);
-        
-        // Create a clean copy with only the changed columnID
-        const updatedTask = {
-          ...task,
-          columnID: firebaseColumnId
-        };
-        
-        // Clean the task object
+        const updatedTask = { ...task, columnID: firebaseColumnId };
         const cleanedTask = cleanTaskObject(updatedTask);
-        
-        // Update local data
+
         allData.tasks[taskId] = cleanedTask;
-        
+
         await updateTaskColumnData(taskId, newColumnId);
         CWDATA({ [taskId]: cleanedTask }, allData);
 
-        await refreshSummaryIfExists();
+        await refreshSummaryIfExists();   
+        showTaskMovedMessage();
       }
     }
   }
@@ -262,7 +248,12 @@ function resetTouchDragVisuals(element) {
   element.style.pointerEvents = '';
   element.style.position = '';
   element.style.willChange = '';
+  element.style.transition = '';
+  element.style.backfaceVisibility = '';
+  element.style.webkitBackfaceVisibility = '';
+  element.style.perspective = '';
   element.classList.remove("is-dragging");
+  element.classList.remove("is-dragging-touch");
 }
 
 /** * Applies visual styling during touch drag.
@@ -271,12 +262,16 @@ function resetTouchDragVisuals(element) {
  * @param {number} deltaY - Vertical movement delta.
  */
 function applyTouchDragVisuals(element, deltaX, deltaY) {
-  element.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
-  element.style.opacity = '0.7';
-  element.style.zIndex = '1000';
+  element.style.transform = `translate3d(${deltaX}px, ${deltaY}px, 0) scale(1.05)`;
+  element.style.opacity = '0.95';
+  element.style.zIndex = '9999';
   element.style.pointerEvents = 'none';
   element.style.position = 'relative';
   element.style.willChange = 'transform';
+  element.style.transition = 'none';
+  element.style.backfaceVisibility = 'hidden';
+  element.style.webkitBackfaceVisibility = 'hidden';
+  element.style.perspective = '1000px';
 }
 
 /** * Updates drag-over styling for column under touch point.
@@ -285,7 +280,7 @@ function applyTouchDragVisuals(element, deltaX, deltaY) {
 function updateDragOverColumn(touch) {
   const elementAtPoint = document.elementFromPoint(touch.clientX, touch.clientY);
   const targetColumn = elementAtPoint?.closest('.column-wrapper');
-  
+
   if (targetColumn && targetColumn !== lastTouchedColumn) {
     removeDragOverFromColumns();
     targetColumn.classList.add("drag-over");
@@ -304,6 +299,7 @@ function cleanupTouchDrag() {
   lastTouchedColumn = null;
   touchStartX = 0;
   touchStartY = 0;
+  isDragging = false;
 }
 
 /** * Handles touch start event for mobile drag and drop.
@@ -314,15 +310,11 @@ function touchStart(event) {
   currentDraggedElement = event.target.closest('.task-card');
 
   if (!currentDraggedElement) return;
-
-  event.preventDefault();
+  
+  isDragging = false;
 
   touchStartX = touch.clientX;
   touchStartY = touch.clientY;
-
-  setTimeout(() => {
-    if (currentDraggedElement) { currentDraggedElement.classList.add("is-dragging"); }
-  }, 0);
 }
 
 /** * Handles touch move event for mobile drag and drop.
@@ -330,14 +322,29 @@ function touchStart(event) {
  */
 function touchMove(event) {
   if (!currentDraggedElement) return;
-  event.preventDefault();
+
   const touch = event.touches[0];
-  
   const deltaX = touch.clientX - touchStartX;
   const deltaY = touch.clientY - touchStartY;
-  applyTouchDragVisuals(currentDraggedElement, deltaX, deltaY);
-  
-  updateDragOverColumn(touch);
+  const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+
+  if (!isDragging && distance > touchMoveThreshold) {
+    isDragging = true;
+    if (event.cancelable) event.preventDefault();
+    requestAnimationFrame(() => {
+      if (currentDraggedElement) currentDraggedElement.classList.add("is-dragging-touch");
+    });
+  }
+
+  if (isDragging) {
+    if (event.cancelable) event.preventDefault();
+    
+    requestAnimationFrame(() => {
+      if (!currentDraggedElement) return;
+      applyTouchDragVisuals(currentDraggedElement, deltaX, deltaY);
+      updateDragOverColumn(touch);
+    });
+  }
 }
 
 /** * Handles touch end event for mobile drag and drop.
@@ -345,16 +352,19 @@ function touchMove(event) {
  */
 async function touchEnd(event) {
   if (!currentDraggedElement) return;
-  event.preventDefault();
-  const touch = event.changedTouches[0];
-  
-  resetTouchDragVisuals(currentDraggedElement);
-  
-  const elementAtPoint = document.elementFromPoint(touch.clientX, touch.clientY);
-  const targetWrapper = elementAtPoint?.closest('.column-wrapper');
-  const targetColumn = targetWrapper?.querySelector('.task-column');
-  
-  if (targetColumn) await handleDropMove(currentDraggedElement, targetColumn, currentDraggedElement.id);
-  
+
+  if (isDragging) {
+    if (event.cancelable) event.preventDefault();
+
+    const touch = event.changedTouches[0];
+    const elementAtPoint = document.elementFromPoint(touch.clientX, touch.clientY);
+    const targetWrapper = elementAtPoint?.closest('.column-wrapper');
+    const targetColumn = targetWrapper?.querySelector('.task-column');
+
+    resetTouchDragVisuals(currentDraggedElement);
+
+    if (targetColumn) await handleDropMove(currentDraggedElement, targetColumn, currentDraggedElement.id);
+  }
+
   cleanupTouchDrag();
 }

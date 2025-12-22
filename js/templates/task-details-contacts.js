@@ -65,7 +65,10 @@ export function renderAssignedToContactsWithSelection(contact, assignedContactOb
  */
 function getFilteredContacts(assignedUserIDs, allContactsObject) {
   if (!assignedUserIDs) return [];
-  return assignedUserIDs.map((id) => {
+  
+  const userIDsArray = Array.isArray(assignedUserIDs) ? assignedUserIDs : [assignedUserIDs];
+  
+  return userIDsArray.map((id) => {
     const contact = allContactsObject[id];
     if (contact) return { ...contact, id };
     return null;

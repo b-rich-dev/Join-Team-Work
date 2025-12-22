@@ -4,6 +4,7 @@ import { CWDATA } from "../data/task-to-firbase.js";
 import { closeSpecificOverlay } from "../events/overlay-handler.js";
 import { renderDetailOverlay } from "./render-card-events.js";
 import { refreshSummaryIfExists } from "../../main.js";
+import { showTaskUpdatedMessage } from "./board-feedback.js";
 
 /** * Sets up the cancel button for the edit form overlay.
  * @param {HTMLElement} container - The container element for the edit form.
@@ -93,6 +94,7 @@ function buildEditedTask(taskEditForm, taskToEdit, contactsObj) {
 async function saveEditedTask(taskId, editedTask, fetchData) {
   await CWDATA({ [taskId]: editedTask }, fetchData);
   closeSpecificOverlay("overlay-task-detail-edit");
+  showTaskUpdatedMessage();
 }
 
 /** * Updates the UI after editing the task.

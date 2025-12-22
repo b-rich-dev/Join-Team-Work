@@ -211,6 +211,7 @@ body {
   background-color: var(--white);
   border-radius: 6px;
   padding: 2px 3px 2px 3px;
+  cursor: pointer;
   display: none;
 }
 
@@ -349,4 +350,50 @@ body {
 
 #app-container-board-site {
   overflow: hidden;
+}
+
+.board-feedback-msg {
+  position: fixed;
+  bottom: 132px;
+  left: 50%;
+  transform: translateX(-50%) translateY(200px);
+  background-color: var(--dark);
+  color: var(--white);
+  font-size: clamp(1rem, 2vw, 1.25rem);
+  font-weight: 400;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  z-index: 2000;
+  min-width: 280px;
+  max-width: 90vw;
+  padding: 20px 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  opacity: 0;
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s ease;
+}
+
+.board-feedback-msg.slide-in {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+
+.board-feedback-msg.slide-out {
+  transform: translateX(-50%) translateY(200px);
+  opacity: 0;
+}
+
+.board-feedback-msg.hidden {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .board-feedback-msg {
+    bottom: 160px;
+    min-width: 240px;
+    padding: 16px 24px;
+    font-size: 1rem;
+  }
 }

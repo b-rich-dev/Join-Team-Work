@@ -1,6 +1,7 @@
 import { CWDATA } from "../data/task-to-firbase.js";
 import { closeSpecificOverlay } from "../events/overlay-handler.js";
 import { refreshSummaryIfExists } from "../../main.js";
+import { showTaskDeletedMessage } from "./board-feedback.js";
 
 /** * Sets up the delete button listener in the detail overlay.
  * @param {HTMLElement} detailOverlayElement - The detail overlay DOM element.
@@ -39,6 +40,7 @@ export async function handleDeleteButtonClick(event, boardData, updateBoardFunct
       if (typeof updateBoardFunction === 'function') await updateBoardFunction();
       else window.location.href = "/html/board-site.html";
 
+      showTaskDeletedMessage();
     } catch (e) {
       console.error("Delete failed:", e);
       alert("Deletion failed. Please try again.");
