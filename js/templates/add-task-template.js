@@ -121,7 +121,7 @@ export function renderPrioritySection(task) {
 export function renderAssignedToSection(task) {
     return `<div class="label-container">
                 <label for="select-contacts" class="required font-size-20">Assigned to</label>
-                <div class="select-wrapper input-field" id="dropdown-assigned-to" data-event-handle="true">
+                <div tabindex="0" class="select-wrapper input-field" id="dropdown-assigned-to" data-event-handle="true" role="button" aria-label="Select contacts to assign">
                     <input name="select-contacts" type="text" id="select-contacts" class="contact-input" placeholder="Select contacts to assign" value="${Array.isArray(task?.assignedTo) ? task.assignedTo.join(", ") : ""}" />
                     <div class="dropdown-icon-container" id="dropdown-icon-container-one">
                         <img src="../assets/icons/btn/arrow_drop_down.svg" alt="" aria-hidden="true" class="dropdown-icon" id="dropdown-icon-one" />
@@ -354,8 +354,8 @@ export function renderAttachmentSection(task) {
                         <p>Delete all</p>
                     </button>
                 </div>
-                <label for="attachment-input" class="select-wrapper attachment-input-field" tabindex="0" aria-label="Upload file">
-                    <input type="file" id="attachment-input" accept="image/jpeg, image/png" class="input-field-attachment" data-event-handle="true"/>
+                <label for="attachment-input" class="select-wrapper attachment-input-field" tabindex="0" role="button" aria-label="Upload file">
+                    <input type="file" id="attachment-input" accept="image/jpeg, image/png" class="input-field-attachment" data-event-handle="true" multiple/>
                     <div class="attachment-icon-container">
                         <p>Drag a file or browse</p>
                         <img src="../assets/icons/btn/plus-button-mobile.svg" alt="" aria-hidden="true" class="attachment-icon"/>

@@ -58,6 +58,39 @@ function renderSubtasks(task) {
   return subtasksHtml;
 }
 
+/** * Attaches click event listeners to subtask labels for checkbox updates.
+ */
+function attachSubtaskLabelListeners() {
+  document.querySelectorAll(".subtask-label").forEach((label) => {
+    const checkbox = label.querySelector(".subtask-checkbox");
+    const icon = label.querySelector(".checkbox-icon");
+    if (!checkbox || !icon) return;
+    
+    label.addEventListener("click", function (e) {
+      if (e.target.tagName === "SPAN") return;
+      setTimeout(() => {
+        updateCheckboxIcon(checkbox, icon);
+      }, 0);
+    });
+  });
+}
+
+/** * Updates the checkbox icon based on checked state.
+ * @param {HTMLInputElement} checkbox - The checkbox element.
+ * @param {HTMLElement} icon - The icon element to update.
+ */
+function updateCheckboxIcon(checkbox, icon) {
+  if (checkbox.checked) {
+    icon.src = "../assets/icons/btn/checkbox-filled-white.svg";
+    icon.alt = "checkbox filled";
+    icon.classList.add("checked");
+  } else {
+    icon.src = "../assets/icons/btn/checkbox-empty-black.svg";
+    icon.alt = "checkbox empty";
+    icon.classList.remove("checked");
+  }
+}
+
 /** * Creates the HTML section for the subtasks of a task card.
  * @param {object} task - The task object.
  * @returns {string} The HTML string for the subtasks section.
@@ -65,27 +98,9 @@ function renderSubtasks(task) {
 export function getTaskSubtasksSection(task) {
   const subtasksHtml = renderSubtasks(task);
   if (subtasksHtml === "") return "";
-  setTimeout(() => {
-    document.querySelectorAll(".subtask-label").forEach((label) => {
-      const checkbox = label.querySelector(".subtask-checkbox");
-      const icon = label.querySelector(".checkbox-icon");
-      if (!checkbox || !icon) return;
-      label.addEventListener("click", function (e) {
-        if (e.target.tagName === "SPAN") return;
-        setTimeout(() => {
-          if (checkbox.checked) {
-            icon.src = "../assets/icons/btn/checkbox-filled-white.svg";
-            icon.alt = "checkbox filled";
-            icon.classList.add("checked");
-          } else {
-            icon.src = "../assets/icons/btn/checkbox-empty-black.svg";
-            icon.alt = "checkbox empty";
-            icon.classList.remove("checked");
-          }
-        }, 0);
-      });
-    });
-  }, 0);
+  
+  setTimeout(() => attachSubtaskLabelListeners(), 0);
+  
   return `<div class="taskCardField subtasks-section">
             <p class="subtasks-title">Subtasks:</p>
             <div class="subtaskList">${subtasksHtml}</div>

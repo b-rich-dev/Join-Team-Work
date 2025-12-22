@@ -39,10 +39,27 @@ export function initDropdowns(contactsData) {
 /** Clears the selected assigned contacts in the dropdown.
  */
 function setupCategoryDropdown() {
-  document.getElementById("dropdown-category")?.addEventListener("click", toggleCategoryDropdown);
-  document.getElementById("category-options-container")?.addEventListener("click", (event) => {
+  const dropdown = document.getElementById("dropdown-category");
+  dropdown?.addEventListener("click", toggleCategoryDropdown);
+  dropdown?.addEventListener("keydown", (event) => {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      toggleCategoryDropdown();
+    }
+  });
+  const optionsContainer = document.getElementById("category-options-container");
+  optionsContainer?.addEventListener("click", (event) => {
     if (event.target.classList.contains("option")) {
       setCategory(event.target);
+    }
+  });
+  optionsContainer?.addEventListener("keydown", (event) => {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      event.stopPropagation();
+      if (event.target.classList.contains("option")) {
+        setCategory(event.target);
+      }
     }
   });
 }
@@ -50,9 +67,34 @@ function setupCategoryDropdown() {
 /** Sets up assigned users dropdown event listeners.
  */
 function setupAssignedUsersDropdown() {
-  document.getElementById("dropdown-assigned-to")?.addEventListener("click", toggleAssignedToDropdown);
-  document.getElementById("assigned-to-options-container")?.addEventListener("click", handleContactOptionClick);
+  const dropdown = document.getElementById("dropdown-assigned-to");
+  dropdown?.addEventListener("click", toggleAssignedToDropdown);
+  dropdown?.addEventListener("keydown", (event) => {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      toggleAssignedToDropdown();
+    }
+  });
+  const optionsContainer = document.getElementById("assigned-to-options-container");
+  optionsContainer?.addEventListener("click", handleContactOptionClick);
+  optionsContainer?.addEventListener("keydown", handleContactOptionKeydown);
   setupEscapeKeyListener();
+}
+
+/** Handles keydown on contact option.
+ * @param {KeyboardEvent} event - Keydown event.
+ */
+function handleContactOptionKeydown(event) {
+  if (event.key === "Enter" || event.key === " ") {
+    event.preventDefault();
+    event.stopPropagation();
+    const contactOption = event.target.closest(".contact-option");
+    if (!contactOption) return;
+
+    processContactSelection(contactOption);
+    clearAssignedToValidationError();
+    ensureDropdownOpen();
+  }
 }
 
 /** Handles click on contact option.
@@ -74,7 +116,7 @@ function handleContactOptionClick(event) {
 function processContactSelection(contactOption) {
   const id = contactOption.dataset.id;
   const contact = findContactForOption(id, contactOption.dataset.name, contactOption.dataset.initials);
-  
+
   if (contact) {
     toggleSelectContacts(contactOption, contact.name, contact.initials, contact.avatarColor, contact.avatarImage, id);
   }
@@ -82,17 +124,18 @@ function processContactSelection(contactOption) {
 
 /** Finds contact by ID or by name and initials.
  * @param {string} id - Contact ID.
- * @param {string} name - Contact name.
+ * @param {string} name - Contact name (may contain " (You)").
  * @param {string} initials - Contact initials.
  * @returns {Object|undefined} Contact object.
  */
 function findContactForOption(id, name, initials) {
   let contact = contactsMap.get(id);
-  
+
   if (!contact) {
-    contact = currentContacts.find(c => c.name === name && c.initials === initials);
+    const cleanName = name.replace(' (You)', '');
+    contact = currentContacts.find(c => c.name === cleanName && c.initials === initials);
   }
-  
+
   return contact;
 }
 
@@ -101,7 +144,7 @@ function findContactForOption(id, name, initials) {
 function clearAssignedToValidationError() {
   const invalidArea = document.getElementById("dropdown-assigned-to");
   const assignedUsersError = document.getElementById("assigned-to-error");
-  
+
   if (invalidArea?.classList.contains("invalid")) {
     invalidArea.classList.remove("invalid");
     assignedUsersError?.classList.remove("d-flex");
@@ -121,7 +164,7 @@ function ensureDropdownOpen() {
  */
 function setupEscapeKeyListener() {
   if (window._assignedToEscListener) return;
-  
+
   window._assignedToEscListener = true;
   document.addEventListener("keydown", handleEscapeKey);
 }
@@ -131,10 +174,11 @@ function setupEscapeKeyListener() {
  */
 function handleEscapeKey(event) {
   if (event.key !== "Escape") return;
-  
+
   const wrapper = document.getElementById("assigned-to-options-wrapper");
   if (wrapper?.classList.contains("open-assigned-to")) {
     event.stopPropagation();
+    event.stopImmediatePropagation();
     event.preventDefault();
     closeAssignedToDropdown();
     document.getElementById("dropdown-assigned-to")?.focus();
@@ -251,9 +295,7 @@ export function setCategoryFromTaskForCard(categoryName) {
 function rotateCategoryDropdownIcon() {
   const dropdownIconTwo = document.getElementById("dropdown-icon-two");
 
-  if (dropdownIconTwo) {
-    dropdownIconTwo.classList.toggle("open");
-  }
+  if (dropdownIconTwo) dropdownIconTwo.classList.toggle("open");
 }
 
 /** Sets the assigned contacts based on the task object for the card/edit overlay.
@@ -308,9 +350,7 @@ function getFirebaseContact(idVal) {
 function findContactByName(name) {
   const found = currentContacts.find((c) => c.name === name);
   if (!found && typeof firebaseData === "object" && firebaseData.contacts) {
-    const foundEntry = Object.entries(firebaseData.contacts).find(
-      ([key, c]) => c.name === name
-    );
+    const foundEntry = Object.entries(firebaseData.contacts).find(([key, c]) => c.name === name);
     if (foundEntry) return { ...foundEntry[1], id: foundEntry[0] };
   }
   return found || null;
@@ -327,11 +367,8 @@ function processStringContact(sel) {
     selectedContacts.push(found);
   } else {
     const byName = findContactByName(idVal);
-    if (byName) {
-      selectedContacts.push(byName);
-    } else {
-      console.warn("[Dropdown-Card] Contact not found (ID/Name):", sel);
-    }
+    if (byName) selectedContacts.push(byName);
+    else console.warn("[Dropdown-Card] Contact not found (ID/Name):", sel);
   }
 }
 

@@ -151,6 +151,10 @@ function attachBackgroundClickListener(overlay, overlayId) {
 function attachEscapeKeyListener(overlay, overlayId) {
   document.addEventListener("keydown", async (event) => {
     if (event.key === "Escape" && overlay && !overlay.classList.contains("overlay-hidden")) {
+      
+      const assignedToWrapper = document.getElementById("assigned-to-options-wrapper");
+      if (assignedToWrapper?.classList.contains("open-assigned-to")) return;
+      
       closeSpecificOverlay(overlayId);
       if (overlayId === "overlay-task-detail" || overlayId === "overlay-task-detail-edit" || overlayId === "overlay") {
         await refreshBoardContentOnly();

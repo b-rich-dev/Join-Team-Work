@@ -214,3 +214,4 @@ if (!window.__limitMsgCloseBound) {
 
 window.showWrongFormatErrorMsg = showWrongFormatErrorMsg;
 window.hideWrongFormatErrorMsg = hideWrongFormatErrorMsg;
+window.showSizeLimitErrorMsg = showSizeLimitErrorMsg;

@@ -14,23 +14,19 @@ export function showBoardFeedback(messageType) {
   const message = document.getElementById(messageId);
   if (!message) return;
 
-  // Reset classes
   message.classList.remove('hidden', 'slide-in', 'slide-out');
   
-  // Force reflow
   void message.offsetWidth;
   
-  // Slide in
   requestAnimationFrame(() => {
     message.classList.add('slide-in');
   });
 
-  // Slide out after 2 seconds
+
   setTimeout(() => {
     message.classList.remove('slide-in');
     message.classList.add('slide-out');
     
-    // Hide completely after transition
     setTimeout(() => {
       message.classList.add('hidden');
     }, 400);

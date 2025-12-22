@@ -7,15 +7,26 @@ let handleAttachmentInputChangeRef = null;
  */
 function attachKeyboardSupport(filepicker) {
     const uploadLabel = document.querySelector('label[for="attachment-input"].attachment-input-field');
-    if (uploadLabel && !uploadLabel.dataset.keyboardBound) {
-        uploadLabel.addEventListener('keydown', (event) => {
-            if (event.key === 'Enter' || event.key === ' ') {
-                event.preventDefault();
-                filepicker.click();
-            }
-        });
-        uploadLabel.dataset.keyboardBound = 'true';
+    if (!uploadLabel) return;
+    
+    // Remove old listener if exists
+    if (uploadLabel._keydownHandler) {
+        uploadLabel.removeEventListener('keydown', uploadLabel._keydownHandler);
     }
+    
+    // Create and store the handler
+    uploadLabel._keydownHandler = (event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            event.stopPropagation();
+            const currentFilepicker = document.getElementById("attachment-input");
+            if (currentFilepicker) {
+                currentFilepicker.click();
+            }
+        }
+    };
+    
+    uploadLabel.addEventListener('keydown', uploadLabel._keydownHandler);
 }
 
 /** * Processes files from file input and renders attachments
@@ -86,6 +97,7 @@ function setupGallery(gallery) {
 function destroyGallery() {
     myGallery.destroy();
     myGallery = null;
+    window.myAttachmentGallery = null;
 }
 
 /** * Returns the SVG string for the delete icon
@@ -117,6 +129,9 @@ function createDeleteButton(index) {
     const deletebtn = document.createElement('div');
     deletebtn.innerHTML = deleteIconSVG(index);
     deletebtn.classList.add('delete-attachment-btn');
+    deletebtn.setAttribute('tabindex', '0');
+    deletebtn.setAttribute('role', 'button');
+    deletebtn.setAttribute('aria-label', 'Delete attachment');
     return deletebtn;
 }
 
@@ -129,6 +144,9 @@ function configureAttachmentElement(element, name, index) {
     element.classList.add('attachment-item');
     element.setAttribute('data-tooltip', name);
     element.setAttribute('data-index', index);
+    element.setAttribute('tabindex', '0');
+    element.setAttribute('role', 'button');
+    element.setAttribute('aria-label', `View attachment ${name}. Press Delete to remove`);
 }
 
 /** * Creates and configures the image element for an attachment
@@ -173,6 +191,32 @@ function attachDeleteEvent(deleteBtn, index) {
         e.stopPropagation();
         window.deleteAttachment(index);
     });
+    deleteBtn.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            e.stopPropagation();
+            window.deleteAttachment(index);
+        }
+    });
+}
+
+/** * Attaches keyboard event listeners to the attachment element
+ * @param {HTMLElement} element - The attachment element
+ * @param {HTMLImageElement} imgElement - The image element
+ * @param {number} index - The attachment index
+ */
+function attachKeyboardEvents(element, imgElement, index) {
+    element.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            imgElement.click();
+        } else if (e.key === 'Delete' || e.key === 'Backspace') {
+            e.preventDefault();
+            if (window.deleteAttachment) {
+                window.deleteAttachment(index);
+            }
+        }
+    });
 }
 
 /** * Creates a single attachment element with image, description and delete button
@@ -185,13 +229,15 @@ function createAttachmentElement(image, index, tooltip) {
     const imageElement = document.createElement('div');
     configureAttachmentElement(imageElement, image.name, index);
 
-    imageElement.appendChild(createImageElement(image, index));
+    const imgElement = createImageElement(image, index);
+    imageElement.appendChild(imgElement);
     imageElement.appendChild(createDescriptionElement(image.name));
     const deletebtn = createDeleteButton(index);
     imageElement.appendChild(deletebtn);
 
     attachTooltipEvents(imageElement, tooltip, image.name);
     attachDeleteEvent(deletebtn, index);
+    attachKeyboardEvents(imageElement, imgElement, index);
     return imageElement;
 }
 
@@ -204,95 +250,6 @@ function createAttachmentElements(gallery, tooltip) {
         const element = createAttachmentElement(image, index, tooltip);
         gallery.appendChild(element);
     });
-}
-
-/** * Generates the title string for the viewer based on attachment metadata
- * @param {Object} metadata - The attachment metadata object
- * @returns {string} - The formatted title string
- */
-function generateViewerTitle(metadata) {
-    const name = metadata.name || 'Unknown';
-    const type = metadata.type || '';
-    const size = metadata.size || 0;
-
-    let fileType = 'FILE';
-    if (type && type.includes('/')) fileType = type.split('/')[1]?.toUpperCase() || 'FILE';
-    else if (type) fileType = type.toUpperCase();
-
-    const sizeKB = size > 0 ? (size / 1024).toFixed(2) : '0.00';
-    return `${name}   •   ${fileType}   •   ${sizeKB} KB`;
-}
-
-/** * Creates the title callback function for the Viewer
- * @param {Array} attachmentMetadata - Array of attachment metadata
- * @returns {Function} - The title callback function
- */
-function createViewerTitleCallback(attachmentMetadata) {
-    return (image, imageData) => {
-        let actualIndex = 0;
-        if (image && image.src) {
-            actualIndex = window.taskAttachments.findIndex(att => {
-                const base64 = typeof att === 'string' ? att : att.base64;
-                return base64 === image.src;
-            });
-            if (actualIndex === -1) actualIndex = 0;
-        }
-        return generateViewerTitle(attachmentMetadata[actualIndex] || {});
-    };
-}
-
-/** * Returns the toolbar configuration for the Viewer
- * @returns {Object} - The toolbar configuration object
- */
-function getViewerToolbarConfig() {
-    return {
-        download: { show: 1, size: 'large' },
-        zoomIn: 1, zoomOut: 1, oneToOne: 1, reset: 1,
-        prev: 1, play: { show: 1, size: 'large' }, next: 1,
-        rotateLeft: 1, rotateRight: 1,
-        flipHorizontal: 1, flipVertical: 1,
-        delete: { show: 1, size: 'large' }
-    };
-}
-
-/** * Creates the Viewer configuration object
- * @param {Array} attachmentMetadata - Array of attachment metadata
- * @returns {Object} - The Viewer configuration object
- */
-function createViewerConfig(attachmentMetadata) {
-    return {
-        inline: false,
-        button: true,
-        navbar: true,
-        title: [1, createViewerTitleCallback(attachmentMetadata)],
-        toolbar: getViewerToolbarConfig(),
-        delete: (index) => {
-            window.deleteAttachment(index);
-            if (myGallery) myGallery.hide();
-        },
-        hide() {
-            if (document.activeElement instanceof HTMLElement) {
-                document.activeElement.blur();
-            }
-        }
-    };
-}
-
-/** * Initializes the Viewer instance for the gallery
- * @param {HTMLElement} gallery - The gallery container
- * @param {HTMLElement|null} deleteAllBtn - The delete all button
- */
-function initializeViewer(gallery, deleteAllBtn) {
-    if (window.taskAttachments.length === 0) {
-        if (deleteAllBtn) deleteAllBtn.style.display = 'none';
-        return;
-    }
-
-    if (deleteAllBtn) deleteAllBtn.style.display = 'flex';
-
-    const attachmentMetadata = window.taskAttachments.map(att => ({ name: att.name || 'Unknown', type: att.type || '', size: att.size || 0 }));
-
-    myGallery = new Viewer(gallery, createViewerConfig(attachmentMetadata));
 }
 
 /** * Renders the attachment gallery and initializes the Viewer
@@ -310,7 +267,12 @@ async function renderAttachments() {
     const deleteAllBtn = document.getElementById('delete-all-attachments');
     const { tooltip } = setupGallery(gallery);
     createAttachmentElements(gallery, tooltip);
-    initializeViewer(gallery, deleteAllBtn);
+    
+    if (window.initializeAttachmentViewer) {
+        myGallery = window.initializeAttachmentViewer(gallery, deleteAllBtn);
+    }
+    
+    window.myAttachmentGallery = myGallery;
 }
 
 /** * Attaches the delete all attachments event listener on DOMContentLoaded
@@ -365,10 +327,14 @@ window.initAttachmentDragAndDrop = function () {
     const dropZone = document.querySelector('.select-wrapper.attachment-input-field');
     if (!dropZone) return;
 
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => { dropZone.removeEventListener(eventName, preventDefaults, false); });
+    ['dragenter', 'dragover'].forEach(eventName => { dropZone.removeEventListener(eventName, highlight, false); });
+    ['dragleave', 'drop'].forEach(eventName => { dropZone.removeEventListener(eventName, unhighlight, false); });
+    dropZone.removeEventListener('drop', handleDrop, false);
+
     ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => { dropZone.addEventListener(eventName, preventDefaults, false); });
     ['dragenter', 'dragover'].forEach(eventName => { dropZone.addEventListener(eventName, highlight, false); });
     ['dragleave', 'drop'].forEach(eventName => { dropZone.addEventListener(eventName, unhighlight, false); });
-
     dropZone.addEventListener('drop', handleDrop, false);
 }
 
@@ -378,7 +344,7 @@ window.initAttachmentUI = async function () {
     try {
         await window.waitForElement('#attachment-input', 3000);
         await window.waitForElement('#attachment-list', 3000);
-    } catch (_) { /* Noob */ }
+    } catch (_) { /* Ignored */ }
 
     attachAttachmentListener();
     if (window.initAttachmentDragAndDrop) window.initAttachmentDragAndDrop();

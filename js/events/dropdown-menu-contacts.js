@@ -177,9 +177,15 @@ function updateContactUI(contactElement, isSelected) {
  * @param {Array} filteredContacts - Filtered contacts.
  */
 export function renderFilteredContacts(container, filteredContacts) {
+    const currentUser = sessionStorage.getItem('currentUser');
+    
     filteredContacts.forEach((contact, i) => {
+        const displayName = contact.name === currentUser ? `${contact.name} (You)` : contact.name;
+        const contactId = contact?.id ?? i;
+        
+        contactsMap.set(contactId, contact);
         container.innerHTML += renderAssignedToContacts(
-            i, contact.name, contact.initials, contact.avatarColor, contact.avatarImage
+            contactId, displayName, contact.initials, contact.avatarColor, contact.avatarImage
         );
     });
 }

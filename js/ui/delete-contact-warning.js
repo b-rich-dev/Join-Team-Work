@@ -1,7 +1,3 @@
-/** * Delete Contact Warning Module
- * Handles the confirmation dialog before deleting a contact.
- */
-
 let deleteConfirmCallback = null;
 
 /** * Shows the delete contact warning dialog.

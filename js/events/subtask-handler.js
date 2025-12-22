@@ -25,10 +25,9 @@ function setupSubtaskInputEvents(container) {
     };
     subtaskInput.oninput = () => toggleSubtaskInputIcons(true);
     
-    // Add Enter key handler for subtask input
     subtaskInput.addEventListener("keydown", (event) => {
       if (event.key === "Enter") {
-        event.preventDefault(); // Prevent form submission
+        event.preventDefault();
         addSubtask();
       }
     });
