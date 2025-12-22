@@ -80,9 +80,10 @@ export function getInitials(name) {
  * @param {string} contactData.name - Contact name.
  * @param {string} contactData.email - Contact email.
  * @param {string} contactData.phone - Contact phone number.
+ * @param {object} [contactData.avatarImage] - Optional avatar image data.
  * @returns {Promise<object>} The newly created contact object.
  */
-export async function createContact({ name, email, phone }) {
+export async function createContact({ name, email, phone, avatarImage }) {
     const id = await getNextContactId();
     const contact = {
         id,
@@ -92,6 +93,11 @@ export async function createContact({ name, email, phone }) {
         initials: getInitials(name),
         avatarColor: getRandomAvatarColor()
     };
+    
+    if (avatarImage) {
+        contact.avatarImage = avatarImage;
+    }
+    
     await saveFirebaseData({ path: `contacts/${id}`, data: contact });
     return contact;
 }

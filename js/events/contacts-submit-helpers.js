@@ -1,5 +1,5 @@
 import { createContact, updateContact, getInitials } from './contact-actions.js';
-import { closeOverlay, showContactCreatedMessage } from '../ui/contacts-overlays.js';
+import { closeOverlay, showContactCreatedMessage, showContactEditedMessage } from '../ui/contacts-overlays.js';
 import { setActiveContactId, getContactById, currentlyEditingContact, setCurrentlyEditingContact } from '../data/contacts-state.js';
 import { renderContacts } from '../ui/render-contacts.js';
 import { createContactDetailsHTML } from '../templates/contacts-templates.js';
@@ -112,6 +112,7 @@ export async function persistEditedContact(updatedContact) {
 export async function closeEditOverlayAndRerender() {
   closeOverlay('editContactOverlay', true);
   await renderContacts();
+  showContactEditedMessage();
 }
 
 /** * Retrieves the latest contact by ID from state or returns the provided fallback.

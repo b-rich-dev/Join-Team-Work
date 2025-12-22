@@ -107,7 +107,7 @@ function createViewerContainer(base64Url, contactName) {
  * @returns {Viewer} The configured Viewer instance
  */
 function createContactViewer(container, base64Url, metadata, contactName, contactId) {
-    return new Viewer(container, {
+    const viewer = new Viewer(container, {
         inline: false,
         button: true,
         navbar: false,
@@ -122,9 +122,14 @@ function createContactViewer(container, base64Url, metadata, contactName, contac
         keyboard: true,
         download: () => handleDownload(base64Url, metadata, contactName),
         delete: contactId ? () => handleDelete(contactId, contactName) : undefined,
-        hide: () => handleHide(container),
+        hide: () => {
+            moveFocusAwayFromViewer();
+            handleHide(container);
+        },
         hidden: handleHidden
     });
+    
+    return viewer;
 }
 
 /** * Creates the title string for the viewer.
@@ -247,11 +252,20 @@ async function refreshContactDetailsIfActive(contactId, activeContactId, getCont
     }
 }
 
+/** * Moves focus away from viewer elements to prevent aria-hidden warning.
+ */
+function moveFocusAwayFromViewer() {
+    const viewerContainer = document.querySelector('.viewer-container');
+    if (document.activeElement && viewerContainer?.contains(document.activeElement)) {
+        document.activeElement.blur();
+        document.body.focus();
+    }
+}
+
 /** * Handles hiding the viewer and cleans up the container.
  * @param {HTMLElement} container - The viewer container element
  */
 function handleHide(container) {
-    if (document.activeElement?.blur) document.activeElement.blur();
     setTimeout(() => {
         if (container?.parentNode) container.remove();
     }, 300);

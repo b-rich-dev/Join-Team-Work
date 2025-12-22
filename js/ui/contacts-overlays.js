@@ -52,4 +52,40 @@ export function showContactCreatedMessage() {
   }, 2000);
 }
 
+/** * Displays a "Contact successfully deleted" message for a short duration.
+ */
+export function showContactDeletedMessage() {
+  const message = document.getElementById('contactDeletedMsg');
+  message.classList.remove('hidden', 'slide-in', 'slide-out');
+  void message.offsetWidth;
+  requestAnimationFrame(() => {
+    message.classList.add('slide-in');
+  });
+  setTimeout(() => {
+    message.classList.remove('slide-in');
+    message.classList.add('slide-out');
+    setTimeout(() => {
+      message.classList.add('hidden');
+    }, 400);
+  }, 2000);
+}
+
+/** * Displays a "Contact successfully edited" message for a short duration.
+ */
+export function showContactEditedMessage() {
+  const message = document.getElementById('contactEditedMsg');
+  message.classList.remove('hidden', 'slide-in', 'slide-out');
+  void message.offsetWidth;
+  requestAnimationFrame(() => {
+    message.classList.add('slide-in');
+  });
+  setTimeout(() => {
+    message.classList.remove('slide-in');
+    message.classList.add('slide-out');
+    setTimeout(() => {
+      message.classList.add('hidden');
+    }, 400);
+  }, 2000);
+}
+
 window.closeOverlay = closeOverlay;

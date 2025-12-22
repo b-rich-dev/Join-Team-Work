@@ -64,7 +64,9 @@
     }
 }
 
-#contactSuccessMsg {
+#contactSuccessMsg,
+#contactDeletedMsg,
+#contactEditedMsg {
     position: absolute;
     bottom: 132px;
     left: 32px;
@@ -85,17 +87,23 @@
     transition: transform 0.4s ease, opacity 0.4s ease;
 }
 
-#contactSuccessMsg.slide-in {
+#contactSuccessMsg.slide-in,
+#contactDeletedMsg.slide-in,
+#contactEditedMsg.slide-in {
     transform: translateX(0);
     opacity: 1;
 }
 
-#contactSuccessMsg.slide-out {
+#contactSuccessMsg.slide-out,
+#contactDeletedMsg.slide-out,
+#contactEditedMsg.slide-out {
     transform: translateX(100vw);
     opacity: 0;
 }
 
-#contactSuccessMsg.hidden {
+#contactSuccessMsg.hidden,
+#contactDeletedMsg.hidden,
+#contactEditedMsg.hidden {
     display: none;
 }
 

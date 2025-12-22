@@ -137,7 +137,10 @@ function createGalleryViewer(container, contacts, metadata, isEditMode) {
         keyboard: true,
         download: (url) => handleGalleryDownload(url, container, contacts),
         delete: isEditMode ? () => handleGalleryDelete(contacts) : undefined,
-        hide: () => handleGalleryHide(container),
+        hide: () => {
+            moveFocusAwayFromGalleryViewer();
+            handleGalleryHide(container);
+        },
         hidden: handleGalleryHidden
     });
 }
@@ -269,15 +272,20 @@ async function removeContactFromTaskAssignment(contactId, contactName) {
     await removeContact(contactId, contactName);
 }
 
+/** * Moves focus away from gallery viewer elements to prevent aria-hidden warning.
+ */
+function moveFocusAwayFromGalleryViewer() {
+    const viewerContainer = document.querySelector('.viewer-container');
+    if (document.activeElement && viewerContainer?.contains(document.activeElement)) {
+        document.activeElement.blur();
+        document.body.focus();
+    }
+}
+
 /** * Handles actions when the gallery is being hidden.
  * @param {HTMLElement} container - The gallery container element.
  */
 function handleGalleryHide(container) {
-    // Move focus away from viewer elements before hiding to prevent aria-hidden warning
-    if (document.activeElement && container?.contains(document.activeElement)) {
-        document.body.focus();
-        document.activeElement.blur();
-    }
     setTimeout(() => container?.parentNode && container.remove(), 300);
 }
 

@@ -1,6 +1,6 @@
 import { deleteContact } from './contact-actions.js';
 import { showDeleteContactWarning } from '../ui/delete-contact-warning.js';
-import { openOverlay, closeOverlay } from '../ui/contacts-overlays.js';
+import { openOverlay, closeOverlay, showContactDeletedMessage } from '../ui/contacts-overlays.js';
 import { currentlyEditingContact, setCurrentlyEditingContact, setActiveContactId } from '../data/contacts-state.js';
 import { renderContacts } from '../ui/render-contacts.js';
 import { handleNewContactSubmit, handleEditContactSave } from './contacts-submit-helpers.js';
@@ -140,6 +140,7 @@ async function handleDeleteButton(event) {
         document.querySelector('.contact-details-card').innerHTML = '';
         setActiveContactId(null);
         await renderContacts();
+        showContactDeletedMessage();
         document.body.classList.remove('mobile-contact-visible');
     });
     
@@ -185,6 +186,7 @@ async function handleEditContactDelete() {
         setCurrentlyEditingContact(null);
         closeOverlay('editContactOverlay', true);
         await renderContacts();
+        showContactDeletedMessage();
         document.body.classList.remove('mobile-contact-visible');
     });
 }
