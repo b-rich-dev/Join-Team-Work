@@ -134,6 +134,17 @@ function setupFastAddTaskButtons() {
   const fastAddTaskButtons = document.querySelectorAll('[id^="fast-add-task-"]');
   fastAddTaskButtons.forEach((button) => {
     button.addEventListener("click", async () => {
+      const buttonId = button.id;
+      let columnID = "toDo";
+      
+      if (buttonId.includes("todo")) columnID = "toDo";
+      else if (buttonId.includes("inProgress")) columnID = "inProgress";
+      else if (buttonId.includes("await-feedback")) columnID = "review"; // Firebase uses "review" for await-feedback
+      else if (buttonId.includes("done")) columnID = "done";
+      
+      const { setTargetColumnID } = await import("./add-task.js");
+      setTargetColumnID(columnID);
+      
       await loadAndInitAddTaskOverlay();
       openSpecificOverlay("overlay");
     });

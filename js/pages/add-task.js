@@ -12,6 +12,7 @@ let isResizing = false;
 let startY, startHeight, currentTextarea;
 let overlayPickerInstance;
 let refreshBoardSite = null;
+let targetColumnID = null;
 
 export let fetchData = null;
 
@@ -20,6 +21,19 @@ export let fetchData = null;
  */
 export function setRefreshBoardCallback(refreshCallback) {
   refreshBoardSite = refreshCallback;
+}
+
+/** * Sets the target column ID for the next task to be created
+ * @param {string} columnID - The column ID where the task should be created (toDo, inProgress, review, done)
+ */
+export function setTargetColumnID(columnID) {
+  targetColumnID = columnID;
+}
+
+/** * Clears the target column ID
+ */
+export function clearTargetColumnID() {
+  targetColumnID = null;
 }
 
 /** * Initializes the task view and loads the required data.
@@ -201,7 +215,7 @@ function createTaskObject() {
     assignedUsers,
     boardID: "board-1",
     checkedSubtasks: checked,
-    columnID: "inProgress",
+    columnID: targetColumnID || "toDo",
     createdAt: formattedDate,
     deadline: dueDate,
     description,
@@ -238,6 +252,7 @@ export async function handleCreateTask(event) {
 function hideOverlay(overlay) {
   overlay.classList.add("overlay-hidden");
   overlay.classList.remove("overlay-visible");
+  clearTargetColumnID();
   initAddTaskForm();
 }
 
