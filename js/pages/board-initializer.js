@@ -139,7 +139,7 @@ function setupFastAddTaskButtons() {
       
       if (buttonId.includes("todo")) columnID = "toDo";
       else if (buttonId.includes("inProgress")) columnID = "inProgress";
-      else if (buttonId.includes("await-feedback")) columnID = "review"; // Firebase uses "review" for await-feedback
+      else if (buttonId.includes("await-feedback")) columnID = "review";
       else if (buttonId.includes("done")) columnID = "done";
       
       const { setTargetColumnID } = await import("./add-task.js");
@@ -155,7 +155,9 @@ function setupFastAddTaskButtons() {
  * @param {Event} event - The input event.
  */
 async function handleSearchInput(event) {
-  if (event.target.value.trim() === "") {
+  const trimmedValue = event.target.value.trim();
+  
+  if (trimmedValue === "") {
     try {
       const { loadAndRenderBoard } = await import("../ui/render-board.js");
       await loadAndRenderBoard();
@@ -163,7 +165,7 @@ async function handleSearchInput(event) {
     } catch (error) {
       console.error("Error loading and rendering board:", error);
     }
-  } else {
+  } else if (trimmedValue.length >= 1) {
     filterTaskCardsByTitle();
   }
 }

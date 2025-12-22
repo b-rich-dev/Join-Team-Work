@@ -101,11 +101,9 @@ function updateTaskAfterDragEnd(event) {
  */
 function allowDrop(event) {
   event.preventDefault();
-  if (
-    event.target.classList.contains("task-column") &&
-    !event.target.classList.contains("drag-over")
-  ) {
-    event.target.classList.add("drag-over");
+  const column = event.target.closest('.task-column');
+  if (column && !column.classList.contains("drag-over")) {
+    column.classList.add("drag-over");
   }
 }
 
@@ -114,8 +112,10 @@ function allowDrop(event) {
  * @param {DragEvent} event
  */
 function dragLeave(event) {
-  if (event.target.classList.contains("task-column")) {
-    event.target.classList.remove("drag-over");
+  
+  const column = event.target.closest('.task-column');
+  if (column && !column.contains(event.relatedTarget)) {
+    column.classList.remove("drag-over");
   }
 }
 
