@@ -62,21 +62,51 @@ function handleImageProcessingError(error) {
     alert('Error processing the image.');
 }
 
+/** * Clears any visible avatar error messages.
+ */
+function clearAvatarErrorMessages() {
+    const messages = [
+        document.getElementById('avatarWrongFormatErrorMsg'),
+        document.getElementById('avatarLimitErrorMsg')
+    ];
+    
+    messages.forEach(msg => {
+        if (msg?.classList.contains('slide-in')) {
+            msg.classList.remove('slide-in');
+            msg.classList.add('hidden');
+        }
+    });
+}
+
+/** * Processes and validates avatar image.
+ * @param {File} file - The image file.
+ * @returns {Promise<{base64: string, size: number}|null>} Processed image data or null.
+ */
+async function processAvatarImage(file) {
+    const compressedBase64 = await compressAvatarImage(file, 200, 200, 0.9);
+    const size = base64PayloadBytes(compressedBase64);
+    
+    if (!validateFileSize(size, 1 * 1024 * 1024)) return null;
+    
+    return { base64: compressedBase64, size };
+}
+
 /** * Handles avatar file selection and validation.
  * @param {File} file - The selected image file.
  * @param {HTMLElement} avatarElement - The avatar display element.
  * @returns {Promise<boolean>} True if successful, false otherwise.
  */
 async function handleAvatarFileSelection(file, avatarElement) {
+    clearAvatarErrorMessages();
+    
     if (!validateAndShowError(file)) return false;
 
     try {
-        const compressedBase64 = await compressAvatarImage(file, 200, 200, 0.9);
-        const size = base64PayloadBytes(compressedBase64);
-        if (!validateFileSize(size, 1 * 1024 * 1024)) return false;
+        const result = await processAvatarImage(file);
+        if (!result) return false;
         
-        storeAvatarImage(file, compressedBase64, size);
-        updateAvatarDisplay(avatarElement, compressedBase64);
+        storeAvatarImage(file, result.base64, result.size);
+        updateAvatarDisplay(avatarElement, result.base64);
         return true;
     } catch (error) {
         handleImageProcessingError(error);

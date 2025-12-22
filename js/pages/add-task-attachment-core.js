@@ -33,24 +33,70 @@ function checkRightFormat(file) {
     return true;
 }
 
+/** * Clears any visible attachment error messages.
+ */
+function clearAttachmentErrorMessages() {
+    const messages = [
+        document.getElementById('wrongFormatErrorMsg'),
+        document.getElementById('attachmentLimitErrorMsg')
+    ];
+    
+    messages.forEach(msg => {
+        if (msg?.classList.contains('slide-in')) {
+            msg.classList.remove('slide-in');
+            msg.classList.add('hidden');
+        }
+    });
+}
+
+/** * Compresses and processes attachment file.
+ * @param {File} file - The file to process.
+ * @returns {Promise<{base64: string, size: number, type: string}>} - Processed attachment data.
+ */
+async function processAttachmentFile(file) {
+    const compressedBase64 = await compressImage(file, 800, 800, 0.8);
+    const compressedSize = base64PayloadBytes(compressedBase64);
+    
+    return {
+        base64: compressedBase64,
+        size: compressedSize,
+        type: file.type
+    };
+}
+
+/** * Checks if adding new attachment would exceed size limit.
+ * @param {number} additionalSize - Size of new attachment in bytes.
+ * @returns {boolean} - True if within limit, false otherwise.
+ */
+function checkSizeLimit(additionalSize) {
+    const newTotalBytes = currentAttachmentsBytes() + additionalSize;
+    if (newTotalBytes > MAX_TOTAL_BYTES) {
+        if (window.showSizeLimitErrorMsg) window.showSizeLimitErrorMsg();
+        return false;
+    }
+    return true;
+}
+
 /** * Processes and adds a single file as attachment after validation and compression
  * @param {File} file - The file to process
  * @returns {Promise<boolean>} - True if successful, false otherwise
  */
 async function processAndAddAttachment(file) {
+    clearAttachmentErrorMessages();
+    
     if (!checkRightFormat(file)) return false;
 
-    const blob = new Blob([file], { type: file.type });
-    const compressedBase64 = await compressImage(file, 800, 800, 0.8);
-    const compressedSize = base64PayloadBytes(compressedBase64);
+    const processed = await processAttachmentFile(file);
+    
+    if (!checkSizeLimit(processed.size)) return false;
 
-    const newTotalBytes = currentAttachmentsBytes() + compressedSize;
-    if (newTotalBytes > MAX_TOTAL_BYTES) {
-        if (window.showSizeLimitErrorMsg) window.showSizeLimitErrorMsg();
-        return false;
-    }
-
-    window.taskAttachments.push({ name: file.name, type: blob.type, base64: compressedBase64, size: compressedSize });
+    window.taskAttachments.push({
+        name: file.name,
+        type: processed.type,
+        base64: processed.base64,
+        size: processed.size
+    });
+    
     return true;
 }
 
