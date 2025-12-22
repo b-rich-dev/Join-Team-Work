@@ -170,7 +170,7 @@
         <div class="overlay-content">
             <div class="overlay-left">
                 <div class="overlay-close-mobile-wrapper">
-                    <button class="overlay-close overlay-close-mobile" id="closeOverlayBtnMobile"
+                    <button type="button" class="overlay-close overlay-close-mobile" id="closeOverlayBtnMobile"
                         aria-label="Close overlay">
                         <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"
                             aria-hidden="true">
@@ -258,7 +258,7 @@
                                 <input type="file" id="avatarImageInput" accept="image/png,image/jpeg"
                                     style="display: none;" />
                             </div>
-                            <form class="form-inputs" aria-label="Add new contact form">
+                            <form class="form-inputs" aria-label="Add new contact form" id="newContactForm">
                                 <div class="input-wrapper">
                                     <label for="newContactName"
                                         style="position:absolute;left:-10000px;top:auto;width:1px;height:1px;overflow:hidden;">Name</label>
@@ -329,7 +329,7 @@
         <div class="overlay-content">
             <div class="overlay-left">
                 <div class="overlay-close-mobile-wrapper">
-                    <button class="overlay-close overlay-close-mobile" id="closeEditOverlayBtnMobile"
+                    <button type="button" class="overlay-close overlay-close-mobile" id="closeEditOverlayBtnMobile"
                         aria-label="Close edit overlay">
                         <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"
                             aria-hidden="true">
@@ -361,7 +361,7 @@
                 </svg>
             </div>
             <div class="overlay-right">
-                <button class="overlay-close" id="closeEditOverlayBtn" aria-label="Close edit overlay">
+                <button type="button" class="overlay-close" id="closeEditOverlayBtn" aria-label="Close edit overlay">
                     <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"
                         aria-hidden="true">
                         <path
@@ -412,7 +412,7 @@
                                     style="display: none;" />
                             </div>
                             <div class="form-inputs" aria-label="Edit contact form">
-                                <form>
+                                <form id="editContactForm">
                                     <div class="input-wrapper">
                                         <label for="editNameInput"
                                             style="position:absolute;left:-10000px;top:auto;width:1px;height:1px;overflow:hidden;">Name</label>

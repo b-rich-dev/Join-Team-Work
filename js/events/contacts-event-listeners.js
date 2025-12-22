@@ -100,6 +100,14 @@ function setupCreateContactButton() {
     if (!createBtn) return console.warn('createContactBtn not found');
     createBtn.removeEventListener('click', handleNewContactSubmit);
     createBtn.addEventListener('click', handleNewContactSubmit);
+
+    const newContactForm = document.getElementById('newContactForm');
+    if (newContactForm) {
+        newContactForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            handleNewContactSubmit();
+        });
+    }
 }
 
 /** * Listens globally for clicks that map to back/delete/edit actions within contact cards.
@@ -167,6 +175,14 @@ function setupEditContactForm() {
     const deleteButton = document.getElementById('deleteContactBtn');
     if (saveButton) saveButton.addEventListener('click', handleEditContactSave);
     if (deleteButton) deleteButton.addEventListener('click', handleEditContactDelete);
+    
+    const editContactForm = document.getElementById('editContactForm');
+    if (editContactForm) {
+        editContactForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            handleEditContactSave();
+        });
+    }
 }
 
 /** * Deletes the currently edited contact (relies on global edit state).
