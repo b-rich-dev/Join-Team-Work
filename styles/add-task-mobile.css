@@ -112,6 +112,7 @@
         bottom: 96px;
         left: 40px;
         right: 40px;
+        padding-bottom: unset;
     }
 
     .responsive-div {
