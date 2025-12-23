@@ -35,6 +35,10 @@ function handleLogin(){
  * @returns {Promise<void>}
  */
 async function startValidation(userEmail, userPw) {
+  if (!isValidEmailFormat(userEmail)) {
+    showInvalidEmailFormatError();
+    return;
+  }
   await checkUserInFirebase('users', 'email', userEmail);
   validateLogin(userPw);
 }
@@ -45,7 +49,7 @@ async function startValidation(userEmail, userPw) {
  */
 function validateLogin(userPw) {
   const validEmail = checkEmail();
-  const validPw = validEmail ? validatePassword(userPw) : false;
+  const validPw = validatePassword(userPw);
   
   if (validEmail && validPw) {
     setSessionStorage();
@@ -70,6 +74,9 @@ function checkEmail() {
  * @returns boolean
  */
 function validatePassword(userPw) {
+  if (Object.keys(fetchedUser).length == 0) {
+    return false;
+  }
   const userDetails = Object.values(fetchedUser)[0];
   let foundPassword = userDetails.password == userPw;
   if (!foundPassword) {
@@ -141,7 +148,24 @@ function getInitials(fullName) {
   return first + last;
 }
 
-/** * Shows error message for invalid email
+/** * Validates email format
+ * @param {string} email - The email to validate
+ * @returns {boolean} - True if email format is valid
+ */
+function isValidEmailFormat(email) {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+}
+
+/** * Shows error message for invalid email format
+ */
+function showInvalidEmailFormatError() {
+  document.getElementById('login-email').closest('.input-frame').classList.add('active');
+  document.getElementById('alert-login').textContent = 'Please enter a valid email address.';
+  document.getElementById('alert-login').classList.remove('d-none');
+}
+
+/** * Shows error message for email not found in database
  */
 function showEmailError() {
   document.getElementById('login-email').closest('.input-frame').classList.add('active');
