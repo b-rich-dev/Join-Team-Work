@@ -78,21 +78,6 @@ function validatePassword(userPw) {
   } else return true;
 }
 
-/** * helper function for "validatePasswor"; if user made a typo, he gets a second chance
- * to write the password correctly. If password is still false: -> sign up.
- * @returns boolean
- */
-function tryAgain() {
-  if(secondChance == true) {
-    loginAlert();
-    secondChance = false;
-    return false;
-  } else {
-    blameInvalidInput('alert-login', 'login-email', 'Unkown user. Please sign up');
-    goToPage('html/sign-up.html');
-  }
-}
-
 /** * helper function for "validateLogin"; get user name from "fetchedUser", set name to sessionStorage.
  */
 function setSessionStorage() {
