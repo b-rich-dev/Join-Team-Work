@@ -129,6 +129,7 @@ body {
   height: 122px;
   display: flex;
   justify-content: flex-start;
+  padding-left: 24px;
 }
 
 .sign-up {
@@ -214,6 +215,12 @@ body {
   &:hover,
   &:has(input:focus) {
     border: 1px solid var(--lightBlue);
+  }
+
+  &.active:hover,
+  &.active:has(input:focus),
+  &.active {
+    border: 1px solid var(--redBorder) !important;
   }
 
   >input {
@@ -355,6 +362,7 @@ body {
   }
 }
 
+.input-frame.active,
 .password-frame.active,
 .required.active {
   border: 1px solid var(--redBorder);

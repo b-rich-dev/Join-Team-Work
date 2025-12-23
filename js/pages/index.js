@@ -1,5 +1,4 @@
 let fetchedUser = null;
-let secondChance = true;
 
 sessionStorage.clear();
 
@@ -19,12 +18,14 @@ function removeOverlay() {
 /** * onlick-function of "Login"-button. check whether input fields are filled.
  */
 function handleLogin(){
-  clearRedAlerts();
   const userEmail = document.getElementById('login-email').value.trim();
   const userPw = document.getElementById('login-password').value.trim();
-  if (!userEmail) return blameEmptyInput('login-email', 'alert-login');
-  if (!userPw) return blameEmptyInput('login-password', 'alert');
-  startValidation(userEmail, userPw);
+  const emailValid = !userEmail ? blameEmptyInput('login-email', 'alert-login') : true;
+  const pwValid = !userPw ? blameEmptyInput('login-password', 'alert') : true;
+  
+  if (emailValid && pwValid) {
+    startValidation(userEmail, userPw);
+  }
 }
 
 /** * Validates user credentials by checking email in Firebase and verifying password.
@@ -44,11 +45,12 @@ async function startValidation(userEmail, userPw) {
  */
 function validateLogin(userPw) {
   const validEmail = checkEmail();
-  if (!validEmail) return;
-  const validPw = validatePassword(userPw);
-  if (!validPw) return;
-  setSessionStorage();
-  window.location.href = 'html/summary.html';
+  const validPw = validEmail ? validatePassword(userPw) : false;
+  
+  if (validEmail && validPw) {
+    setSessionStorage();
+    window.location.href = 'html/summary.html';
+  }
 }
 
 /** * helper function for "validateLogin"; if email is not found in database, 
@@ -57,7 +59,8 @@ function validateLogin(userPw) {
  */
 function checkEmail() {
   if (Object.keys(fetchedUser).length == 0) {
-    tryAgain();
+    showEmailError();
+    return false;
   } else return true;
 }
 
@@ -70,7 +73,8 @@ function validatePassword(userPw) {
   const userDetails = Object.values(fetchedUser)[0];
   let foundPassword = userDetails.password == userPw;
   if (!foundPassword) {
-    tryAgain();
+    showPasswordError();
+    return false;
   } else return true;
 }
 
@@ -105,10 +109,18 @@ document.addEventListener('DOMContentLoaded', () => {
   const passwordInput = document.getElementById('login-password');
   
   if (emailInput) {
-    emailInput.addEventListener('focus', clearRedAlerts);
+    emailInput.addEventListener('input', () => {
+      const container = emailInput.closest('.input-frame');
+      if (container) container.classList.remove('active');
+      document.getElementById('alert-login').classList.add('d-none');
+    });
   }
   if (passwordInput) {
-    passwordInput.addEventListener('focus', clearRedAlerts);
+    passwordInput.addEventListener('input', () => {
+      const container = passwordInput.closest('.input-frame');
+      if (container) container.classList.remove('active');
+      document.getElementById('alert').classList.add('d-none');
+    });
   }
 
   const guestLoginBtn = document.getElementById('guest-login-btn');
@@ -142,6 +154,22 @@ function getInitials(fullName) {
   const first = names[0][0]?.toUpperCase();
   const last = names.length > 1 ? names[names.length - 1][0]?.toUpperCase() : '';
   return first + last;
+}
+
+/** * Shows error message for invalid email
+ */
+function showEmailError() {
+  document.getElementById('login-email').closest('.input-frame').classList.add('active');
+  document.getElementById('alert-login').textContent = 'Email not found. Please check your email or sign up.';
+  document.getElementById('alert-login').classList.remove('d-none');
+}
+
+/** * Shows error message for invalid password
+ */
+function showPasswordError() {
+  document.getElementById('login-password').closest('.input-frame').classList.add('active');
+  document.getElementById('alert').textContent = 'Wrong password. Please try again.';
+  document.getElementById('alert').classList.remove('d-none');
 }
 
 /** * helper function for "validateLogin"; show alert message and add red input borders

@@ -25,6 +25,10 @@
     align-items: flex-start;
   }
 
+  .signup-title {
+    padding-left: unset;
+  }
+
   .floating-logo {
     height: 122px;
     width: 64px;
