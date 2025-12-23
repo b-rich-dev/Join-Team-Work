@@ -33,10 +33,10 @@
   max-height: 90vh;
 }
 
-.task-category,
-.category-user-story,
-.category-technical-task,
-.category-meeting {
+#overlay-task-detail .task-category,
+#overlay-task-detail .category-user-story,
+#overlay-task-detail .category-technical-task,
+#overlay-task-detail .category-meeting {
   display: inline-block;
   padding: 6px 18px;
   border-radius: 12px;
@@ -99,19 +99,19 @@
   gap: 10px;
 }
 
-.assigned-section {
+#overlay-task-detail .assigned-section {
   display: flex;
   align-items: center;
   gap: 8px;
   position: relative;
 }
 
-.assigned-list {
+#overlay-task-detail .assigned-list {
   display: flex;
   gap: 8px;
 }
 
-.assigned-initials-circle {
+#overlay-task-detail .assigned-initials-circle {
   width: 36px;
   height: 36px;
   border-radius: 50%;
@@ -125,11 +125,11 @@
   cursor: pointer;
 }
 
-.contact-option:hover+.contact-name {
+#overlay-task-detail .contact-option:hover+.contact-name {
   display: block;
 }
 
-.contact-option {
+#overlay-task-detail .contact-option {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -142,7 +142,7 @@
   position: relative;
 }
 
-.contact-name {
+#overlay-task-detail .contact-name {
   display: none;
   position: absolute;
   top: 60px;

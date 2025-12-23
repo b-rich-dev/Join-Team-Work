@@ -99,6 +99,10 @@
   transform: none;
 }
 
+body[style*="overflow: hidden"] .task-card:hover {
+  transform: none;
+}
+
 .task-category {
   display: inline-block;
   padding: clamp(3px, 0.7vw, 6px) clamp(6px, 1.5vw, 12px);
@@ -333,6 +337,6 @@
 }
 
 .category-meeting {
-  background-color: #ffc107;
-  color: #333;
+  background-color: var(--meetingYellow);
+  color: var(--black);
 }
