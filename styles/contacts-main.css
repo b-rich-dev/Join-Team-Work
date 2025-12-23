@@ -209,12 +209,18 @@ html {
     display: flex;
     flex-direction: column;
     gap: 8px;
+    min-width: 0;
+    flex: 1;
+    overflow: hidden;
 }
 
 .contact-details-name-actions h2 {
     font-size: 47px;
     margin: 0;
     font-weight: 100;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    max-width: 100%;
 }
 
 .contact-details-actions {
