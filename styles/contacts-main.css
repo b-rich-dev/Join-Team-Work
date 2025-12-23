@@ -108,11 +108,18 @@ html {
 .contact-info {
     display: flex;
     flex-direction: column;
+    min-width: 0;
+    flex: 1;
+    overflow: hidden;
 }
 
 .contact-name {
     font-size: 20px;
     font-weight: 400;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
 }
 
 .contact-email {
