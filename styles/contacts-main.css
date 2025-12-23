@@ -285,6 +285,11 @@ html {
         flex-direction: column;
     }
 
+    .contact-details-name-actions h2 {
+        max-width: 90vw;
+        word-break: break-word;
+    }
+
     .contacts-text-separator {
         align-items: flex-start;
         flex-direction: column;
