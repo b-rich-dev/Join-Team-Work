@@ -132,6 +132,11 @@ export function finalizeEditUI(latestContact) {
   const card = document.querySelector('.contact-details-card');
   if (card?.classList.contains('visible')) {
     card.innerHTML = createContactDetailsHTML(latestContact);
+    setActiveContactId(latestContact.id);
+    const contactElement = document.querySelector(`.contact[data-id="${latestContact.id}"]`);
+    if (contactElement) {
+      contactElement.classList.add('active');
+    }
   }
   setCurrentlyEditingContact(null);
 }
