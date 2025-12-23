@@ -199,6 +199,10 @@ html {
     flex-shrink: 0;
     flex-grow: 0;
     aspect-ratio: 1 / 1;
+    background-size: cover !important;
+    background-position: center !important;
+    background-repeat: no-repeat !important;
+    overflow: hidden;
 }
 
 .contact-details-name-actions {
