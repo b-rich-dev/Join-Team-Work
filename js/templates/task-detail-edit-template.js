@@ -252,20 +252,14 @@ function getTaskPriority(form) {
 
 /** * Gets subtasks and their checked status from the form.
  * @param {HTMLFormElement} form - The edit form element.
- * @param {string} taskId - The ID of the task to be edited.
+ * @param {string} taskId - The ID of the task to be edited (not used, kept for compatibility).
  * @returns {{ totalSubtasks: string[], checkedSubtasks: boolean[] }} Subtasks and their checked status.
  */
 function getSubtasksFromForm(form, taskId) {
   const subtaskInputs = form.querySelectorAll(".subtask-input");
   let totalSubtasks = Array.from(subtaskInputs).map((input) => input.value);
   let checkedSubtasks = Array.from(subtaskInputs).map((input) => input.checked);
-  if (totalSubtasks.length === 0 || totalSubtasks.every((v) => v === "")) {
-    const task = window.firebaseData?.tasks?.[taskId];
-    if (task) {
-      totalSubtasks = Array.isArray(task.totalSubtasks) ? [...task.totalSubtasks] : [];
-      checkedSubtasks = Array.isArray(task.checkedSubtasks) ? [...task.checkedSubtasks] : [];
-    }
-  }
+  
   return { totalSubtasks, checkedSubtasks };
 }
 

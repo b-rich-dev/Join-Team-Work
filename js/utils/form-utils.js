@@ -92,9 +92,9 @@ function getSubtasksFromItems(form) {
     .filter((text) => text !== "");
 }
 
-/** * Extracts subtasks from the form, handling various input methods and fallbacks.
+/** * Extracts subtasks from the form, handling various input methods.
  * @param {HTMLFormElement} form - The form element.
- * @param {object} taskToEdit - The original task object for fallback.
+ * @param {object} taskToEdit - The original task object (not used, kept for compatibility).
  * @returns {{totalSubtasks: string[], checkedSubtasks: boolean[]}} The extracted subtasks.
  */
 function extractSubtasks(form, taskToEdit) {
@@ -102,14 +102,12 @@ function extractSubtasks(form, taskToEdit) {
   let checkedSubtasks = Array.from(form.querySelectorAll(".subtask-text")).map(
     (node) => node.classList.contains("completed")
   );
+  
   if (totalSubtasks.length === 0) {
     totalSubtasks = getSubtasksFromTextNodes(form);
     if (totalSubtasks.length === 0) totalSubtasks = getSubtasksFromItems(form);
-    if (totalSubtasks.length === 0) {
-      totalSubtasks = Array.isArray(taskToEdit.totalSubtasks) ? [...taskToEdit.totalSubtasks] : [];
-      checkedSubtasks = Array.isArray(taskToEdit.checkedSubtasks) ? [...taskToEdit.checkedSubtasks] : [];
-    }
   }
+  
   return { totalSubtasks, checkedSubtasks };
 }
 
