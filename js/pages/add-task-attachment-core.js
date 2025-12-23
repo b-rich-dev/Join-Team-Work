@@ -134,16 +134,17 @@ function calculateResizedDimensions(width, height, maxWidth, maxHeight) {
  * @param {HTMLImageElement} img - The image to draw
  * @param {number} width - Target width
  * @param {number} height - Target height
- * @param {number} quality - JPEG quality (0-1)
+ * @param {number} quality - Image quality (0-1)
+ * @param {string} mimeType - MIME type (e.g., 'image/jpeg' or 'image/png')
  * @returns {string} - The Base64 data URL
  */
-function drawImageToCanvas(img, width, height, quality) {
+function drawImageToCanvas(img, width, height, quality, mimeType = 'image/jpeg') {
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
     canvas.width = width;
     canvas.height = height;
     ctx.drawImage(img, 0, 0, width, height);
-    return canvas.toDataURL('image/jpeg', quality);
+    return canvas.toDataURL(mimeType, quality);
 }
 
 /** * Loads an image from a data URL
@@ -163,7 +164,7 @@ function loadImage(dataUrl) {
  * @param {File} file - The file to compress
  * @param {number} maxWidth - Maximum width (default: 800)
  * @param {number} maxHeight - Maximum height (default: 800)
- * @param {number} quality - JPEG quality 0-1 (default: 0.8)
+ * @param {number} quality - Image quality 0-1 (default: 0.8)
  * @returns {Promise<string>} - Promise that resolves with Base64 data URL
  */
 function compressImage(file, maxWidth = 800, maxHeight = 800, quality = 0.8) {
@@ -173,7 +174,8 @@ function compressImage(file, maxWidth = 800, maxHeight = 800, quality = 0.8) {
             try {
                 const img = await loadImage(event.target.result);
                 const dimensions = calculateResizedDimensions(img.width, img.height, maxWidth, maxHeight);
-                const compressedBase64 = drawImageToCanvas(img, dimensions.width, dimensions.height, quality);
+                const mimeType = file.type === 'image/png' ? 'image/png' : 'image/jpeg';
+                const compressedBase64 = drawImageToCanvas(img, dimensions.width, dimensions.height, quality, mimeType);
                 resolve(compressedBase64);
             } catch (error) { reject(error); }
         };
