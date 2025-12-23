@@ -31,10 +31,14 @@ function startValidation() {
 function handleEmptyInputs(nameToCheck, emailToCheck) {
   const nameValid = blameEmptyInput("new-name", "no-name");
   const emailValid = blameEmptyInput("new-email", "no-email");
+  const password1Valid = blameEmptyInput("password-first", "alert-pw1");
+  const password2Valid = blameEmptyInput("password-second", "alert-pw2");
+  
   document.getElementById('no-email').innerText ="Please enter your email address";
-  if (nameValid && emailValid) {
-    validateInputs(nameToCheck, emailToCheck);
-  }
+  document.getElementById('alert-pw1').innerText ="Please enter your password";
+  document.getElementById('alert-pw2').innerText ="Please repeat your password";
+  
+  validateInputs(nameToCheck, emailToCheck);
 }
 
 /** * helper function for "handleEmptyInputs"; signup-validation:
@@ -43,15 +47,51 @@ function handleEmptyInputs(nameToCheck, emailToCheck) {
  * @param {string} newEmail - value from user input
  */
 function validateInputs(newName, newEmail) {
-  if(!newName) return;
-  const validName = validateNamePattern(newName);
-  if(!validName) return;
-  if (!newEmail) return;
-  const validEmail = validateEmailPattern(newEmail);
-  if (!validEmail) return;
-  const passwordsMatch = passwordLength();
-  if (!passwordsMatch) return;
-  checkUserData(newName, newEmail);
+  const validName = validateName(newName);
+  const validEmail = validateEmail(newEmail);
+  const validPasswords = validatePasswords();
+  const checkboxValid = validateCheckbox();
+  
+  if (validName && validEmail && validPasswords && checkboxValid) {
+    checkUserData(newName, newEmail);
+  }
+}
+
+/** * Validates the name field
+ * @param {string} newName - value from user input
+ * @returns {boolean} - true if valid, false otherwise
+ */
+function validateName(newName) {
+  if (!newName) return false;
+  return validateNamePattern(newName);
+}
+
+/** * Validates the email field
+ * @param {string} newEmail - value from user input
+ * @returns {boolean} - true if valid, false otherwise
+ */
+function validateEmail(newEmail) {
+  if (!newEmail) return false;
+  return validateEmailPattern(newEmail);
+}
+
+/** * Validates both password fields
+ * @returns {boolean} - true if valid, false otherwise
+ */
+function validatePasswords() {
+  return passwordLength();
+}
+
+/** * Validates if the privacy policy checkbox is checked
+ * @returns {boolean} - true if checked, false otherwise
+ */
+function validateCheckbox() {
+  const isChecked = document.getElementById("unchecked").classList.contains("d-none");
+  if (!isChecked) {
+    document.getElementById('no-privPolicy').classList.remove("d-none");
+    return false;
+  }
+  return true;
 }
 
 /** * helper function for "validateInputs". check for valid pattern (all unicode letter signs ok); if invalid: show red alerts
