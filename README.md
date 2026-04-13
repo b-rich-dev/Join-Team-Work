@@ -56,7 +56,40 @@ You can open `index.html` directly in your browser, or use a local server for de
 5. View summary metrics and deadlines on the summary page
 6. Manage contacts for collaboration
 
-### 5. Development & Customization
+### 5. Quick Commit & Push with `up.bat`
+
+`up.bat` is a Windows batch script that automates the full Git workflow in one step:
+
+```
+git pull → git add . → git commit → git push → git ftp push
+```
+
+**Installation (one-time setup):**
+
+1. Make sure **Git** is installed: https://git-scm.com
+2. Install **git-ftp** (only required if FTP deployment is used):
+   ```bash
+   git config --global git-ftp.url "ftp://your-server.com"
+   git config --global git-ftp.user "your-username"
+   git config --global git-ftp.password "your-password"
+   ```
+   Installation guide: https://github.com/git-ftp/git-ftp
+3. The script must be located in the project root directory (already present).
+
+**Usage:**
+
+Open a Command Prompt (CMD) in the project directory and run:
+
+```cmd
+up.bat "Your commit message"
+```
+
+Example:
+```cmd
+up.bat "fix: correct login validation"
+```
+
+### 6. Development & Customization
 
 - All logic is written in modular JavaScript files under `js/`
 - Customize styles in the `styles/` folder
